@@ -56,7 +56,8 @@ export function formatReason(
   language: Language,
   variable?: string,
 ): string {
-  if (!reason || !catalog) return ''
+  // DATA only repeats the value of a variable without state, and it is not re-sent when the value changes.
+  if (!reason || !catalog || reason.code === 'DATA') return ''
   const template = catalog.reasons[reason.code] ?? reason.code
   const info = variable ? catalog.variables[variable] : undefined
   const params: Record<string, string> = { ...reason.params }

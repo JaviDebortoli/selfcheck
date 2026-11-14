@@ -58,7 +58,9 @@ export function EcgMonitor({ heartRate, rhythm, colorVar, height = 220, compact 
     let previous = performance.now()
 
     const resize = () => {
-      const ratio = window.devicePixelRatio || 1
+      // Draw at the scaled size (CSS zoom from useFitScale) so the trace stays sharp.
+      const zoom = parseFloat(getComputedStyle(canvas).getPropertyValue('--fit-scale')) || 1
+      const ratio = (window.devicePixelRatio || 1) * zoom
       canvas.width = canvas.clientWidth * ratio
       canvas.height = canvas.clientHeight * ratio
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)

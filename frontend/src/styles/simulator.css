@@ -1,6 +1,10 @@
 /* Simulator control screen (spec section 8.4). Not part of the prototypes: same tokens and card style. */
 .simulator-control {
   display: grid;
+  width: 100%;
+  max-width: 1600px;
+  min-width: 1100px;
+  margin: 0 auto;
   grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr) minmax(0, 2.2fr);
   gap: 16px;
   padding: 16px 24px 24px;

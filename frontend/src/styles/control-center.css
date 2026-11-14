@@ -7,6 +7,8 @@
   padding: 20px 24px 32px;
   width: 100%;
   max-width: 1920px;
+  /* Below the scaling range the page scrolls instead of moving panels around. */
+  min-width: 1600px;
   margin: 0 auto;
 }
 
@@ -364,7 +366,7 @@
 }
 .cc-modal {
   width: min(640px, calc(100% - 32px));
-  max-height: 86vh;
+  max-height: calc(86vh / var(--fit-scale, 1));
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -394,27 +396,4 @@
   padding-left: 16px;
   text-align: right;
   font-weight: 600;
-}
-
-/* Narrower than the target station: stack the side column under the rest. */
-@media (max-width: 1400px) {
-  .control-center {
-    grid-template-columns: 260px minmax(0, 1fr);
-  }
-  .cc-side {
-    grid-column: 1 / -1;
-    position: static;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 900px) {
-  .control-center {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .cc-groups,
-  .cc-side,
-  .cc-vitals {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

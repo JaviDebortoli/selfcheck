@@ -175,7 +175,8 @@ select.chip {
 
 /* ---- layout ---- */
 .app {
-  min-height: 100vh;
+  /* The app is scaled with CSS zoom (useFitScale); viewport units are divided by the scale to keep fitting. */
+  min-height: calc(100vh / var(--fit-scale, 1));
   display: flex;
   flex-direction: column;
 }
@@ -220,6 +221,10 @@ select.chip {
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+.topbar-title {
+  min-width: 0;
+  white-space: nowrap;
+}
 .topbar-title h1 {
   font-size: 1.25rem;
 }
@@ -232,6 +237,7 @@ select.chip {
   margin-left: auto;
 }
 .screen-nav a {
+  white-space: nowrap;
   padding: 6px 10px;
   border-radius: var(--r-sm);
   color: var(--text-2);
@@ -286,7 +292,7 @@ select.chip {
 }
 .sheet {
   width: min(1100px, 100%);
-  max-height: 72vh;
+  max-height: calc(72vh / var(--fit-scale, 1));
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--border);

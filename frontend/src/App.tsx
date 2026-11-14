@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useCatalog } from './api/catalog'
 import { useMission } from './api/useMission'
 import { AppHeader } from './components/AppHeader'
 import { ui, type Language } from './i18n/ui'
+import { useFitScale, type FitRange } from './lib/useFitScale'
 import { ControlCenter } from './views/ControlCenter'
 import { QuickView } from './views/QuickView'
 import { SimulatorControl } from './views/SimulatorControl'
 
 export type Screen = 'quick' | 'control' | 'simulator'
 export type Theme = 'dark' | 'light'
+
+/** Design canvas of each screen and how far it may be scaled (see useFitScale). */
+const FIT: Record<Screen, FitRange> = {
+  quick: { width: 1280, height: 800, min: 0.9, max: 1.6 },
+  simulator: { width: 1280, height: 800, min: 0.9, max: 1.6 },
+  control: { width: 1920, height: 1080, min: 0.75, max: 1.5 },
+}
 
 function screenFromHash(): Screen {
   const hash = window.location.hash.replace(/^#\/?/, '')
@@ -40,6 +48,7 @@ export function App() {
   const [theme, setTheme] = useState<Theme>(() => stored('selfcheck.theme', 'dark', ['dark', 'light']))
   const [crewMemberId, setCrewMemberId] = useState('crew-1')
   const catalog = useCatalog(language)
+  const scale = useFitScale(FIT[screen])
   const t = ui(language)
 
   useEffect(() => {
@@ -72,7 +81,7 @@ export function App() {
   }[screen]
 
   return (
-    <div className={`app screen-${screen}`}>
+    <div className={`app screen-${screen}`} style={{ zoom: scale, '--fit-scale': scale } as CSSProperties}>
       <AppHeader
         t={t}
         {...header}

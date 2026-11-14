@@ -1,6 +1,13 @@
 /* Quick view (spec section 8.2): 1280x800, no empty spaces. Main panel 2x2, then 8 cards. */
 .quick-view {
   flex: 1;
+  /* Upper bound of the range: beyond it the cards stop growing and the grid stays centered. */
+  width: 100%;
+  max-width: 1600px;
+  max-height: 1000px;
+  /* Below the scaling range the page scrolls; the cards never change place. */
+  min-width: 1180px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(220px, 1fr));
@@ -246,6 +253,10 @@
 .bar-label {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
+}
+.bar-label strong {
+  white-space: nowrap;
   margin-bottom: 4px;
 }
 .bar-track {
