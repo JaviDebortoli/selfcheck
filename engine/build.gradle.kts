@@ -20,6 +20,8 @@ dependencies {
     implementation("org.apache.kafka:kafka-streams")
     implementation(libs.confluent.streams.avro.serde)
 
+    testImplementation("org.apache.kafka:kafka-streams-test-utils")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
