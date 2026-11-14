@@ -82,6 +82,23 @@ class HistoryRepository(private val jdbc: JdbcTemplate, private val json: Object
         Triple(subjectId, if (subjectId == Topics.HABITAT_ID) "HABITAT" else "CREW_MEMBER", view)
     }
 
+    /**
+     * Daily means of every variable of a subject since [fromMissionTimeMs], for the trend sparklines.
+     * Buckets are mission days (TimescaleDB time_bucket over the mission-time column).
+     */
+    fun dailyMeans(subjectId: String, fromMissionTimeMs: Long): Map<String, List<DailyPoint>> = jdbc.query(
+        """
+        SELECT variable, time_bucket($DAY_MS, mission_time_ms) AS day_start, avg(value) AS value
+        FROM measurement
+        WHERE subject_id = ? AND mission_time_ms >= ?
+        GROUP BY variable, day_start
+        ORDER BY variable, day_start
+        """.trimIndent(),
+        { rs, _ -> rs.getString("variable") to DailyPoint(rs.getLong("day_start") / DAY_MS + 1, rs.getDouble("value")) },
+        subjectId,
+        fromMissionTimeMs,
+    ).groupBy({ it.first }, { it.second })
+
     /** Empties every history table (mission reset). */
     fun clear() {
         jdbc.execute("TRUNCATE measurement, variable_state, summary_state, alert")
@@ -89,5 +106,9 @@ class HistoryRepository(private val jdbc: JdbcTemplate, private val json: Object
 
     companion object {
         const val BATCH_SIZE = 500
+        const val DAY_MS = 86_400_000L
     }
 }
+
+/** Mean value of one mission day (day 1 is the first). */
+data class DailyPoint(val day: Long, val value: Double)
