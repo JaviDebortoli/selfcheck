@@ -1,0 +1,19 @@
+[versions]
+kotlin = "2.2.21"
+spring-boot = "3.5.16"
+spring-dependency-management = "1.1.7"
+avro = "1.11.4"
+avro-plugin = "1.9.1"
+confluent = "7.9.11"
+
+[libraries]
+avro = { module = "org.apache.avro:avro", version.ref = "avro" }
+confluent-avro-serializer = { module = "io.confluent:kafka-avro-serializer", version.ref = "confluent" }
+confluent-streams-avro-serde = { module = "io.confluent:kafka-streams-avro-serde", version.ref = "confluent" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+avro = { id = "com.github.davidmc24.gradle.plugin.avro", version.ref = "avro-plugin" }
