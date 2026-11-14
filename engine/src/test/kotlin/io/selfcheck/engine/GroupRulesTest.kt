@@ -219,4 +219,20 @@ class GroupRulesTest {
         assertEquals(2, engine.alerts.size)
         assertEquals(ALERT, engine.stateOf(Variable.HEART_RATE))
     }
+
+    @Test
+    fun `a newer mission epoch resets the engine and older epochs are dropped, in any arrival order`() {
+        engine.send(measurement(Variable.HEART_RATE, 140.0, 5 * DAY), epoch = 1)
+        assertEquals(ALERT, engine.stateOf(Variable.HEART_RATE))
+
+        // The new mission's first measurement arrives before any reset command.
+        engine.send(measurement(Variable.HEART_RATE, 70.0, 8 * HOUR), epoch = 2)
+        assertEquals(NORMAL, engine.stateOf(Variable.HEART_RATE))
+        assertEquals("2", engine.stateRecordEpoch())
+
+        // A delayed measurement of the old mission is ignored.
+        val before = engine.states.size
+        engine.send(measurement(Variable.HEART_RATE, 150.0, 9 * HOUR), epoch = 1)
+        assertEquals(before, engine.states.size)
+    }
 }

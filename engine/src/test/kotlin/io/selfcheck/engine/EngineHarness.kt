@@ -99,16 +99,27 @@ class EngineHarness : AutoCloseable {
         collect()
     }
 
-    fun send(m: Measurement) {
+    fun send(m: Measurement, epoch: Long? = null) {
         measurements += m
-        measurementInput.pipeInput(m.subjectId, m)
+        val record = org.apache.kafka.streams.test.TestRecord(m.subjectId, m)
+        epoch?.let { record.headers().add(Topics.EPOCH_HEADER, it.toString().toByteArray()) }
+        measurementInput.pipeInput(record)
         collect()
     }
 
+    /** Epoch header of the latest variable state published. */
+    var lastStateEpoch: String? = null
+        private set
+
+    fun stateRecordEpoch(): String? = lastStateEpoch
+
     private fun collect() {
         outputs.forEach { topic ->
-            topic.readValuesToList().forEach {
-                when (it) {
+            topic.readRecordsToList().forEach { record ->
+                if (record.value() is VariableState) {
+                    lastStateEpoch = record.headers().lastHeader(Topics.EPOCH_HEADER)?.value()?.decodeToString()
+                }
+                when (val it = record.value()) {
                     is VariableState -> states += it
                     is SummaryState -> summaries += it
                     is Alert -> alerts += it

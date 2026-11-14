@@ -23,6 +23,8 @@ import io.selfcheck.engine.rules.Summarizer
 import io.selfcheck.engine.rules.VariableRuntime
 import io.selfcheck.knowledge.RuleCatalog
 import org.apache.avro.specific.SpecificRecord
+import org.apache.kafka.common.header.internals.RecordHeaders
+import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
 import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.processor.api.Record
@@ -50,17 +52,53 @@ class SubjectProcessor(
     /** Next mission time at which values are checked for expiry. Mission time, never wall-clock time. */
     private var nextExpiryCheckAt = Long.MIN_VALUE
 
+    /**
+     * Working copy of every subject. The state store is written in the background (write-behind) so an
+     * accelerated mission does not pay a JSON round trip per measurement.
+     */
+    private val cache = HashMap<String, SubjectRuntime>()
+    private val dirty = HashSet<String>()
+
+    /** Mission epoch being processed (Kafka header); records of an older epoch are dropped. */
+    private var epoch = Long.MIN_VALUE
+
     override fun init(context: ProcessorContext<String, SpecificRecord>) {
         this.context = context
         subjects = context.getStateStore(EngineTopology.SUBJECT_STORE)
         profiles = context.getStateStore(EngineTopology.PROFILE_STORE)
         histories = context.getStateStore(EngineTopology.HISTORY_STORE)
+        epoch = subjects.get(EPOCH_KEY)?.lastMissionTimeMs ?: Long.MIN_VALUE
+        // Persistence only (not a decision), so wall-clock time is fine here.
+        context.schedule(FLUSH_INTERVAL, PunctuationType.WALL_CLOCK_TIME) { flush() }
+    }
+
+    override fun close() = flush()
+
+    private fun load(subjectId: String): SubjectRuntime? = cache[subjectId] ?: subjects.get(subjectId)?.also { cache[subjectId] = it }
+
+    private fun save(runtime: SubjectRuntime) {
+        cache[runtime.subjectId] = runtime
+        dirty += runtime.subjectId
+    }
+
+    private fun flush() {
+        dirty.forEach { id -> cache[id]?.let { subjects.put(id, it) } }
+        dirty.clear()
     }
 
     override fun process(record: Record<String, SpecificRecord>) {
+        val recordEpoch = record.headers().lastHeader(Topics.EPOCH_HEADER)?.value()?.decodeToString()?.toLongOrNull()
+        if (recordEpoch != null && recordEpoch < epoch) return // a previous mission, delayed
+        if (recordEpoch != null && recordEpoch > epoch) {
+            // A new or reset mission, whether its reset command or its first measurement arrives first.
+            reset()
+            epoch = recordEpoch
+            subjects.put(EPOCH_KEY, SubjectRuntime(SubjectType.HABITAT, EPOCH_KEY, lastMissionTimeMs = recordEpoch))
+        }
         when (val value = record.value()) {
             is Measurement -> process(value)
-            is MissionControl -> if (value.command == ControlCommand.RESET) reset()
+            // A reset command without an epoch (tests, manual use) still clears the mission.
+            is MissionControl -> if (value.command == ControlCommand.RESET && recordEpoch == null) reset()
             else -> Unit
         }
     }
@@ -70,6 +108,8 @@ class SubjectProcessor(
      * so the state does not come back after a restart.
      */
     private fun reset() {
+        cache.clear()
+        dirty.clear()
         val keys = subjects.all().use { iterator -> iterator.asSequence().map { it.key }.toList() }
         keys.forEach(subjects::delete)
         nextExpiryCheckAt = Long.MIN_VALUE
@@ -78,7 +118,7 @@ class SubjectProcessor(
 
     private fun process(measurement: Measurement) {
         val subjectId = measurement.subjectId
-        val runtime = subjects.get(subjectId) ?: SubjectRuntime(measurement.subjectType, subjectId)
+        val runtime = load(subjectId) ?: SubjectRuntime(measurement.subjectType, subjectId)
         val now = measurement.missionTimeMs
 
         if (now < runtime.lastMissionTimeMs) {
@@ -101,7 +141,7 @@ class SubjectProcessor(
         }
         publishCombinations(runtime, now)
         publishSummaries(runtime, now)
-        subjects.put(subjectId, runtime)
+        save(runtime)
 
         // Expiry follows the mission time carried by the records, so it stops while the simulator is paused
         // and starts over after a reset (stream time in Kafka Streams never goes back).
@@ -159,9 +199,8 @@ class SubjectProcessor(
     /** A value older than its rule's expiry is NOT_EVALUABLE (spec section 7.2). */
     private fun expireStaleValues(missionNow: Long) {
         val changed = mutableListOf<SubjectRuntime>()
-        subjects.all().use { iterator ->
-            iterator.forEachRemaining { entry ->
-                val runtime = entry.value
+        run {
+            cache.values.toList().forEach { runtime ->
                 var touched = false
                 for ((variable, current) in runtime.variables.toMap()) {
                     val definition = catalog[variable] ?: continue
@@ -181,15 +220,20 @@ class SubjectProcessor(
         }
         changed.forEach { runtime ->
             publishSummaries(runtime, missionNow)
-            subjects.put(runtime.subjectId, runtime)
+            save(runtime)
         }
     }
 
     private fun forward(key: String, value: SpecificRecord, timestamp: Long) {
-        context.forward(Record(key, value, timestamp))
+        val headers = RecordHeaders().apply { if (epoch != Long.MIN_VALUE) add(Topics.EPOCH_HEADER, epoch.toString().toByteArray()) }
+        context.forward(Record(key, value, timestamp, headers))
     }
 
     companion object {
         val EXPIRY_CHECK_INTERVAL: Duration = Duration.ofSeconds(5)
+        val FLUSH_INTERVAL: Duration = Duration.ofSeconds(1)
+
+        /** Store key holding the current mission epoch (in lastMissionTimeMs). */
+        const val EPOCH_KEY = "__mission_epoch"
     }
 }

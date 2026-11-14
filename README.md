@@ -62,6 +62,8 @@ simulator ──► Kafka ──► engine (Kafka Streams) ──► Kafka ─�
 message; every rule window (CO2 1-hour mean, noise 16/8-hour means, 3 nights of sleep, creatinine 48 h/7 days, expiry)
 is counted in mission time. That lets the demo show in minutes what the rules watch over hours or days. Pausing stops
 time without marking data as missing; resetting clears Kafka, the engine state and the database and starts day 1 again.
+Every record carries a *mission epoch* header that grows with each new or reset mission, so the engine and the api
+drop anything left over from a previous mission whatever order records arrive in.
 
 **Codes, not sentences.** The backend sends reason codes with parameters (`HIGH`, `{value: 38.6, condition: ">= 38.0"}`);
 the frontend translates them with the catalog of the chosen language, built from the texts next to each rule.

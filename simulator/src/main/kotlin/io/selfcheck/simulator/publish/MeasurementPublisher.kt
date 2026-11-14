@@ -19,16 +19,26 @@ import io.selfcheck.contracts.SubjectType
 import io.selfcheck.contracts.Topics
 import io.selfcheck.contracts.Variable
 import io.selfcheck.simulator.crew.CrewMember
+import io.selfcheck.simulator.mission.MissionEpoch
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.avro.specific.SpecificRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
 /** Builds the Avro events and sends them to Kafka. Every event carries the mission time. */
 @Component
-class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificRecord>) {
+class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificRecord>, private val epoch: MissionEpoch) {
+
+    /** Every record carries the mission epoch header so consumers can tell missions apart. */
+    private fun send(topic: String, key: String, value: SpecificRecord) =
+        kafka.send(
+            ProducerRecord<String, SpecificRecord>(topic, key, value).apply {
+                headers().add(Topics.EPOCH_HEADER, epoch.value.toString().toByteArray())
+            },
+        )
 
     fun publishProfile(environment: MissionEnvironment, plannedDurationDays: Int, missionTimeMs: Long) {
-        kafka.send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, MissionProfile(environment, plannedDurationDays, missionTimeMs))
+        send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, MissionProfile(environment, plannedDurationDays, missionTimeMs))
     }
 
     fun publishHistory(member: CrewMember, missionTimeMs: Long) {
@@ -42,12 +52,12 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
             DailyTargets(member.dailyCaloriesKcal, member.dailyFluidsMl, member.dailyActivityMinutes),
             missionTimeMs,
         )
-        kafka.send(Topics.MEDICAL_HISTORY, member.id, history)
+        send(Topics.MEDICAL_HISTORY, member.id, history)
     }
 
     /** Sends a control command and waits until Kafka has it. */
     fun publishControl(command: ControlCommand) {
-        kafka.send(Topics.CONTROL, Topics.MISSION_KEY, MissionControl(command)).get()
+        send(Topics.CONTROL, Topics.MISSION_KEY, MissionControl(command)).get()
     }
 
     fun flush() = kafka.flush()
@@ -81,6 +91,6 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
             .setBoneMarker(boneMarker)
             .setReferenceRange(referenceRange?.let { ReferenceRange(it.first, it.second) })
             .build()
-        kafka.send(Topics.MEASUREMENTS, subjectId, measurement)
+        send(Topics.MEASUREMENTS, subjectId, measurement)
     }
 }

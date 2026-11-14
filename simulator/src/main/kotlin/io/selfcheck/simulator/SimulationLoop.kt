@@ -20,9 +20,6 @@ import io.selfcheck.simulator.scenario.ActiveScenario
 import io.selfcheck.simulator.scenario.ScenarioRunner
 import io.selfcheck.simulator.scenario.ScenarioTarget
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
@@ -42,7 +39,6 @@ class SimulationLoop(
     private val scenarios: ScenarioRunner,
     private val overrides: Overrides,
     private val publisher: MeasurementPublisher,
-    @Value("\${selfcheck.simulator.autostart:true}") private val autostart: Boolean,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val units = RuleCatalog.load().variables.mapValues { it.value.unit }
@@ -58,13 +54,6 @@ class SimulationLoop(
 
     val environment: MissionEnvironment get() = currentEnvironment
     val plannedDurationDays: Int get() = MissionSettings.of(currentEnvironment).plannedDurationDays
-
-    @EventListener(ApplicationReadyEvent::class)
-    fun onReady() {
-        clock.reset(MissionSettings.START_TIME_MS)
-        startMission()
-        if (!autostart) clock.pause()
-    }
 
     /** Day 1: mission profile, medical histories and an initial round of every daily and periodic measurement. */
     @Synchronized

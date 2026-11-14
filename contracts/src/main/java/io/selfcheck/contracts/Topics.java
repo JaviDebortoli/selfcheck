@@ -28,6 +28,12 @@ public final class Topics {
     /** {@link MissionControl} commands from the simulator's control API, keyed by {@link #MISSION_KEY}. */
     public static final String CONTROL = "selfcheck.control";
 
+    /**
+     * Kafka header carrying the mission epoch (decimal text): a number that grows with every new or reset mission.
+     * Consumers drop records of an older epoch and clear their state on a newer one, whatever order records arrive in.
+     */
+    public static final String EPOCH_HEADER = "selfcheck-epoch";
+
     /** Record key of the single mission profile. */
     public static final String MISSION_KEY = "mission";
 

@@ -18,6 +18,7 @@ class SnapshotStore {
 
     private val lock = Any()
     private var version = 0L
+    private var clears = 0L
     private var missionTimeMs = 0L
     private var mission = MissionView(null, null)
     private val crew = sortedMapOf<String, CrewMemberView>()
@@ -125,8 +126,12 @@ class SnapshotStore {
         while (alerts.size > MAX_ALERTS) alerts.removeLast()
     }
 
+    /** Grows every time the snapshot is cleared, so a caller can tell that a new mission started. */
+    fun clearCount(): Long = synchronized(lock) { clears }
+
     /** Clears everything (mission reset). */
     fun clear() = change {
+        clears++
         missionTimeMs = 0
         mission = MissionView(null, null)
         crew.clear()

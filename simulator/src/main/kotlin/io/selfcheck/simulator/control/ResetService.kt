@@ -4,6 +4,7 @@ import io.selfcheck.contracts.ControlCommand
 import io.selfcheck.contracts.Topics
 import io.selfcheck.simulator.SimulationLoop
 import io.selfcheck.simulator.clock.MissionClock
+import io.selfcheck.simulator.mission.MissionEpoch
 import io.selfcheck.simulator.mission.MissionSettings
 import io.selfcheck.simulator.publish.MeasurementPublisher
 import org.apache.kafka.clients.admin.AdminClient
@@ -11,6 +12,9 @@ import org.apache.kafka.clients.admin.OffsetSpec
 import org.apache.kafka.clients.admin.RecordsToDelete
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.kafka.core.KafkaAdmin
 import org.springframework.stereotype.Service
 
@@ -23,9 +27,18 @@ class ResetService(
     private val clock: MissionClock,
     private val loop: SimulationLoop,
     private val publisher: MeasurementPublisher,
+    private val epoch: MissionEpoch,
     private val kafkaAdmin: KafkaAdmin,
+    @Value("\${selfcheck.simulator.autostart:true}") private val autostart: Boolean,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    /** Every start of the simulator begins a fresh mission on day 1, so no stale mission data is left behind. */
+    @EventListener(ApplicationReadyEvent::class)
+    fun onReady() {
+        reset()
+        if (!autostart) clock.pause()
+    }
 
     @Synchronized
     fun reset() {
@@ -33,6 +46,8 @@ class ResetService(
         publisher.flush()
         Thread.sleep(SETTLE_MS) // let in-flight measurements reach the engine before the reset command
 
+        // New mission epoch: the engine and the api drop anything older, in whatever order records arrive.
+        epoch.next()
         publisher.publishControl(ControlCommand.RESET)
         Thread.sleep(SETTLE_MS) // engine and api process the command
         deleteMissionRecords()
