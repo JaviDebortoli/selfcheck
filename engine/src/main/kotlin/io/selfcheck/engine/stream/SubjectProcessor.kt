@@ -8,10 +8,12 @@ import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.Reason
 import io.selfcheck.contracts.SummaryState
+import io.selfcheck.contracts.SubjectType
 import io.selfcheck.contracts.Topics
 import io.selfcheck.contracts.Variable
 import io.selfcheck.contracts.VariableState
-import io.selfcheck.engine.rules.EvaluationContext
+import io.selfcheck.engine.rules.Combinations
+import io.selfcheck.engine.rules.EvaluationInput
 import io.selfcheck.engine.rules.ReasonCodes
 import io.selfcheck.engine.rules.RuleEvaluator
 import io.selfcheck.engine.rules.SubjectRuntime
@@ -35,6 +37,7 @@ class SubjectProcessor(
     private val catalog: RuleCatalog,
     private val evaluator: RuleEvaluator = RuleEvaluator(),
     private val summarizer: Summarizer = Summarizer(catalog),
+    private val combinations: Combinations = Combinations(catalog),
 ) : Processor<String, Measurement, String, SpecificRecord> {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -64,30 +67,34 @@ class SubjectProcessor(
         }
         runtime.lastMissionTimeMs = now
 
-        val definition = catalog[measurement.variable]
-        if (definition == null) {
-            subjects.put(subjectId, runtime)
-            return
-        }
-
-        val evaluation = evaluator.evaluate(definition, measurement, evaluationContext(subjectId))
-        val updated = VariableRuntime(
-            state = evaluation.state,
-            code = evaluation.code,
-            params = evaluation.params,
-            toConfirm = evaluation.toConfirm,
-            measuredAtMs = now,
-            value = measurement.value,
+        // A measurement updates its own rule and every rule derived from it (rhythm, career dose, solar event dose).
+        val input = EvaluationInput(
+            measurement = measurement,
+            now = now,
+            runtime = runtime,
+            history = histories.get(subjectId),
+            profile = profiles.get(Topics.MISSION_KEY),
         )
-        applyVariable(runtime, measurement.variable, updated, now)
+        for (definition in catalog.triggeredBy[measurement.variable].orEmpty()) {
+            val updated = evaluator.evaluate(definition, input, runtime.variables[definition.variable]) ?: continue
+            applyVariable(runtime, definition.variable, updated, now)
+        }
+        publishCombinations(runtime, now)
         publishSummaries(runtime, now)
         subjects.put(subjectId, runtime)
     }
 
-    private fun evaluationContext(subjectId: String) = EvaluationContext(
-        environment = profiles.get(Topics.MISSION_KEY)?.environment,
-        sex = histories.get(subjectId)?.sex,
-    )
+    /** One high-priority alert per clinical combination when it becomes active (spec section 7.13). */
+    private fun publishCombinations(runtime: SubjectRuntime, now: Long) {
+        if (runtime.subjectType != SubjectType.CREW_MEMBER) return
+        val active = combinations.active(runtime)
+        for ((code, state) in active) {
+            if (code in runtime.activeCombinations) continue
+            forward(runtime.subjectId, Alert(code, emptyMap(), runtime.subjectType, runtime.subjectId, null, state, now, true), now)
+        }
+        runtime.activeCombinations.retainAll(active.keys)
+        runtime.activeCombinations.addAll(active.keys)
+    }
 
     private fun applyVariable(runtime: SubjectRuntime, variable: Variable, updated: VariableRuntime, now: Long) {
         val previous = runtime.variables.put(variable, updated)
@@ -103,7 +110,7 @@ class SubjectProcessor(
         if ((state == HealthState.OBSERVATION || state == HealthState.ALERT) && state != previous?.state) {
             forward(
                 runtime.subjectId,
-                Alert(updated.code, updated.params, runtime.subjectType, runtime.subjectId, variable, state, now),
+                Alert(updated.code, updated.params, runtime.subjectType, runtime.subjectId, variable, state, now, false),
                 now,
             )
         }

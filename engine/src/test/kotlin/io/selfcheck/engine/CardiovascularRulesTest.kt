@@ -7,12 +7,15 @@ import io.selfcheck.contracts.HealthState.ALERT
 import io.selfcheck.contracts.HealthState.NORMAL
 import io.selfcheck.contracts.HealthState.NOT_EVALUABLE
 import io.selfcheck.contracts.HealthState.OBSERVATION
+import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.Quality
+import io.selfcheck.contracts.SubjectType
 import io.selfcheck.contracts.Variable
-import io.selfcheck.engine.rules.EvaluationContext
-import io.selfcheck.engine.rules.Evaluation
+import io.selfcheck.engine.rules.EvaluationInput
 import io.selfcheck.engine.rules.ReasonCodes
 import io.selfcheck.engine.rules.RuleEvaluator
+import io.selfcheck.engine.rules.SubjectRuntime
+import io.selfcheck.engine.rules.VariableRuntime
 import io.selfcheck.knowledge.RuleCatalog
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -21,14 +24,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** Spec section 7.5: heart rate, SpO2 and respiratory rate. */
+/** Spec section 7.5: heart rate, SpO2, respiratory rate and blood pressure. */
 class CardiovascularRulesTest {
 
     private val catalog = RuleCatalog.load()
     private val evaluator = RuleEvaluator()
 
-    private fun evaluate(variable: Variable, value: Double, build: (Double) -> io.selfcheck.contracts.Measurement = { measurement(variable, it) }): Evaluation =
-        evaluator.evaluate(catalog[variable]!!, build(value), EvaluationContext())
+    private fun evaluate(m: Measurement, variable: Variable = m.variable): VariableRuntime? =
+        evaluator.evaluate(catalog[variable]!!, EvaluationInput(m, m.missionTimeMs, SubjectRuntime(SubjectType.CREW_MEMBER, "crew-1")), null)
+
+    private fun evaluate(variable: Variable, value: Double): VariableRuntime = evaluate(measurement(variable, value))!!
 
     @ParameterizedTest
     @CsvSource("39,ALERT", "40,OBSERVATION", "59,OBSERVATION", "60,NORMAL", "100,NORMAL", "101,OBSERVATION", "130,OBSERVATION", "131,ALERT")
@@ -48,11 +53,21 @@ class CardiovascularRulesTest {
         assertEquals(expected, evaluate(Variable.RESPIRATORY_RATE, value).state)
     }
 
+    @ParameterizedTest
+    @CsvSource("79,ALERT", "80,OBSERVATION", "89,OBSERVATION", "90,NORMAL", "120,NORMAL", "121,OBSERVATION", "139,OBSERVATION", "140,ALERT")
+    fun `systolic pressure`(value: Double, expected: HealthState) {
+        assertEquals(expected, evaluate(Variable.SYSTOLIC_BP, value).state)
+    }
+
+    @ParameterizedTest
+    @CsvSource("49,ALERT", "50,OBSERVATION", "59,OBSERVATION", "60,NORMAL", "80,NORMAL", "81,OBSERVATION", "89,OBSERVATION", "90,ALERT")
+    fun `diastolic pressure`(value: Double, expected: HealthState) {
+        assertEquals(expected, evaluate(Variable.DIASTOLIC_BP, value).state)
+    }
+
     @Test
     fun `respiratory distress sign gives alert even with a normal rate`() {
-        val result = evaluate(Variable.RESPIRATORY_RATE, 16.0) {
-            measurement(Variable.RESPIRATORY_RATE, it, signs = listOf(AlarmSign.RESPIRATORY_DISTRESS))
-        }
+        val result = evaluate(measurement(Variable.RESPIRATORY_RATE, 16.0, signs = listOf(AlarmSign.RESPIRATORY_DISTRESS)))!!
         assertEquals(ALERT, result.state)
         assertEquals(ReasonCodes.ALARM_SIGN, result.code)
         assertEquals("RESPIRATORY_DISTRESS", result.params["signs"])
@@ -60,17 +75,15 @@ class CardiovascularRulesTest {
 
     @Test
     fun `heart rate during exercise is shown without state`() {
-        val result = evaluate(Variable.HEART_RATE, 150.0) { measurement(Variable.HEART_RATE, it, context = ActivityContext.EXERCISE) }
+        val result = evaluate(measurement(Variable.HEART_RATE, 150.0, context = ActivityContext.EXERCISE))!!
         assertNull(result.state)
         assertEquals(ReasonCodes.CONTEXT_NOT_APPLICABLE, result.code)
     }
 
     @Test
     fun `poor quality is not evaluable and doubtful quality is evaluated but flagged`() {
-        val poor = evaluate(Variable.SPO2, 97.0) { measurement(Variable.SPO2, it, quality = Quality.POOR) }
-        assertEquals(NOT_EVALUABLE, poor.state)
-
-        val doubtful = evaluate(Variable.SPO2, 93.0) { measurement(Variable.SPO2, it, quality = Quality.DOUBTFUL) }
+        assertEquals(NOT_EVALUABLE, evaluate(measurement(Variable.SPO2, 97.0, quality = Quality.POOR))!!.state)
+        val doubtful = evaluate(measurement(Variable.SPO2, 93.0, quality = Quality.DOUBTFUL))!!
         assertEquals(OBSERVATION, doubtful.state)
         assertTrue(doubtful.toConfirm)
     }
@@ -81,5 +94,6 @@ class CardiovascularRulesTest {
         assertEquals(ReasonCodes.HIGH, result.code)
         assertEquals(mapOf("value" to "135", "unit" to "bpm", "condition" to "> 130"), result.params)
         assertEquals(NORMAL, evaluate(Variable.HEART_RATE, 72.0).state)
+        assertEquals(ReasonCodes.IN_RANGE, evaluate(Variable.HEART_RATE, 72.0).code)
     }
 }

@@ -79,7 +79,8 @@ class EngineTopologyTest {
     @Test
     fun `crew member turns red when heart rate is forced high, and the alert is not repeated`() {
         sendVitals(1_000)
-        assertEquals(listOf(HealthState.NOT_EVALUABLE, HealthState.NOT_EVALUABLE, HealthState.NORMAL), overallStates())
+        // Only vital signs so far: the other groups have no data, so the crew member is never green by default.
+        assertEquals(HealthState.NOT_EVALUABLE, overallStates().last())
 
         sendVitals(2_000, hr = 140.0)
         sendVitals(3_000, hr = 145.0)
