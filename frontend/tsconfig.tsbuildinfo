@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./vite.config.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/api/types.ts","./src/api/usemission.ts","./src/components/ecgmonitor.tsx","./src/i18n/ui.ts","./src/lib/missiontime.ts","./src/lib/states.ts","./src/views/quickview.tsx","./vite.config.ts"],"version":"5.9.3"}
