@@ -1,0 +1,253 @@
+/**
+ * SelfCheck event contracts (spec section 4.3).
+ *
+ * Every event carries the mission time (milliseconds since mission start), set by the simulator's
+ * mission clock. No service uses wall-clock time to make decisions (spec section 5).
+ * The backend never sends sentences: reasons and alerts are codes with parameters (spec section 4.4).
+ */
+@namespace("io.selfcheck.contracts")
+protocol SelfCheckContracts {
+
+  // ---------------------------------------------------------------------------------------------
+  // Shared enums
+  // ---------------------------------------------------------------------------------------------
+
+  /** Mission environment (spec section 2.1). */
+  enum MissionEnvironment {
+    ORBITAL_STATION,
+    LUNAR_BASE,
+    DEEP_SPACE_TRANSIT
+  }
+
+  /** Who a measurement or state belongs to: a crew member or the shared habitat. */
+  enum SubjectType {
+    CREW_MEMBER,
+    HABITAT
+  }
+
+  enum Sex {
+    MALE,
+    FEMALE
+  }
+
+  /**
+   * Every variable SelfCheck knows (spec section 6.1), plus the values the engine derives
+   * (CAREER_EFFECTIVE_DOSE, SOLAR_EVENT_DOSE, ECG_RHYTHM).
+   */
+  enum Variable {
+    // Radiological
+    ABSORBED_DOSE,
+    MISSION_EFFECTIVE_DOSE,
+    DOSE_RATE,
+    SOLAR_PARTICLE_EVENT,
+    CAREER_EFFECTIVE_DOSE,
+    SOLAR_EVENT_DOSE,
+    // Cardiovascular and respiratory
+    HEART_RATE,
+    SYSTOLIC_BP,
+    DIASTOLIC_BP,
+    SPO2,
+    RESPIRATORY_RATE,
+    ECG_RHYTHM,
+    // Hematological and immunological
+    HEMOGLOBIN,
+    HEMATOCRIT,
+    WHITE_BLOOD_CELLS,
+    NEUTROPHILS,
+    LYMPHOCYTES,
+    PLATELETS,
+    CRP,
+    // Musculoskeletal and bone
+    BODY_MASS,
+    MUSCLE_STRENGTH,
+    PHYSICAL_ACTIVITY,
+    MUSCULOSKELETAL_PAIN,
+    BMD_HIP,
+    BMD_SPINE,
+    BMD_FEMORAL_NECK,
+    BONE_RESORPTION_MARKERS,
+    // Metabolic, renal and nutritional
+    GLUCOSE,
+    CALORIC_INTAKE,
+    PROTEIN_INTAKE,
+    FLUID_INTAKE,
+    CREATININE,
+    UREA,
+    SODIUM,
+    POTASSIUM,
+    URINARY_CALCIUM,
+    URINE_SPECIFIC_GRAVITY,
+    // Neurological, cognitive and behavioral
+    SLEEP_HOURS,
+    SLEEP_QUALITY_PSQI,
+    MOOD_PHQ9,
+    STRESS_PSS10,
+    FATIGUE,
+    ATTENTION,
+    MEMORY,
+    // Digestive and general symptoms
+    NAUSEA,
+    VOMITING,
+    ABDOMINAL_PAIN,
+    BOWEL_FREQUENCY,
+    STOOL_FORM_BRISTOL,
+    APPETITE,
+    BODY_TEMPERATURE,
+    // Habitat (shared)
+    CO2,
+    NOISE_DAY,
+    NOISE_NIGHT,
+    AIRBORNE_DUST
+  }
+
+  /** Physiological context of a measurement (spec section 7.2). */
+  enum ActivityContext {
+    REST,
+    EXERCISE,
+    SLEEP
+  }
+
+  /** Measurement quality (spec section 7.2): POOR gives NOT_EVALUABLE, DOUBTFUL is flagged "to confirm". */
+  enum Quality {
+    GOOD,
+    DOUBTFUL,
+    POOR
+  }
+
+  /** The 13 yes/no alarm signs (spec section 7.12). */
+  enum AlarmSign {
+    RESPIRATORY_DISTRESS,
+    CHEST_PAIN,
+    SYNCOPE,
+    RENAL_COLIC_OR_HEMATURIA,
+    TRAUMA_OR_DEFORMITY,
+    VOMIT_WITH_BLOOD,
+    PERSISTENT_GREEN_VOMIT,
+    CANNOT_RETAIN_FLUIDS,
+    SUDDEN_ABDOMINAL_PAIN,
+    RIGID_ABDOMEN,
+    NO_STOOL_OR_GAS_WITH_DISTENSION,
+    BLACK_TARRY_STOOL,
+    HEAVY_BLOOD_IN_STOOL
+  }
+
+  /** Rhythm label classified by the ship's cardiac monitor (spec section 7.5). */
+  enum RhythmLabel {
+    SINUS,
+    PREMATURE_BEATS,
+    OTHER_ARRHYTHMIA,
+    VENTRICULAR_TACHYCARDIA,
+    VENTRICULAR_FIBRILLATION,
+    ASYSTOLE,
+    COMPLETE_AV_BLOCK,
+    ATRIAL_FIBRILLATION_RAPID
+  }
+
+  /** Health state (spec section 7.1). */
+  enum HealthState {
+    NORMAL,
+    OBSERVATION,
+    ALERT,
+    NOT_EVALUABLE
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Published by the simulator at start-up
+  // ---------------------------------------------------------------------------------------------
+
+  /** Mission profile. Published by the simulator when the mission starts. */
+  record MissionProfile {
+    MissionEnvironment environment;
+    long missionTimeMs;
+  }
+
+  /** Pre-flight bone mineral density per site, in g/cm2 (NASA-STD-3001 limits are relative to it). */
+  record PreflightBoneDensity {
+    double hip;
+    double spine;
+    double femoralNeck;
+  }
+
+  record DailyTargets {
+    double caloriesKcal;
+    double fluidsMl;
+    double activityMinutes;
+  }
+
+  /** Medical history per crew member, sent as if by the ship's medical system. */
+  record MedicalHistory {
+    string crewMemberId;
+    Sex sex;
+    /** Effective dose from previous missions, in mSv. */
+    double priorEffectiveDoseMsv;
+    /** Pre-flight muscle strength, in the same unit as MUSCLE_STRENGTH measurements. */
+    double preflightMuscleStrength;
+    PreflightBoneDensity preflightBoneDensity;
+    DailyTargets dailyTargets;
+    long missionTimeMs;
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Published continuously by the simulator
+  // ---------------------------------------------------------------------------------------------
+
+  /** A yes/no alarm sign reported with its variable's measurement. */
+  record AlarmSignReading {
+    AlarmSign sign;
+    boolean present;
+  }
+
+  /** One measurement of one variable for a crew member or for the habitat. */
+  record Measurement {
+    SubjectType subjectType;
+    /** Crew member id, or "habitat". */
+    string subjectId;
+    Variable variable;
+    double value;
+    string unit;
+    long missionTimeMs;
+    /** Null when the context does not apply to the variable. */
+    union { null, ActivityContext } activityContext = null;
+    /** Null when fasting does not apply to the variable. */
+    union { null, boolean } fasting = null;
+    Quality quality;
+    array<AlarmSignReading> alarmSigns = [];
+    /** Only for heart-rate readings from the ECG monitor. */
+    union { null, RhythmLabel } rhythm = null;
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Published by the engine
+  // ---------------------------------------------------------------------------------------------
+
+  /** Reason as a code with parameters, translated by the frontend (spec section 4.4). */
+  record Reason {
+    string code;
+    map<string> params = {};
+  }
+
+  /** State of one variable after applying its rule. */
+  record VariableState {
+    SubjectType subjectType;
+    string subjectId;
+    Variable variable;
+    /** Null when the value is shown as data without state (stateless variable, wrong context, pending cut). */
+    union { null, HealthState } state = null;
+    /** True when the evaluated measurement had DOUBTFUL quality ("to confirm"). */
+    boolean toConfirm = false;
+    Reason reason;
+    long missionTimeMs;
+  }
+
+  /** Alert raised on every change to OBSERVATION or ALERT, never repeated while the state holds. */
+  record Alert {
+    string code;
+    map<string> params = {};
+    SubjectType subjectType;
+    string subjectId;
+    /** Variable that triggered the alert, when there is a single one. */
+    union { null, Variable } variable = null;
+    HealthState state;
+    long missionTimeMs;
+  }
+}
