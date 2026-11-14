@@ -49,6 +49,8 @@ export function App() {
   const [crewMemberId, setCrewMemberId] = useState('crew-1')
   const catalog = useCatalog(language)
   const scale = useFitScale(FIT[screen])
+  // The top bar is the same element on every screen, so it always uses one scale (the quick view's).
+  const headerScale = useFitScale(FIT.quick)
   const t = ui(language)
 
   useEffect(() => {
@@ -81,39 +83,43 @@ export function App() {
   }[screen]
 
   return (
-    <div className={`app screen-${screen}`} style={{ zoom: scale, '--fit-scale': scale } as CSSProperties}>
-      <AppHeader
-        t={t}
-        {...header}
-        missionTimeMs={snapshot?.missionTimeMs ?? null}
-        language={language}
-        onLanguage={changeLanguage}
-        theme={theme}
-        onTheme={changeTheme}
-        screen={screen}
-      />
-      {connection !== 'live' && <div className="banner">{connection === 'offline' ? t.offline : t.connecting}</div>}
-      {screen === 'simulator' && <SimulatorControl t={t} language={language} snapshot={snapshot} catalog={catalog} />}
-      {snapshot && screen === 'quick' && (
-        <QuickView
-          snapshot={snapshot}
-          catalog={catalog}
-          crewMemberId={crewMemberId}
-          onCrewMember={setCrewMemberId}
+    <div className={`app screen-${screen}`}>
+      <div className="app-header" style={{ zoom: headerScale, '--fit-scale': headerScale } as CSSProperties}>
+        <AppHeader
           t={t}
+          {...header}
+          missionTimeMs={snapshot?.missionTimeMs ?? null}
           language={language}
+          onLanguage={changeLanguage}
+          theme={theme}
+          onTheme={changeTheme}
+          screen={screen}
         />
-      )}
-      {snapshot && screen === 'control' && (
-        <ControlCenter
-          snapshot={snapshot}
-          catalog={catalog}
-          crewMemberId={crewMemberId}
-          onCrewMember={setCrewMemberId}
-          t={t}
-          language={language}
-        />
-      )}
+      </div>
+      <div className="app-content" style={{ zoom: scale, '--fit-scale': scale } as CSSProperties}>
+        {connection !== 'live' && <div className="banner">{connection === 'offline' ? t.offline : t.connecting}</div>}
+        {screen === 'simulator' && <SimulatorControl t={t} language={language} snapshot={snapshot} catalog={catalog} />}
+        {snapshot && screen === 'quick' && (
+          <QuickView
+            snapshot={snapshot}
+            catalog={catalog}
+            crewMemberId={crewMemberId}
+            onCrewMember={setCrewMemberId}
+            t={t}
+            language={language}
+          />
+        )}
+        {snapshot && screen === 'control' && (
+          <ControlCenter
+            snapshot={snapshot}
+            catalog={catalog}
+            crewMemberId={crewMemberId}
+            onCrewMember={setCrewMemberId}
+            t={t}
+            language={language}
+          />
+        )}
+      </div>
     </div>
   )
 }

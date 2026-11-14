@@ -175,8 +175,13 @@ select.chip {
 
 /* ---- layout ---- */
 .app {
-  /* The app is scaled with CSS zoom (useFitScale); viewport units are divided by the scale to keep fitting. */
-  min-height: calc(100vh / var(--fit-scale, 1));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* Header and content are scaled separately with CSS zoom (useFitScale): the header always at the same scale. */
+.app-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
