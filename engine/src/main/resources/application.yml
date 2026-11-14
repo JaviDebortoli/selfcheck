@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: selfcheck-engine
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    streams:
+      application-id: selfcheck-engine
+      properties:
+        auto.offset.reset: earliest
+
+selfcheck:
+  schema-registry-url: ${SCHEMA_REGISTRY_URL:http://localhost:8085}
