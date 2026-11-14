@@ -1,0 +1,89 @@
+# Cardiovascular and respiratory group (spec section 7.5).
+# thresholds are checked in order ALERT, OBSERVATION, NORMAL; the first matching condition wins.
+group: CARDIOVASCULAR_RESPIRATORY
+texts:
+  es: { name: Cardiovascular y respiratorio }
+  en: { name: Cardiovascular and respiratory }
+variables:
+  - variable: HEART_RATE
+    unit: bpm
+    interval: PT1S
+    expiry: PT1M
+    context: REST
+    thresholds:
+      ALERT: ["< 40", "> 130"]
+      OBSERVATION: ["< 60", "> 100"]
+      NORMAL: ["60..100"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: Frecuencia cardíaca
+        measures: Latidos del corazón por minuto. Se evalúa solo en reposo; durante el ejercicio o el sueño se muestra sin estado.
+        guidance:
+          NORMAL: Frecuencia dentro de lo esperable en reposo.
+          OBSERVATION: Frecuencia fuera del rango de reposo. Descanse unos minutos y repita la medición en reposo; si persiste, consulte al oficial médico.
+          ALERT: Frecuencia muy alta o muy baja en reposo. Suspenda la actividad, siéntese o recuéstese y avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+      en:
+        name: Heart rate
+        measures: Heartbeats per minute. Evaluated only at rest; during exercise or sleep it is shown without state.
+        guidance:
+          NORMAL: Heart rate within the expected resting range.
+          OBSERVATION: Heart rate outside the resting range. Rest for a few minutes and measure again at rest; if it persists, contact the medical officer.
+          ALERT: Very high or very low resting heart rate. Stop the activity, sit or lie down and notify the medical officer immediately.
+          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+
+  - variable: SPO2
+    unit: "%"
+    interval: PT1S
+    expiry: PT1M
+    thresholds:
+      ALERT: ["<= 91"]
+      OBSERVATION: ["< 95"]
+      NORMAL: ["95..100"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: SpO2
+        measures: Saturación de oxígeno en sangre medida por pulsioximetría.
+        guidance:
+          NORMAL: Oxigenación adecuada.
+          OBSERVATION: Oxigenación algo baja. Verifique la señal del sensor y respire con calma; si persiste, consulte al oficial médico.
+          ALERT: Oxigenación baja. Avise de inmediato al oficial médico y verifique el aire del hábitat.
+          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+      en:
+        name: SpO2
+        measures: Blood oxygen saturation measured by pulse oximetry.
+        guidance:
+          NORMAL: Adequate oxygenation.
+          OBSERVATION: Slightly low oxygenation. Check the sensor signal and breathe calmly; if it persists, contact the medical officer.
+          ALERT: Low oxygenation. Notify the medical officer immediately and check the habitat air.
+          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+
+  - variable: RESPIRATORY_RATE
+    unit: rpm
+    interval: PT1S
+    expiry: PT1M
+    alarmSigns: [RESPIRATORY_DISTRESS]
+    thresholds:
+      ALERT: ["< 8", "> 30"]
+      OBSERVATION: ["< 12", "> 20"]
+      NORMAL: ["12..20"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: Frecuencia respiratoria
+        measures: Respiraciones por minuto.
+        guidance:
+          NORMAL: Respiración dentro de lo esperable.
+          OBSERVATION: Respiración más lenta o más rápida de lo habitual. Descanse y repita la medición; si persiste, consulte al oficial médico.
+          ALERT: Respiración muy alterada o dificultad para respirar. Avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+      en:
+        name: Respiratory rate
+        measures: Breaths per minute.
+        guidance:
+          NORMAL: Breathing within the expected range.
+          OBSERVATION: Breathing slower or faster than usual. Rest and measure again; if it persists, contact the medical officer.
+          ALERT: Severely altered breathing or difficulty breathing. Notify the medical officer immediately.
+          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
