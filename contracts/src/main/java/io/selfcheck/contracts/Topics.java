@@ -25,6 +25,9 @@ public final class Topics {
     /** {@link Alert}, keyed by subject id. */
     public static final String ALERTS = "selfcheck.alerts";
 
+    /** {@link MissionControl} commands from the simulator's control API, keyed by {@link #MISSION_KEY}. */
+    public static final String CONTROL = "selfcheck.control";
+
     /** Record key of the single mission profile. */
     public static final String MISSION_KEY = "mission";
 

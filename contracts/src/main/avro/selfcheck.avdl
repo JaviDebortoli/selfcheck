@@ -249,6 +249,19 @@ protocol SelfCheckContracts {
   }
 
   // ---------------------------------------------------------------------------------------------
+  // Published by the simulator's control API
+  // ---------------------------------------------------------------------------------------------
+
+  enum ControlCommand {
+    /** Mission reset (spec section 5): every service clears its mission data before day 1 starts again. */
+    RESET
+  }
+
+  record MissionControl {
+    ControlCommand command;
+  }
+
+  // ---------------------------------------------------------------------------------------------
   // Published by the engine
   // ---------------------------------------------------------------------------------------------
 

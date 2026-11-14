@@ -5,6 +5,7 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.selfcheck.contracts.Alert
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
+import io.selfcheck.contracts.MissionControl
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.Topics
@@ -59,9 +60,16 @@ class EngineTopology(private val catalog: RuleCatalog, private val schemaRegistr
             ),
         )
 
-        val outputs = builder
+        val measurements = builder
             .stream(Topics.MEASUREMENTS, Consumed.with(Serdes.String(), measurementSerde).withTimestampExtractor(MissionTimeExtractor()))
-            .process(ProcessorSupplier<String, Measurement, String, SpecificRecord> { SubjectProcessor(catalog) }, SUBJECT_STORE)
+            .mapValues { value -> value as SpecificRecord }
+        // Control commands share the processor (and its store) so a reset is applied in order with measurements.
+        val control = builder
+            .stream(Topics.CONTROL, Consumed.with(Serdes.String(), avroSerde<MissionControl>()))
+            .mapValues { value -> value as SpecificRecord }
+
+        val outputs = measurements.merge(control)
+            .process(ProcessorSupplier<String, SpecificRecord, String, SpecificRecord> { SubjectProcessor(catalog) }, SUBJECT_STORE)
 
         outputs.filter { _, v -> v is VariableState }.to(Topics.VARIABLE_STATES, Produced.with(Serdes.String(), outputSerde))
         outputs.filter { _, v -> v is SummaryState }.to(Topics.SUMMARY_STATES, Produced.with(Serdes.String(), outputSerde))

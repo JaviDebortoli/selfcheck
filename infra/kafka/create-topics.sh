@@ -19,5 +19,6 @@ create selfcheck.measurements
 create selfcheck.variable-states
 create selfcheck.summary-states
 create selfcheck.alerts
+create selfcheck.control
 
 kafka-topics --bootstrap-server "$BOOTSTRAP" --list

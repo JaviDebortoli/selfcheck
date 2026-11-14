@@ -1,10 +1,12 @@
 package io.selfcheck.engine.stream
 
 import io.selfcheck.contracts.Alert
+import io.selfcheck.contracts.ControlCommand
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.MeasurementGroup
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
+import io.selfcheck.contracts.MissionControl
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.Reason
 import io.selfcheck.contracts.SummaryState
@@ -21,7 +23,6 @@ import io.selfcheck.engine.rules.Summarizer
 import io.selfcheck.engine.rules.VariableRuntime
 import io.selfcheck.knowledge.RuleCatalog
 import org.apache.avro.specific.SpecificRecord
-import org.apache.kafka.streams.processor.PunctuationType
 import org.apache.kafka.streams.processor.api.Processor
 import org.apache.kafka.streams.processor.api.ProcessorContext
 import org.apache.kafka.streams.processor.api.Record
@@ -38,7 +39,7 @@ class SubjectProcessor(
     private val evaluator: RuleEvaluator = RuleEvaluator(),
     private val summarizer: Summarizer = Summarizer(catalog),
     private val combinations: Combinations = Combinations(catalog),
-) : Processor<String, Measurement, String, SpecificRecord> {
+) : Processor<String, SpecificRecord, String, SpecificRecord> {
 
     private val log = LoggerFactory.getLogger(javaClass)
     private lateinit var context: ProcessorContext<String, SpecificRecord>
@@ -46,17 +47,36 @@ class SubjectProcessor(
     private lateinit var profiles: KeyValueStore<String, MissionProfile>
     private lateinit var histories: KeyValueStore<String, MedicalHistory>
 
+    /** Next mission time at which values are checked for expiry. Mission time, never wall-clock time. */
+    private var nextExpiryCheckAt = Long.MIN_VALUE
+
     override fun init(context: ProcessorContext<String, SpecificRecord>) {
         this.context = context
         subjects = context.getStateStore(EngineTopology.SUBJECT_STORE)
         profiles = context.getStateStore(EngineTopology.PROFILE_STORE)
         histories = context.getStateStore(EngineTopology.HISTORY_STORE)
-        // Stream time is mission time, so expiry never advances while the simulator is paused (spec section 5).
-        context.schedule(EXPIRY_CHECK_INTERVAL, PunctuationType.STREAM_TIME, ::expireStaleValues)
     }
 
-    override fun process(record: Record<String, Measurement>) {
-        val measurement = record.value() ?: return
+    override fun process(record: Record<String, SpecificRecord>) {
+        when (val value = record.value()) {
+            is Measurement -> process(value)
+            is MissionControl -> if (value.command == ControlCommand.RESET) reset()
+            else -> Unit
+        }
+    }
+
+    /**
+     * Mission reset (spec section 5): forgets every subject. Deleting the keys also clears the store's changelog,
+     * so the state does not come back after a restart.
+     */
+    private fun reset() {
+        val keys = subjects.all().use { iterator -> iterator.asSequence().map { it.key }.toList() }
+        keys.forEach(subjects::delete)
+        nextExpiryCheckAt = Long.MIN_VALUE
+        log.info("Mission reset: cleared {} subjects", keys.size)
+    }
+
+    private fun process(measurement: Measurement) {
         val subjectId = measurement.subjectId
         val runtime = subjects.get(subjectId) ?: SubjectRuntime(measurement.subjectType, subjectId)
         val now = measurement.missionTimeMs
@@ -82,6 +102,13 @@ class SubjectProcessor(
         publishCombinations(runtime, now)
         publishSummaries(runtime, now)
         subjects.put(subjectId, runtime)
+
+        // Expiry follows the mission time carried by the records, so it stops while the simulator is paused
+        // and starts over after a reset (stream time in Kafka Streams never goes back).
+        if (now >= nextExpiryCheckAt) {
+            expireStaleValues(now)
+            nextExpiryCheckAt = now + EXPIRY_CHECK_INTERVAL.toMillis()
+        }
     }
 
     /** One high-priority alert per clinical combination when it becomes active (spec section 7.13). */
@@ -130,7 +157,7 @@ class SubjectProcessor(
     }
 
     /** A value older than its rule's expiry is NOT_EVALUABLE (spec section 7.2). */
-    private fun expireStaleValues(streamTime: Long) {
+    private fun expireStaleValues(missionNow: Long) {
         val changed = mutableListOf<SubjectRuntime>()
         subjects.all().use { iterator ->
             iterator.forEachRemaining { entry ->
@@ -139,21 +166,21 @@ class SubjectProcessor(
                 for ((variable, current) in runtime.variables.toMap()) {
                     val definition = catalog[variable] ?: continue
                     if (!definition.hasState || current.code == ReasonCodes.DATA_EXPIRED) continue
-                    if (streamTime - current.measuredAtMs <= definition.effectiveExpiry.toMillis()) continue
+                    if (missionNow - current.measuredAtMs <= definition.effectiveExpiry.toMillis()) continue
                     val expired = current.copy(
                         state = HealthState.NOT_EVALUABLE,
                         code = ReasonCodes.DATA_EXPIRED,
                         params = current.params + ("measuredAtMs" to current.measuredAtMs.toString()),
                         toConfirm = false,
                     )
-                    applyVariable(runtime, variable, expired, streamTime)
+                    applyVariable(runtime, variable, expired, missionNow)
                     touched = true
                 }
                 if (touched) changed += runtime
             }
         }
         changed.forEach { runtime ->
-            publishSummaries(runtime, streamTime)
+            publishSummaries(runtime, missionNow)
             subjects.put(runtime.subjectId, runtime)
         }
     }

@@ -206,4 +206,17 @@ class GroupRulesTest {
         assertEquals(NOT_EVALUABLE, neuro.state)
         assertTrue(neuro.triggerVariable != Variable.STRESS_PSS10)
     }
+
+    @Test
+    fun `reset forgets every subject so day 1 measurements are processed again`() {
+        engine.send(measurement(Variable.HEART_RATE, 140.0, 5 * DAY))
+        assertEquals(1, engine.alerts.size)
+        engine.send(measurement(Variable.HEART_RATE, 150.0, DAY)) // older than 5 days: discarded
+        assertEquals(1, engine.alerts.size)
+
+        engine.reset()
+        engine.send(measurement(Variable.HEART_RATE, 150.0, 1_000))
+        assertEquals(2, engine.alerts.size)
+        assertEquals(ALERT, engine.stateOf(Variable.HEART_RATE))
+    }
 }

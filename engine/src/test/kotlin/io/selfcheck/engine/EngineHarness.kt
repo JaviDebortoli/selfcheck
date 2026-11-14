@@ -4,6 +4,8 @@ import io.confluent.kafka.schemaregistry.testutil.MockSchemaRegistry
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import io.selfcheck.contracts.Alert
+import io.selfcheck.contracts.ControlCommand
+import io.selfcheck.contracts.MissionControl
 import io.selfcheck.contracts.DailyTargets
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.Measurement
@@ -88,6 +90,13 @@ class EngineHarness : AutoCloseable {
                     DailyTargets(calories, fluids, activity), 0,
                 ),
             )
+    }
+
+    /** Mission reset command from the simulator's control API. */
+    fun reset() {
+        driver.createInputTopic(Topics.CONTROL, Serdes.String().serializer(), serde<MissionControl>().serializer())
+            .pipeInput(Topics.MISSION_KEY, MissionControl(ControlCommand.RESET))
+        collect()
     }
 
     fun send(m: Measurement) {
