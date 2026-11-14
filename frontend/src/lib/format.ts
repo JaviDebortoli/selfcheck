@@ -46,12 +46,29 @@ export function formatValue(view: VariableView | undefined, language: Language):
   return `${formatNumber(view.value, language, digitsFor(view.variable))}${unit}`
 }
 
-/** Translates a reason code with its parameters using the catalog templates. */
-export function formatReason(reason: Reason | null | undefined, catalog: Catalog | null, language: Language): string {
+/**
+ * Translates a reason code with its parameters using the catalog templates. For rules evaluated as a % of a
+ * pre-flight value or target, or as a window mean, the reason shows the evaluated value next to the cut.
+ */
+export function formatReason(
+  reason: Reason | null | undefined,
+  catalog: Catalog | null,
+  language: Language,
+  variable?: string,
+): string {
   if (!reason || !catalog) return ''
   const template = catalog.reasons[reason.code] ?? reason.code
+  const info = variable ? catalog.variables[variable] : undefined
+  const params: Record<string, string> = { ...reason.params }
+  if (params.evaluated != null && (info?.reference || info?.window)) {
+    params.value = params.evaluated
+    if (info?.reference) {
+      params.unit = '%'
+      if (params.condition) params.condition = `${params.condition} %`
+    }
+  }
   return template.replace(/\{(\w+)\}/g, (_, key: string) => {
-    const raw = reason.params[key]
+    const raw = params[key]
     if (raw == null) return ''
     if (key === 'signs') return raw.split(',').map((s) => catalog.alarmSigns[s] ?? s).join(', ')
     if (key === 'rhythm') return catalog.rhythms[raw] ?? raw

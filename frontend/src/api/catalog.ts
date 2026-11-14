@@ -18,6 +18,10 @@ export interface Catalog {
       review: boolean
       source: string
       environments: string[] | null
+      /** Set when the rule compares a % of a pre-flight value or daily target. */
+      reference: string | null
+      /** Set when the rule uses a mean over this mission-time window (ISO-8601 duration). */
+      window: string | null
       notes: string[]
     }
   >

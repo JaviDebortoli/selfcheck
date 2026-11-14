@@ -1,0 +1,118 @@
+/* Simulator control screen (spec section 8.4). Not part of the prototypes: same tokens and card style. */
+.simulator-control {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr) minmax(0, 2.2fr);
+  gap: 16px;
+  padding: 16px 24px 24px;
+  align-items: start;
+}
+.sim-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sim-time {
+  font-size: 1.7rem;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.sim-running {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+}
+.sim-running .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+.sim-running.on .dot {
+  background: var(--normal);
+  animation: ring-glow 1.5s ease-in-out infinite;
+}
+.sim-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sim-buttons.vertical {
+  flex-direction: column;
+}
+.sim-spaced {
+  margin-top: 10px;
+}
+.btn {
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--raised);
+  font-weight: 600;
+  text-align: left;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.btn.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+.btn.selected {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: var(--normal-bg);
+}
+.btn.danger {
+  border-color: var(--alert);
+  color: var(--alert);
+  background: var(--alert-bg);
+}
+.sim-active {
+  margin: 0;
+  padding-left: 18px;
+}
+.sim-reset {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.sim-reset p {
+  margin: 0 0 8px;
+}
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.scenario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--raised);
+}
+.scenario h3 {
+  font-size: 1rem;
+}
+.scenario p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.88rem;
+}
+.scenario-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+@keyframes ring-glow {
+  50% {
+    opacity: 0.5;
+  }
+}

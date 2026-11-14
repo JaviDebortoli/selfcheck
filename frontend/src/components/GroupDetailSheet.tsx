@@ -77,7 +77,7 @@ function VariableRow({
   // A stateful variable never measured is "not evaluable": never green by default (spec section 3).
   const state = view?.state ?? (info?.hasState && !view?.reason ? 'NOT_EVALUABLE' : null)
   const guidance = state ? info?.guidance?.[state] : undefined
-  const reason = formatReason(view?.reason, catalog, language)
+  const reason = formatReason(view?.reason, catalog, language, variable)
   const derived = variable === 'CAREER_EFFECTIVE_DOSE' || variable === 'SOLAR_EVENT_DOSE' || variable === 'ECG_RHYTHM'
   const shown =
     variable === 'ECG_RHYTHM'

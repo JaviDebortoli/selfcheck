@@ -45,6 +45,9 @@ class CatalogController(private val catalog: RuleCatalog) {
                         "review" to definition.review,
                         "source" to definition.source,
                         "environments" to definition.environments?.map { it.name },
+                        // Rules evaluated as a % of a pre-flight value or daily target, or as a window mean.
+                        "reference" to definition.reference?.name,
+                        "window" to definition.window?.toString(),
                         "notes" to definition.notes,
                     )
                 }
