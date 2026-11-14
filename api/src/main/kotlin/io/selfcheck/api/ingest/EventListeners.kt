@@ -3,8 +3,10 @@ package io.selfcheck.api.ingest
 import io.selfcheck.api.history.HistoryRepository
 import io.selfcheck.api.snapshot.SnapshotStore
 import io.selfcheck.contracts.Alert
+import io.selfcheck.contracts.ControlCommand
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
+import io.selfcheck.contracts.MissionControl
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.Topics
@@ -55,6 +57,15 @@ class EventListeners(private val snapshot: SnapshotStore, private val history: H
 
     @KafkaListener(topics = [Topics.ALERTS], groupId = REPLAY_GROUP, properties = [EARLIEST])
     fun onAlert(alert: Alert) = snapshot.onAlert(alert)
+
+    /** Mission reset (spec section 5): empties the snapshot and the TimescaleDB history. */
+    @KafkaListener(topics = [Topics.CONTROL], groupId = REPLAY_GROUP, properties = ["auto.offset.reset=latest"])
+    fun onControl(control: MissionControl) {
+        if (control.command != ControlCommand.RESET) return
+        history.clear()
+        snapshot.clear()
+        log.info("Mission reset: snapshot and history cleared")
+    }
 
     @KafkaListener(topics = [Topics.VARIABLE_STATES], groupId = "selfcheck-api-history")
     fun storeVariableState(state: VariableState) = history.saveVariableState(state)
