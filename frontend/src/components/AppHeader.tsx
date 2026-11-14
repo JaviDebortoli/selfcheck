@@ -13,10 +13,12 @@ interface Props {
   theme: Theme
   onTheme: (theme: Theme) => void
   screen: Screen
+  /** On the quick view the title is the crew member selector: it shows the active member and changes it. */
+  titleSelect?: { value: string; options: { value: string; label: string }[]; onChange: (value: string) => void; label: string }
 }
 
 /** Shared top bar: brand, screen, mission time (spec section 5), screens, theme and language selector. */
-export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, onLanguage, theme, onTheme, screen }: Props) {
+export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, onLanguage, theme, onTheme, screen, titleSelect }: Props) {
   return (
     <header className="topbar">
       <a className="brand" href="#/">
@@ -32,7 +34,24 @@ export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, 
       </a>
       <span className="screen-badge">{badge}</span>
       <div className="topbar-title">
-        <h1>{title}</h1>
+        {titleSelect ? (
+          <h1>
+            <select
+              className="title-select"
+              value={titleSelect.value}
+              onChange={(e) => titleSelect.onChange(e.target.value)}
+              aria-label={titleSelect.label}
+            >
+              {titleSelect.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </h1>
+        ) : (
+          <h1>{title}</h1>
+        )}
         <div className="muted">{subtitle}</div>
       </div>
       <nav className="screen-nav" aria-label="Screens">

@@ -6,6 +6,9 @@ import { formatReason } from '../../lib/format'
 import { missionClock, missionDay } from '../../lib/missionTime'
 import { stateClass } from '../../lib/states'
 
+/** Alert log code of a medical assistance request from the quick view (see SnapshotStore). */
+const ASSISTANCE_CODE = 'MEDICAL_ASSISTANCE_REQUESTED'
+
 interface Props {
   alerts: AlertView[]
   catalog: Catalog | null
@@ -45,12 +48,17 @@ function AlertItem({ alert, catalog, t, language }: { alert: AlertView; catalog:
     <li className={`cc-alert ${stateClass(alert.state)} ${alert.combination ? 'combination' : ''}`}>
       <div className="cc-alert-top">
         <StatusPill state={alert.state} t={t} small />
-        {alert.combination && <span className="cc-priority">{t.highPriority}</span>}
+        {(alert.combination || alert.code === ASSISTANCE_CODE) && <span className="cc-priority">{t.highPriority}</span>}
         <span className="faint cc-small mono cc-alert-time">
           {t.day} {missionDay(alert.missionTimeMs)} · {missionClock(alert.missionTimeMs)}
         </span>
       </div>
-      {alert.combination ? (
+      {alert.code === ASSISTANCE_CODE ? (
+        <>
+          <div className="cc-alert-title">{t.assistanceAlert}</div>
+          <div className="faint cc-small">{subject}</div>
+        </>
+      ) : alert.combination ? (
         <>
           <div className="cc-alert-title">{combination?.name ?? alert.code}</div>
           {combination?.interpretation && <div className="muted cc-small">{combination.interpretation}</div>}

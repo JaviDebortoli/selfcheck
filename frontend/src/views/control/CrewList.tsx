@@ -38,6 +38,7 @@ export function CrewList({ snapshot, selectedId, onSelect, t, ct, language }: Pr
         const heart = subject?.variables.HEART_RATE
         const sleep = subject?.variables.SLEEP_HOURS?.value
         const selected = member.id === selectedId
+        const status = snapshot.crewStatus?.[member.id]
         return (
           <button
             key={member.id}
@@ -54,6 +55,12 @@ export function CrewList({ snapshot, selectedId, onSelect, t, ct, language }: Pr
               </div>
               <StatusPill state={state} t={t} small />
             </div>
+            {(status?.training || status?.assistance) && (
+              <div className="cc-crew-badges">
+                {status?.assistance && <span className="cc-badge assistance">{t.assistanceRequested}</span>}
+                {status?.training && <span className="cc-badge training">{t.trainingActive}</span>}
+              </div>
+            )}
             <div className="cc-mini-ecg">
               <EcgMonitor
                 heartRate={heart?.value ?? null}

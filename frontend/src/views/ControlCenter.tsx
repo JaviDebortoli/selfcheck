@@ -52,6 +52,7 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
         <MemberPanel
           memberId={memberId}
           subject={subject}
+          status={snapshot.crewStatus?.[memberId]}
           history={history}
           catalog={catalog}
           t={t}

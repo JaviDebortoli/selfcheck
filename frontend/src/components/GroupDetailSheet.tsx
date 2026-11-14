@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { Catalog } from '../api/catalog'
-import type { SubjectView, SummaryView } from '../api/types'
+import type { HealthState, SubjectView, SummaryView } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
 import { formatAgo, formatReason, formatValue } from '../lib/format'
 import { GROUP_VARIABLES } from '../lib/groups'
@@ -41,17 +41,26 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
             <CloseIcon />
           </button>
         </div>
-        {GROUP_VARIABLES[group]?.map((variable) => (
-          <VariableRow
-            key={variable}
-            variable={variable}
-            subject={subject}
-            missionTimeMs={missionTimeMs}
-            catalog={catalog}
-            t={t}
-            language={language}
-          />
-        ))}
+        {/* One grid for every row: columns line up and size to their content (CSS subgrid). */}
+        <div className="variable-table" role="table">
+          <div className="variable-row variable-head" role="row">
+            <span>{t.variable}</span>
+            <span>{t.value}</span>
+            <span>{t.state}</span>
+            <span>{t.information}</span>
+          </div>
+          {GROUP_VARIABLES[group]?.map((variable) => (
+            <VariableRow
+              key={variable}
+              variable={variable}
+              subject={subject}
+              missionTimeMs={missionTimeMs}
+              catalog={catalog}
+              t={t}
+              language={language}
+            />
+          ))}
+        </div>
       </section>
     </div>
   )
@@ -76,7 +85,7 @@ function VariableRow({
   const info = catalog?.variables[variable]
   // A stateful variable never measured is "not evaluable": never green by default (spec section 3).
   const state = view?.state ?? (info?.hasState && !view?.reason ? 'NOT_EVALUABLE' : null)
-  const guidance = state ? info?.guidance?.[state] : undefined
+  const guidance = guidanceFor(state, state ? info?.guidance?.[state] : undefined)
   const reason = formatReason(view?.reason, catalog, language, variable)
   const derived = variable === 'CAREER_EFFECTIVE_DOSE' || variable === 'SOLAR_EVENT_DOSE' || variable === 'ECG_RHYTHM'
   const shown =
@@ -87,7 +96,7 @@ function VariableRow({
         : formatValue(view, language)
 
   return (
-    <div className={`variable-row ${stateClass(state)}`}>
+    <div className={`variable-row ${stateClass(state)}`} role="row">
       <div>
         <strong>{info?.name ?? variable}</strong>
         {variable === 'AIRBORNE_DUST' && (
@@ -95,7 +104,7 @@ function VariableRow({
             <HelpIcon />
           </span>
         )}
-        <div className="faint" style={{ fontSize: '0.8rem' }}>
+        <div className="faint small">
           {t.lastMeasured}: {formatAgo(missionTimeMs, view?.measuredAtMs ?? view?.stateAtMs, t)}
         </div>
       </div>
@@ -116,9 +125,19 @@ function VariableRow({
             <strong>{t.guidance}:</strong> {guidance}
           </div>
         )}
-        {info?.review && <span className="flag">{t.toReview}</span>}
         {variable === 'AIRBORNE_DUST' && <div className="faint">{t.dustHelp}</div>}
       </div>
     </div>
   )
+}
+
+/**
+ * "What to do" only when there is something to do: hidden in NORMAL; in OBSERVATION and ALERT only the
+ * instructions (the first sentence of each guidance text restates the state, already shown next to it).
+ */
+function guidanceFor(state: HealthState | null, text: string | undefined): string | undefined {
+  if (!text || state == null || state === 'NORMAL') return undefined
+  if (state !== 'OBSERVATION' && state !== 'ALERT') return text
+  const sentences = text.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡])/)
+  return sentences.length > 1 ? sentences.slice(1).join(' ') : text
 }

@@ -76,6 +76,60 @@
 
 .status-area {
   padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* Crew actions (bottom right of the monitor): two clearly different buttons. */
+.crew-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 250px;
+}
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.action-button.training {
+  border: 1px solid var(--info);
+  background: var(--info-bg);
+  color: var(--info);
+}
+.action-button.training.active {
+  background: var(--info);
+  color: var(--bg);
+}
+.action-button.assistance {
+  border: 1px solid var(--alert);
+  background: var(--alert-bg);
+  color: var(--alert);
+}
+.action-button.assistance.active {
+  background: var(--alert);
+  color: var(--bg);
+  animation: assistance-pulse 1.6s ease-in-out infinite;
+}
+@keyframes assistance-pulse {
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--alert) 25%, transparent);
+  }
+}
+.action-error {
+  color: var(--alert);
 }
 .headline {
   display: flex;
@@ -88,9 +142,6 @@
 }
 .headline span {
   color: var(--text);
-}
-.review {
-  margin: 0 0 10px;
 }
 .status-figures {
   display: flex;

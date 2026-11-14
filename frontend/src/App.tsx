@@ -94,6 +94,16 @@ export function App() {
           theme={theme}
           onTheme={changeTheme}
           screen={screen}
+          titleSelect={
+            screen === 'quick' && snapshot
+              ? {
+                  value: crewMemberId,
+                  options: snapshot.crew.map((m) => ({ value: m.id, label: t.crewNames[m.id]?.name ?? m.id })),
+                  onChange: setCrewMemberId,
+                  label: t.crewMember,
+                }
+              : undefined
+          }
         />
       </div>
       <div className="app-content" style={{ zoom: scale, '--fit-scale': scale } as CSSProperties}>

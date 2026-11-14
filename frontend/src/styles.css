@@ -233,6 +233,25 @@ select.chip {
 .topbar-title h1 {
   font-size: 1.25rem;
 }
+/* Crew member selector in the title (quick view): looks like the title, works as a select. */
+.title-select {
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0 6px;
+  margin-left: -7px;
+  cursor: pointer;
+}
+.title-select:hover {
+  border-color: var(--border-strong);
+}
+.title-select option {
+  font-size: 0.95rem;
+  background: var(--surface);
+}
 .topbar-title .muted {
   font-size: 0.85rem;
 }
@@ -325,13 +344,31 @@ select.chip {
   border: 1px solid var(--border);
   background: var(--raised);
 }
+.variable-table {
+  display: grid;
+  /* Name and state fit their content up to a limit, value fits exactly, information takes the rest. */
+  grid-template-columns: fit-content(280px) max-content fit-content(280px) minmax(260px, 1fr);
+  column-gap: 24px;
+}
 .variable-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1.2fr) minmax(120px, 0.8fr) auto minmax(220px, 2fr);
-  gap: 16px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: start;
   padding: 12px 0;
   border-top: 1px solid var(--border);
+}
+.variable-head {
+  padding: 4px 0 8px;
+  border-top: none;
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.variable-row .small {
+  font-size: 0.8rem;
 }
 .variable-row .value {
   font-family: var(--mono);

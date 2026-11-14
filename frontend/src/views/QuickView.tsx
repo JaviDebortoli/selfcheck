@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import type { Catalog } from '../api/catalog'
+import { setCrewAction, type CrewAction } from '../api/crewActions'
 import type { HealthState, Snapshot, SubjectView, VariableView } from '../api/types'
 import { EcgMonitor } from '../components/EcgMonitor'
 import { GroupDetailSheet } from '../components/GroupDetailSheet'
@@ -25,7 +26,7 @@ export interface QuickViewProps {
  * A large panel with the ECG and the overall state, the cardiovascular card next to it, cards for the other six
  * groups and the habitat, and the detail of each card in a bottom popup.
  */
-export function QuickView({ snapshot, catalog, crewMemberId, onCrewMember, t, language }: QuickViewProps) {
+export function QuickView({ snapshot, catalog, crewMemberId, t, language }: QuickViewProps) {
   const [openGroup, setOpenGroup] = useState<string | null>(null)
   const subject = snapshot.subjects[crewMemberId]
   const habitat = snapshot.subjects.habitat
@@ -51,7 +52,7 @@ export function QuickView({ snapshot, catalog, crewMemberId, onCrewMember, t, la
 
   return (
     <main className="quick-view">
-      <StatusPanel snapshot={snapshot} subject={subject} crewMemberId={crewMemberId} onCrewMember={onCrewMember} catalog={catalog} t={t} language={language} />
+      <StatusPanel snapshot={snapshot} subject={subject} crewMemberId={crewMemberId} catalog={catalog} t={t} language={language} />
 
       {card(
         'CARDIOVASCULAR_RESPIRATORY',
@@ -202,12 +203,11 @@ export function QuickView({ snapshot, catalog, crewMemberId, onCrewMember, t, la
   )
 }
 
-/** ECG and overall state of the crew member. */
+/** ECG and overall state of the crew member, with the crew member's own actions (training, medical assistance). */
 function StatusPanel({
   snapshot,
   subject,
   crewMemberId,
-  onCrewMember,
   catalog,
   t,
   language,
@@ -215,7 +215,6 @@ function StatusPanel({
   snapshot: Snapshot
   subject: SubjectView | undefined
   crewMemberId: string
-  onCrewMember: (id: string) => void
   catalog: Catalog | null
   t: UiTexts
   language: Language
@@ -224,6 +223,7 @@ function StatusPanel({
   const review = groupsToReview(subject)
   const heartRate = subject?.variables.HEART_RATE
   const alerts = review.filter((g) => g.state === 'ALERT').length
+  const status = snapshot.crewStatus?.[crewMemberId]
   const headline =
     overall === 'NORMAL'
       ? t.allClear
@@ -238,46 +238,95 @@ function StatusPanel({
       <div className="ecg-area">
         <div className="ecg-caption">
           <span className="faint">{t.liveEcg}</span>
-          <select value={crewMemberId} onChange={(e) => onCrewMember(e.target.value)} aria-label={t.crewMember} className="chip">
-            {snapshot.crew.map((member) => (
-              <option key={member.id} value={member.id}>
-                {t.crewNames[member.id]?.name ?? member.id}
-              </option>
-            ))}
-          </select>
         </div>
         <div className="ecg-screen">
           <EcgMonitor heartRate={heartRate?.value ?? null} rhythm={heartRate?.rhythm ?? null} colorVar={stateColorVar(overall)} height={190} />
         </div>
       </div>
       <div className="status-area">
-        <div className="label">{t.overall}</div>
-        <div className="headline">
-          <StateIcon state={overall} size={30} />
-          <span>{headline}</span>
-        </div>
-        {review.length > 0 && (
-          <p className="muted review">
-            {t.review}: {review.map((g) => catalog?.groups[g.group]?.name ?? g.group).join(' · ')}
-          </p>
-        )}
-        <div className="status-figures">
-          <div>
-            <div className="muted small">{t.heartRate}</div>
-            <div className="big-number">
-              {heartRate?.value != null ? formatNumber(heartRate.value, language, 0) : '—'} <span className="unit">{t.bpm}</span>
+        <div>
+          <div className="label">{t.overall}</div>
+          <div className="headline">
+            <StateIcon state={overall} size={30} />
+            <span>{headline}</span>
+          </div>
+          <div className="status-figures">
+            <div>
+              <div className="muted small">{t.heartRate}</div>
+              <div className="big-number">
+                {heartRate?.value != null ? formatNumber(heartRate.value, language, 0) : '—'} <span className="unit">{t.bpm}</span>
+              </div>
+              {heartRate?.rhythm && <div className="faint small">{catalog?.rhythms[heartRate.rhythm] ?? heartRate.rhythm}</div>}
             </div>
-            {heartRate?.rhythm && <div className="faint small">{catalog?.rhythms[heartRate.rhythm] ?? heartRate.rhythm}</div>}
-          </div>
-          <div>
-            <div className="muted small">{t.outOfRange}</div>
-            <div className="big-number">{outOfRangeCount(subject)}</div>
+            <div>
+              <div className="muted small">{t.outOfRange}</div>
+              <div className="big-number">{outOfRangeCount(subject)}</div>
+            </div>
           </div>
         </div>
+        <CrewActions crewMemberId={crewMemberId} training={status?.training ?? false} assistance={status?.assistance ?? false} t={t} />
       </div>
     </section>
   )
 }
+
+/**
+ * The crew member's own actions: start or end a training session (exercise alters vital signs) and ask for medical
+ * assistance. Both are reflected in the control center.
+ */
+function CrewActions({ crewMemberId, training, assistance, t }: { crewMemberId: string; training: boolean; assistance: boolean; t: UiTexts }) {
+  const [busy, setBusy] = useState<CrewAction | null>(null)
+  const [failed, setFailed] = useState(false)
+  const act = async (action: CrewAction, active: boolean) => {
+    setBusy(action)
+    setFailed(false)
+    try {
+      await setCrewAction(crewMemberId, action, active)
+    } catch {
+      setFailed(true)
+    } finally {
+      setBusy(null)
+    }
+  }
+  return (
+    <div className="crew-actions">
+      {failed && <span className="small action-error">{t.actionFailed}</span>}
+      <button
+        type="button"
+        className={`action-button training ${training ? 'active' : ''}`}
+        aria-pressed={training}
+        disabled={busy !== null}
+        onClick={() => act('training', !training)}
+      >
+        <ActivityIcon />
+        {training ? t.stopTraining : t.startTraining}
+      </button>
+      <button
+        type="button"
+        className={`action-button assistance ${assistance ? 'active' : ''}`}
+        aria-pressed={assistance}
+        disabled={busy !== null}
+        onClick={() => act('assistance', !assistance)}
+      >
+        <MedicalIcon />
+        {assistance ? t.cancelAssistance : t.requestAssistance}
+      </button>
+    </div>
+  )
+}
+
+const ActivityIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 12h4l3-8 4 16 3-8h4" />
+  </svg>
+)
+
+const MedicalIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <path d="M12 8v8M8 12h8" />
+  </svg>
+)
 
 function GroupCard({
   group,

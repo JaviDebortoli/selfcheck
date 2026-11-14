@@ -62,6 +62,14 @@ export interface CrewMemberView {
   dailyTargets: Record<string, number>
 }
 
+/** Crew actions from the quick view and since when (mission time). */
+export interface CrewStatusView {
+  training: boolean
+  trainingSinceMs: number | null
+  assistance: boolean
+  assistanceSinceMs: number | null
+}
+
 export interface Snapshot {
   version: number
   missionTimeMs: number
@@ -69,4 +77,5 @@ export interface Snapshot {
   crew: CrewMemberView[]
   subjects: Record<string, SubjectView>
   alerts: AlertView[]
+  crewStatus: Record<string, CrewStatusView>
 }
