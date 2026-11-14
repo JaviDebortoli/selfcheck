@@ -9,34 +9,37 @@ variables:
   - variable: SLEEP_HOURS
     unit: h
     interval: P1D
+    evaluator: SLEEP_HOURS
+    params:
+      shortNight: 6
+      fatigueHigh: 7
+      moodHigh: 10
     thresholds:
       ALERT: ["< 6"]
       OBSERVATION: ["< 7", "> 9"]
       NORMAL: ["7..9"]
     persistence:
       ALERT: 3
-    source: National Sleep Foundation (Hirshkowitz et al., 2015)
+    source: National Sleep Foundation (Hirshkowitz et al., 2015); rules document
     review: true
     notes:
       - Less than 6 h gives Observation the first night and Alert on the third night in a row.
+      - Alert also for one night under 6 h together with fatigue 7-10 and mood (PHQ-9) 10 or more.
       - Not adjusted for flight - in-flight sleep loss is a risk, not an adaptation (spec section 7.9).
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
     texts:
       es:
         name: Horas de sueño
         measures: Horas dormidas por noche. Se usan los rangos de la National Sleep Foundation, sin ajustar por vuelo.
         guidance:
-          NORMAL: Sueño suficiente.
-          OBSERVATION: Sueño corto o largo. Respete el horario de descanso, reduzca la luz y las pantallas antes de dormir.
-          ALERT: Menos de 6 horas tres noches seguidas. Avise al oficial médico; la falta de sueño afecta el rendimiento y la seguridad.
-          NOT_EVALUABLE: No hay un registro de sueño en las últimas 36 horas.
+          OBSERVATION: "Revisar el horario de sueño y las condiciones del área de descanso (ruido, luz, temperatura) y priorizar el período de sueño previsto."
+          ALERT: "Comunicar al equipo médico, evitar tareas críticas o de riesgo hasta recuperar el sueño y revisar la carga de trabajo."
       en:
         name: Sleep hours
         measures: Hours slept per night, against the National Sleep Foundation ranges, not adjusted for flight.
         guidance:
-          NORMAL: Enough sleep.
-          OBSERVATION: Short or long sleep. Keep the rest schedule and reduce light and screens before sleeping.
-          ALERT: Less than 6 hours three nights in a row. Notify the medical officer; sleep loss affects performance and safety.
-          NOT_EVALUABLE: No sleep record in the last 36 hours.
+          OBSERVATION: "Review the sleep schedule and the conditions of the rest area (noise, light, temperature) and prioritise the planned sleep period."
+          ALERT: "Inform the medical team, avoid critical or risky tasks until sleep recovers and review the workload."
 
   - variable: SLEEP_QUALITY_PSQI
     unit: PSQI
@@ -46,21 +49,19 @@ variables:
       NORMAL: ["<= 5"]
     source: Buysse et al., 1989
     review: true
+    notes:
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
     texts:
       es:
         name: Calidad del sueño (PSQI)
         measures: Índice de calidad de sueño de Pittsburgh, mensual; más de 5 indica mala calidad.
         guidance:
-          NORMAL: Buena calidad de sueño.
-          OBSERVATION: Mala calidad de sueño. Revise rutinas, ruido y luz del módulo de descanso con el oficial médico.
-          NOT_EVALUABLE: No hay un cuestionario en los últimos 45 días.
+          OBSERVATION: "Comunicar el resultado al equipo médico y revisar los hábitos y el entorno de sueño."
       en:
         name: Sleep quality (PSQI)
         measures: Pittsburgh Sleep Quality Index, monthly; above 5 means poor quality.
         guidance:
-          NORMAL: Good sleep quality.
-          OBSERVATION: Poor sleep quality. Review routines, noise and light in the sleep quarters with the medical officer.
-          NOT_EVALUABLE: No questionnaire in the last 45 days.
+          OBSERVATION: "Report the result to the medical team and review sleep habits and environment."
 
   - variable: MOOD_PHQ9
     unit: PHQ-9
@@ -71,23 +72,21 @@ variables:
       NORMAL: ["0..4"]
     source: Kroenke, Spitzer and Williams, 2001
     review: true
+    notes:
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
     texts:
       es:
         name: Estado de ánimo (PHQ-9)
         measures: Cuestionario de síntomas depresivos, cada dos semanas.
         guidance:
-          NORMAL: Sin síntomas depresivos relevantes.
-          OBSERVATION: Síntomas depresivos leves. Hable con el oficial médico o con el equipo de apoyo psicológico.
-          ALERT: Síntomas depresivos moderados o mayores. Avise al oficial médico para una evaluación.
-          NOT_EVALUABLE: No hay un cuestionario en las últimas 3 semanas.
+          OBSERVATION: "Repetir el cuestionario en el próximo control y conversar con el equipo médico si el ánimo afecta las tareas."
+          ALERT: "Solicitar evaluación por el equipo médico o de salud conductual de la misión."
       en:
         name: Mood (PHQ-9)
         measures: Depressive symptoms questionnaire, every two weeks.
         guidance:
-          NORMAL: No relevant depressive symptoms.
-          OBSERVATION: Mild depressive symptoms. Talk to the medical officer or the psychological support team.
-          ALERT: Moderate or greater depressive symptoms. Notify the medical officer for an assessment.
-          NOT_EVALUABLE: No questionnaire in the last 3 weeks.
+          OBSERVATION: "Repeat the questionnaire at the next check and talk to the medical team if mood affects your tasks."
+          ALERT: "Request an evaluation by the mission's medical or behavioral health team."
 
   - variable: FATIGUE
     unit: /10
@@ -98,24 +97,20 @@ variables:
       NORMAL: ["0..3"]
     source: NCCN fatigue guideline (0-10 scale)
     review: true
-    notes: [The NCCN guideline is for cancer-related fatigue; a professional must confirm it applies.]
+    notes: [The NCCN guideline is for cancer-related fatigue; a professional must confirm it applies., Recommendations marked as proposed in the professional rules document; to be reviewed.]
     texts:
       es:
         name: Fatiga
         measures: Cansancio percibido en una escala de 0 a 10.
         guidance:
-          NORMAL: Fatiga leve o ausente.
-          OBSERVATION: Fatiga moderada. Revise el sueño y la carga de trabajo; planifique pausas.
-          ALERT: Fatiga intensa. Avise al oficial médico y evite tareas críticas hasta la evaluación.
-          NOT_EVALUABLE: No hay una autoevaluación en las últimas 36 horas.
+          OBSERVATION: "Revisar el descanso, la carga de trabajo y la hidratación; registrar si se acompaña de otros síntomas."
+          ALERT: "Comunicar al equipo médico, suspender tareas críticas o de riesgo y solicitar evaluación."
       en:
         name: Fatigue
         measures: Perceived tiredness on a 0 to 10 scale.
         guidance:
-          NORMAL: Mild or no fatigue.
-          OBSERVATION: Moderate fatigue. Review sleep and workload; plan breaks.
-          ALERT: Severe fatigue. Notify the medical officer and avoid critical tasks until assessed.
-          NOT_EVALUABLE: No self-assessment in the last 36 hours.
+          OBSERVATION: "Review rest, workload and hydration; note whether other symptoms come with it."
+          ALERT: "Inform the medical team, stop critical or risky tasks and request an evaluation."
 
   - variable: STRESS_PSS10
     unit: PSS-10

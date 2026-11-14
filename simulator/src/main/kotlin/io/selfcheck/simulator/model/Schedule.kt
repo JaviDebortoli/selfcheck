@@ -14,6 +14,9 @@ sealed interface Cadence {
     /** Every mission minute: cumulative dosimetry, space weather and slow habitat sensors. */
     data object EveryMinute : Cadence
 
+    /** On every mission hour; each value stands for the hour before (urine output). */
+    data object Hourly : Cadence
+
     /** Once every [everyDays] days, at [hour] of the mission day. */
     data class Periodic(val everyDays: Int, val hour: Int) : Cadence
 }
@@ -35,17 +38,20 @@ object Schedule {
             Variable.MISSION_EFFECTIVE_DOSE, Variable.ABSORBED_DOSE, Variable.SOLAR_PARTICLE_EVENT,
             Variable.AIRBORNE_DUST, Variable.NOISE_DAY, Variable.NOISE_NIGHT,
         ).forEach { put(it, Cadence.EveryMinute) }
+        put(Variable.DIURESIS, Cadence.Hourly)
+        // Measurements due at the same time are sent in this order: rules that combine variables (sleep with
+        // fatigue, vomiting with stool and pain, creatinine with urea) see the values of the same round.
         listOf(
-            Variable.SLEEP_HOURS, Variable.FATIGUE, Variable.NAUSEA, Variable.MUSCULOSKELETAL_PAIN, Variable.BODY_TEMPERATURE,
+            Variable.FATIGUE, Variable.SLEEP_HOURS, Variable.NAUSEA, Variable.MUSCULOSKELETAL_PAIN, Variable.BODY_TEMPERATURE,
             Variable.SYSTOLIC_BP, Variable.DIASTOLIC_BP, Variable.GLUCOSE, Variable.BODY_MASS, Variable.URINE_SPECIFIC_GRAVITY,
         ).forEach { put(it, Cadence.Periodic(1, MORNING)) }
         listOf(
             Variable.CALORIC_INTAKE, Variable.PROTEIN_INTAKE, Variable.FLUID_INTAKE, Variable.PHYSICAL_ACTIVITY,
-            Variable.BOWEL_FREQUENCY, Variable.VOMITING, Variable.ABDOMINAL_PAIN, Variable.STOOL_FORM_BRISTOL, Variable.APPETITE,
+            Variable.BOWEL_FREQUENCY, Variable.ABDOMINAL_PAIN, Variable.STOOL_FORM_BRISTOL, Variable.VOMITING, Variable.APPETITE,
         ).forEach { put(it, Cadence.Periodic(1, EVENING)) }
         listOf(
-            Variable.HEMOGLOBIN, Variable.HEMATOCRIT, Variable.WHITE_BLOOD_CELLS, Variable.NEUTROPHILS, Variable.LYMPHOCYTES,
-            Variable.PLATELETS, Variable.CRP, Variable.CREATININE, Variable.UREA, Variable.SODIUM, Variable.POTASSIUM,
+            Variable.HEMOGLOBIN, Variable.HEMATOCRIT, Variable.RED_BLOOD_CELLS, Variable.WHITE_BLOOD_CELLS, Variable.NEUTROPHILS,
+            Variable.LYMPHOCYTES, Variable.PLATELETS, Variable.CRP, Variable.SODIUM, Variable.POTASSIUM, Variable.UREA, Variable.CREATININE,
             Variable.URINARY_CALCIUM, Variable.MUSCLE_STRENGTH,
         ).forEach { put(it, Cadence.Periodic(7, LAB)) }
         put(Variable.MOOD_PHQ9, Cadence.Periodic(14, LAB))
@@ -85,6 +91,17 @@ object Schedule {
 
     /** Daytime noise is measured 07:00-23:00 (16 h) and night-time noise 23:00-07:00 (8 h). */
     fun isDaytime(t: Long): Boolean = hourOfDay(t) in 7.0..<23.0
+
+    /** Mission hours in (from, to]. */
+    fun hourlyTimes(from: Long, to: Long): List<Long> {
+        val result = mutableListOf<Long>()
+        var t = (from / HOUR_MS + 1) * HOUR_MS
+        while (t <= to) {
+            result += t
+            t += HOUR_MS
+        }
+        return result
+    }
 
     /** Mission times in (from, to] at which a periodic variable is measured, after the day-1 initial round. */
     fun dueTimes(cadence: Cadence.Periodic, from: Long, to: Long): List<Long> {

@@ -29,18 +29,22 @@ variables:
         name: Hemoglobina
         measures: Proteína de los glóbulos rojos que transporta el oxígeno. Los cortes dependen del sexo.
         guidance:
-          NORMAL: Hemoglobina en rango.
-          OBSERVATION: Hemoglobina baja (anemia leve o moderada) o elevada. Consulte al oficial médico para revisar alimentación, hidratación y un nuevo análisis.
-          ALERT: Hemoglobina muy baja (anemia severa) o muy alta. Avise al oficial médico; evite esfuerzos intensos hasta la evaluación.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado y registrar fatiga, palidez, mareos, cefalea o menor tolerancia al ejercicio. No aumentar la intensidad del entrenamiento hasta recibir indicaciones."
+          ALERT: "Suspender el ejercicio y solicitar evaluación médica prioritaria. Si hay falta de aire, dolor torácico, síncope o debilidad intensa, activar el protocolo de emergencia."
+          OBSERVATION_HIGH_MALE: "Repetir o confirmar el análisis según indicación médica y revisarlo junto con la hidratación."
+          ALERT_HIGH_MALE: "Informar de inmediato al equipo médico, evitar esfuerzos intensos y seguir sus indicaciones."
+          OBSERVATION_HIGH_FEMALE: "Repetir o confirmar el análisis según indicación médica y revisarlo junto con la hidratación, la hemoglobina y los glóbulos rojos. Informar el resultado al equipo médico."
+          ALERT_HIGH_FEMALE: "Informar de inmediato al equipo médico junto con los valores de hemoglobina y glóbulos rojos. Evitar el esfuerzo intenso y seguir sus indicaciones."
       en:
         name: Hemoglobin
         measures: Red blood cell protein that carries oxygen. Cuts depend on sex.
         guidance:
-          NORMAL: Hemoglobin in range.
-          OBSERVATION: Low (mild or moderate anaemia) or high hemoglobin. Contact the medical officer to review diet, hydration and a new test.
-          ALERT: Very low (severe anaemia) or very high hemoglobin. Notify the medical officer; avoid intense effort until assessed.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result and note fatigue, paleness, dizziness, headache or lower exercise tolerance. Do not increase training intensity until instructed."
+          ALERT: "Stop exercising and request a priority medical evaluation. With shortness of breath, chest pain, fainting or severe weakness, activate the emergency protocol."
+          OBSERVATION_HIGH_MALE: "Repeat or confirm the test as medically indicated and review it together with hydration."
+          ALERT_HIGH_MALE: "Inform the medical team immediately, avoid intense exertion and follow their instructions."
+          OBSERVATION_HIGH_FEMALE: "Repeat or confirm the test as medically indicated and review it together with hydration, hemoglobin and red blood cells. Report the result to the medical team."
+          ALERT_HIGH_FEMALE: "Inform the medical team immediately along with the hemoglobin and red blood cell values. Avoid intense exertion and follow their instructions."
 
   - variable: WHITE_BLOOD_CELLS
     unit: /µL
@@ -56,18 +60,14 @@ variables:
         name: Glóbulos blancos
         measures: Células de defensa del organismo.
         guidance:
-          NORMAL: Glóbulos blancos en rango.
-          OBSERVATION: Glóbulos blancos bajos o altos. Esté atento a fiebre o síntomas de infección y consulte al oficial médico.
-          ALERT: Glóbulos blancos muy bajos o muy altos. Avise al oficial médico; extreme la higiene y el aislamiento si hay fiebre.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado y registrar fiebre, fatiga o malestar general. No aumentar la intensidad del entrenamiento hasta recibir indicaciones."
+          ALERT: "Suspender el ejercicio y solicitar evaluación médica prioritaria. Si hay falta de aire, dolor torácico, síncope o debilidad intensa, activar el protocolo de emergencia."
       en:
         name: White blood cells
         measures: The body's defence cells.
         guidance:
-          NORMAL: White blood cells in range.
-          OBSERVATION: Low or high white blood cells. Watch for fever or signs of infection and contact the medical officer.
-          ALERT: Very low or very high white blood cells. Notify the medical officer; reinforce hygiene and isolation if there is fever.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result and note fever, fatigue or general malaise. Do not increase training intensity until instructed."
+          ALERT: "Stop exercising and request a priority medical evaluation. With shortness of breath, chest pain, fainting or severe weakness, activate the emergency protocol."
 
   - variable: NEUTROPHILS
     unit: /µL
@@ -83,18 +83,14 @@ variables:
         name: Neutrófilos
         measures: Glóbulos blancos que combaten las infecciones bacterianas (recuento absoluto).
         guidance:
-          NORMAL: Neutrófilos en rango.
-          OBSERVATION: Neutrófilos bajos o altos. Esté atento a fiebre y consulte al oficial médico.
-          ALERT: Neutrófilos muy bajos (alto riesgo de infección). Avise al oficial médico y extreme la higiene.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Registrar fiebre, escalofríos, dolor de garganta, tos o malestar general. Comunicar el resultado y reforzar las medidas de higiene y prevención de infecciones."
+          ALERT: "Solicitar evaluación médica prioritaria. Si hay fiebre, escalofríos o deterioro general, activar el protocolo de infección de la misión."
       en:
         name: Neutrophils
         measures: White blood cells that fight bacterial infections (absolute count).
         guidance:
-          NORMAL: Neutrophils in range.
-          OBSERVATION: Low or high neutrophils. Watch for fever and contact the medical officer.
-          ALERT: Very low neutrophils (high infection risk). Notify the medical officer and reinforce hygiene.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Note fever, chills, sore throat, cough or general malaise. Report the result and reinforce hygiene and infection prevention measures."
+          ALERT: "Request a priority medical evaluation. With fever, chills or general deterioration, activate the mission infection protocol."
 
   - variable: LYMPHOCYTES
     unit: /µL
@@ -110,18 +106,14 @@ variables:
         name: Linfocitos
         measures: Glóbulos blancos de la respuesta inmune frente a virus (recuento absoluto).
         guidance:
-          NORMAL: Linfocitos en rango.
-          OBSERVATION: Linfocitos bajos o altos. Consulte al oficial médico.
-          ALERT: Linfocitos muy bajos. Avise al oficial médico.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado, registrar síntomas y hacer seguimiento del hemograma según el plan médico."
+          ALERT: "Solicitar evaluación médica prioritaria, sobre todo si se acompaña de fiebre, infecciones recurrentes o deterioro general."
       en:
         name: Lymphocytes
         measures: White blood cells of the immune response against viruses (absolute count).
         guidance:
-          NORMAL: Lymphocytes in range.
-          OBSERVATION: Low or high lymphocytes. Contact the medical officer.
-          ALERT: Very low lymphocytes. Notify the medical officer.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result, note symptoms and follow up the blood count according to the medical plan."
+          ALERT: "Request a priority medical evaluation, especially with fever, recurrent infections or general deterioration."
 
   - variable: PLATELETS
     unit: /µL
@@ -131,24 +123,20 @@ variables:
       OBSERVATION: ["< 150000", "> 400000"]
       NORMAL: ["150000..400000"]
     source: Rules document
-    notes: [Interval provisional (P7D).]
+    notes: [Interval provisional (P7D)., The Alert recommendation is marked as proposed in the professional rules document; to be reviewed.]
     texts:
       es:
         name: Plaquetas
         measures: Células que participan en la coagulación de la sangre.
         guidance:
-          NORMAL: Plaquetas en rango.
-          OBSERVATION: Plaquetas bajas o altas. Informe moretones o sangrados y consulte al oficial médico.
-          ALERT: Plaquetas muy bajas o muy altas. Avise al oficial médico y evite actividades con riesgo de golpes.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Si las plaquetas están bajas, evitar actividades con riesgo de golpes o traumatismos. Registrar hematomas o sangrado nasal o de encías."
+          ALERT: "Solicitar evaluación médica prioritaria y evitar toda actividad con riesgo de golpes."
       en:
         name: Platelets
         measures: Cells involved in blood clotting.
         guidance:
-          NORMAL: Platelets in range.
-          OBSERVATION: Low or high platelets. Report bruising or bleeding and contact the medical officer.
-          ALERT: Very low or very high platelets. Notify the medical officer and avoid activities with a risk of impact.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "If platelets are low, avoid activities with a risk of blows or injury. Note bruising or nose or gum bleeding."
+          ALERT: "Request a priority medical evaluation and avoid any activity with a risk of blows."
 
   - variable: CRP
     unit: mg/L
@@ -164,27 +152,72 @@ variables:
         name: PCR (proteína C reactiva)
         measures: Marcador de inflamación o infección en la sangre.
         guidance:
-          NORMAL: Sin inflamación significativa.
-          OBSERVATION: Inflamación presente. Controle la temperatura y consulte al oficial médico.
-          ALERT: Inflamación importante, posible infección grave. Avise al oficial médico.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Registrar síntomas, controlar la temperatura y comunicar el resultado."
+          ALERT: "Solicitar evaluación médica para identificar el origen de la inflamación. Si hay fiebre, hipotensión, dificultad respiratoria o confusión, activar el protocolo de infección grave."
       en:
         name: CRP (C-reactive protein)
         measures: Blood marker of inflammation or infection.
         guidance:
-          NORMAL: No significant inflammation.
-          OBSERVATION: Inflammation present. Check your temperature and contact the medical officer.
-          ALERT: Marked inflammation, possible serious infection. Notify the medical officer.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Note symptoms, check the temperature and report the result."
+          ALERT: "Request a medical evaluation to find the source of the inflammation. With fever, low blood pressure, difficulty breathing or confusion, activate the severe infection protocol."
 
   - variable: HEMATOCRIT
     unit: "%"
     interval: P7D
-    notes: [Shown as data - WHO gives no hematocrit cuts; anaemia is set by hemoglobin.]
+    thresholdsBySex:
+      MALE:
+        ALERT: ["< 35"]
+        OBSERVATION: ["< 41"]
+        NORMAL: ["41..50"]
+      FEMALE:
+        ALERT: ["< 31"]
+        OBSERVATION: ["< 36"]
+        NORMAL: ["36..47"]
+    source: MedlinePlus (hematocrit test)
+    notes:
+      - Above 50 % (men) or 47 % (women) has no state - incompatible with the healthy-crew premise.
+      - Interval provisional (P7D).
     texts:
       es:
         name: "Hematocrito"
-        measures: "Proporción de la sangre ocupada por glóbulos rojos. Se muestra como dato; la anemia la determina la hemoglobina."
+        measures: "Proporción de la sangre ocupada por glóbulos rojos."
+        guidance:
+          OBSERVATION: "Repetir o confirmar el análisis según indicación médica y revisarlo junto con la hemoglobina y los glóbulos rojos. Informar los resultados al equipo médico."
+          ALERT: "Informar de inmediato al equipo médico junto con los valores de hemoglobina y glóbulos rojos. Evitar el esfuerzo intenso y seguir sus indicaciones."
       en:
         name: "Hematocrit"
-        measures: "Share of the blood occupied by red blood cells. Shown as data; anaemia is set by hemoglobin."
+        measures: "Share of the blood occupied by red blood cells."
+        guidance:
+          OBSERVATION: "Repeat or confirm the test as medically indicated and review it together with hemoglobin and red blood cells. Report the results to the medical team."
+          ALERT: "Inform the medical team immediately along with the hemoglobin and red blood cell values. Avoid intense exertion and follow their instructions."
+
+  - variable: RED_BLOOD_CELLS
+    unit: M/µL
+    interval: P7D
+    thresholdsBySex:
+      MALE:
+        ALERT: ["< 4", "> 6.2"]
+        OBSERVATION: ["< 4.5", "> 5.9"]
+        NORMAL: ["4.5..5.9"]
+      FEMALE:
+        ALERT: ["< 3.5", "> 5.5"]
+        OBSERVATION: ["< 4", "> 5.2"]
+        NORMAL: ["4..5.2"]
+    source: Rules document (source to cite)
+    review: true
+    notes:
+      - Millions of cells per microlitre. Contiguous bands (team decision).
+      - Interval provisional (P7D).
+    texts:
+      es:
+        name: "Glóbulos rojos"
+        measures: "Cantidad de glóbulos rojos, que llevan el oxígeno por la sangre."
+        guidance:
+          OBSERVATION: "Repetir el hemograma para confirmar la alteración, evaluar hemoglobina y hematocrito, y verificar la hidratación. Revisar la alimentación y el aporte de hierro, vitamina B12 y ácido fólico."
+          ALERT: "Suspender el ejercicio. Realizar una evaluación médica prioritaria. Repetir el hemograma y evaluarlo junto con hemoglobina y hematocrito. Informar síntomas como fatiga, palidez, disnea, mareos, cefalea o alteraciones visuales."
+      en:
+        name: "Red blood cells"
+        measures: "Number of red blood cells, which carry oxygen in the blood."
+        guidance:
+          OBSERVATION: "Repeat the blood count to confirm the change, check hemoglobin and hematocrit, and verify hydration. Review diet and intake of iron, vitamin B12 and folic acid."
+          ALERT: "Stop exercising. Get a priority medical evaluation. Repeat the blood count and review it together with hemoglobin and hematocrit. Report symptoms such as fatigue, paleness, shortness of breath, dizziness, headache or visual changes."

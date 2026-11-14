@@ -63,7 +63,7 @@ class SimulationLoop(
         val now = clock.missionTimeMs
         publishProfile()
         CrewRoster.members.forEach { publisher.publishHistory(it, now) }
-        val periodic = Schedule.cadences.filterValues { it is Cadence.Periodic }.keys
+        val periodic = Schedule.cadences.filterValues { it is Cadence.Periodic || it == Cadence.Hourly }.keys
         for (variable in periodic) subjectsOf(variable).forEach { emit(it, variable, now) }
         // The habitat log already holds last night's noise mean, so the habitat is not grey all of day 1.
         emit(Topics.HABITAT_ID, Variable.NOISE_NIGHT, now, anyHour = true)
@@ -139,7 +139,11 @@ class SimulationLoop(
             nextMinuteAt += MINUTE_MS
         }
         for ((variable, cadence) in Schedule.cadences) {
-            if (cadence is Cadence.Periodic) Schedule.dueTimes(cadence, before, after).forEach { due += it to variable }
+            when (cadence) {
+                is Cadence.Periodic -> Schedule.dueTimes(cadence, before, after).forEach { due += it to variable }
+                Cadence.Hourly -> Schedule.hourlyTimes(before, after).forEach { due += it to variable }
+                else -> Unit
+            }
         }
         for ((t, variable) in due.sortedBy { it.first }) subjectsOf(variable).forEach { emit(it, variable, t) }
     }

@@ -25,18 +25,14 @@ variables:
         name: Dosis efectiva acumulada de carrera
         measures: Dosis de misiones anteriores más la de esta misión, comparada con el límite de carrera de la NASA de 600 mSv. También se proyecta al final de la misión.
         guidance:
-          NORMAL: Dosis acumulada y proyectada por debajo del 80 % del límite.
-          OBSERVATION: La dosis acumulada o la proyectada al final de la misión alcanza el 80 % del límite. Minimice el tiempo en zonas menos blindadas y siga el plan de protección.
-          ALERT: Se alcanzó el límite de carrera de 600 mSv. Avise al oficial médico y al comandante; se requiere revisar el plan de la misión.
-          NOT_EVALUABLE: No hay una lectura reciente del dosímetro.
+          OBSERVATION: "Revisar la dosis acumulada y la proyección para el resto de la misión. Comunicar al equipo de radioprotección y revisar las actividades futuras para reducir la exposición."
+          ALERT: "Activar el protocolo de exposición y no continuar con la actividad. El equipo responsable evalúa la exposición y la necesidad de modificar actividades."
       en:
         name: Career effective dose
         measures: Dose from previous missions plus this mission, compared with NASA's 600 mSv career limit. It is also projected to the end of the mission.
         guidance:
-          NORMAL: Accumulated and projected dose below 80 % of the limit.
-          OBSERVATION: The accumulated dose, or the dose projected to the end of the mission, reaches 80 % of the limit. Minimize time in less shielded areas and follow the protection plan.
-          ALERT: The 600 mSv career limit has been reached. Notify the medical officer and the commander; the mission plan must be reviewed.
-          NOT_EVALUABLE: No recent dosimeter reading.
+          OBSERVATION: "Review the accumulated dose and its projection for the rest of the mission. Inform the radiation protection team and review upcoming activities to reduce exposure."
+          ALERT: "Activate the exposure protocol and do not continue the activity. The responsible team assesses the exposure and whether activities must change."
 
   - variable: SOLAR_EVENT_DOSE
     unit: mSv
@@ -53,18 +49,14 @@ variables:
         name: Dosis del evento solar en curso
         measures: Dosis recibida desde que empezó el evento de partículas solares, comparada con el límite de 250 mSv por evento.
         guidance:
-          NORMAL: No hay un evento solar activo.
-          OBSERVATION: Hay un evento solar activo según el aviso de clima espacial. Diríjase al refugio de radiación y siga el protocolo de evento solar.
-          ALERT: La dosis del evento alcanzó 250 mSv. Permanezca en el refugio y avise de inmediato al oficial médico.
-          NOT_EVALUABLE: No hay datos recientes del aviso de clima espacial o del dosímetro.
+          OBSERVATION: "Prepararse para ingresar al refugio radiológico; suspender o reprogramar la actividad según indique el centro de control."
+          ALERT: "Ingresar de inmediato al refugio radiológico designado, permanecer allí hasta recibir autorización y registrar la exposición recibida."
       en:
         name: Current solar event dose
         measures: Dose received since the solar particle event started, compared with the 250 mSv per-event limit.
         guidance:
-          NORMAL: No active solar event.
-          OBSERVATION: A solar event is active according to the space weather alert. Go to the radiation shelter and follow the solar event protocol.
-          ALERT: The event dose reached 250 mSv. Stay in the shelter and notify the medical officer immediately.
-          NOT_EVALUABLE: No recent space weather or dosimeter data.
+          OBSERVATION: "Get ready to enter the radiation shelter; suspend or reschedule the activity as the control center indicates."
+          ALERT: "Enter the designated radiation shelter immediately, stay there until cleared and record the exposure received."
 
   - variable: MISSION_EFFECTIVE_DOSE
     unit: mSv

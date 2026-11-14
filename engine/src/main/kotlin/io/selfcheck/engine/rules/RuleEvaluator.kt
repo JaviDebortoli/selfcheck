@@ -6,7 +6,6 @@ import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.Quality
 import io.selfcheck.knowledge.Condition
-import io.selfcheck.knowledge.Direction
 import io.selfcheck.knowledge.Reference
 import io.selfcheck.knowledge.Scale
 import io.selfcheck.knowledge.VariableDefinition
@@ -20,6 +19,8 @@ data class EvaluationInput(
     val runtime: SubjectRuntime,
     val history: MedicalHistory? = null,
     val profile: MissionProfile? = null,
+    /** Value after the rule's reference or window is applied (% of a target, mean); set for custom evaluators. */
+    val scaled: Double? = null,
 )
 
 /**
@@ -28,8 +29,6 @@ data class EvaluationInput(
  * custom evaluator, rhythm labels or thresholds (with streaks).
  */
 class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEvaluators.all) {
-
-    private val checkOrder = listOf(HealthState.ALERT, HealthState.OBSERVATION, HealthState.NORMAL)
 
     /** Returns the variable's new runtime, or null when this measurement does not update it. */
     fun evaluate(definition: VariableDefinition, input: EvaluationInput, previous: VariableRuntime?): VariableRuntime? {
@@ -82,7 +81,7 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
 
         definition.evaluator?.let { name ->
             val evaluator = custom[name] ?: error("Unknown evaluator $name for ${definition.variable}")
-            return evaluator.evaluate(definition, input, previous)?.let { it.copy(toConfirm = it.toConfirm || toConfirm) }
+            return evaluator.evaluate(definition, input.copy(scaled = scaled), previous)?.let { it.copy(toConfirm = it.toConfirm || toConfirm) }
         }
 
         if (scaled == null) return Evaluation(HealthState.NOT_EVALUABLE, ReasonCodes.NO_REFERENCE, baseParams)
@@ -101,11 +100,7 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
             .copy(value = scaled)
     }
 
-    /**
-     * First matching state, checked in order ALERT, OBSERVATION, NORMAL. A state with a streak requirement only
-     * applies when the condition held for that many consecutive measurements; otherwise the next state is checked.
-     * Out of range with an incomplete streak is NORMAL with a PERSISTENCE_PENDING reason (user decision).
-     */
+    /** Threshold check with streaks; see [Classifier.classify]. */
     fun classify(
         definition: VariableDefinition,
         thresholds: Map<HealthState, List<String>>,
@@ -114,56 +109,7 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
         toConfirm: Boolean,
         now: Long,
         samples: List<Sample>,
-    ): Evaluation {
-        var pending: Evaluation? = null
-        for (state in checkOrder) {
-            val conditions = thresholds[state].orEmpty().map(Condition::parse)
-            val condition = conditions.firstOrNull { it.matches(value) } ?: continue
-            val required = definition.persistence[state] ?: 1
-            if (required > 1) {
-                val streak = streak(conditions, value, now, samples, definition.effectiveExpiry.toMillis())
-                if (streak < required) {
-                    // Report the most advanced streak ("2 of 3 days"), the more severe state on a tie.
-                    val best = pending?.params?.get("count")?.toInt() ?: -1
-                    if (streak > best) {
-                        pending = Evaluation(
-                            HealthState.NORMAL,
-                            ReasonCodes.PERSISTENCE_PENDING,
-                            params + mapOf(
-                                "condition" to condition.text,
-                                "count" to streak.toString(),
-                                "required" to required.toString(),
-                                "pendingState" to state.name,
-                            ),
-                            toConfirm,
-                        )
-                    }
-                    continue
-                }
-            }
-            val code = when {
-                state == HealthState.NORMAL -> ReasonCodes.IN_RANGE
-                condition.direction == Direction.HIGH -> ReasonCodes.HIGH
-                condition.direction == Direction.LOW -> ReasonCodes.LOW
-                else -> ReasonCodes.OUT_OF_RANGE
-            }
-            return Evaluation(state, code, params + ("condition" to condition.text), toConfirm)
-        }
-        return pending ?: Evaluation(null, ReasonCodes.NO_CUT, params)
-    }
-
-    /** Consecutive measurements, current included, that match any of [conditions] without a gap longer than the expiry. */
-    private fun streak(conditions: List<Condition>, current: Double, now: Long, samples: List<Sample>, expiryMs: Long): Int {
-        if (conditions.none { it.matches(current) }) return 0
-        var count = 1
-        var t = now
-        for (sample in samples.asReversed()) {
-            if (t - sample.t > expiryMs || conditions.none { it.matches(sample.v) }) break
-            count++
-            t = sample.t
-        }
-        return count
-    }
+    ): Evaluation = Classifier.classify(definition, thresholds, value, params, toConfirm, now, samples)
 
     /** Value the thresholds are checked against: raw, % of a reference, or the mean of a window. Null if a reference is missing. */
     private fun scaledValue(definition: VariableDefinition, input: EvaluationInput): Double? {
@@ -212,7 +158,7 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
     }
 
     companion object {
-        const val MAX_SAMPLES = 20
+        const val MAX_SAMPLES = 30
         const val WINDOW_SLICES = 60L
     }
 }

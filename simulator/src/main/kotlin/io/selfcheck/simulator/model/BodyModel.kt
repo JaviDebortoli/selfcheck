@@ -5,6 +5,7 @@ import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.Variable
 import io.selfcheck.simulator.clock.MissionClock.Companion.DAY_MS
+import io.selfcheck.simulator.clock.MissionClock.Companion.HOUR_MS
 import io.selfcheck.simulator.crew.CrewMember
 import io.selfcheck.simulator.mission.MissionSettings
 import org.springframework.stereotype.Component
@@ -67,6 +68,8 @@ class BodyModel {
             // In flight body mass drifts down by up to 1 % over the first two months.
             Variable.BODY_MASS -> round1(member.preflightBodyMassKg * (1 - 0.01 * (t.toDouble() / (60 * DAY_MS)).coerceAtMost(1.0)) + 0.4 * (u - 0.5))
             Variable.URINE_SPECIFIC_GRAVITY -> round3(1.012 + 0.010 * u)
+            // mL/kg/h with the pre-flight body mass, a new draw every hour.
+            Variable.DIURESIS -> round2(0.8 + 0.5 * uniform(member.id, variable, (t / HOUR_MS).toInt()))
 
             Variable.CALORIC_INTAKE -> round(member.dailyCaloriesKcal * (0.95 + 0.10 * u))
             Variable.PROTEIN_INTAKE -> round(90 + 20 * u)
@@ -78,6 +81,7 @@ class BodyModel {
 
             Variable.HEMOGLOBIN -> round1(if (male) 14.2 + 1.0 * u else 13.0 + 0.8 * u)
             Variable.HEMATOCRIT -> round(3 * (if (male) 14.2 + 1.0 * u else 13.0 + 0.8 * u))
+            Variable.RED_BLOOD_CELLS -> round2(if (male) 4.9 + 0.5 * u else 4.3 + 0.5 * u)
             Variable.WHITE_BLOOD_CELLS -> round(5500 + 2000 * u, 100)
             Variable.NEUTROPHILS -> round(3000 + 1500 * u, 10)
             Variable.LYMPHOCYTES -> round(1500 + 1000 * u, 10)

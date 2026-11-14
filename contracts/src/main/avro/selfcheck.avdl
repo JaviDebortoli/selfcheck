@@ -52,6 +52,7 @@ protocol SelfCheckContracts {
     // Hematological and immunological
     HEMOGLOBIN,
     HEMATOCRIT,
+    RED_BLOOD_CELLS,
     WHITE_BLOOD_CELLS,
     NEUTROPHILS,
     LYMPHOCYTES,
@@ -73,6 +74,7 @@ protocol SelfCheckContracts {
     FLUID_INTAKE,
     CREATININE,
     UREA,
+    DIURESIS,
     SODIUM,
     POTASSIUM,
     URINARY_CALCIUM,

@@ -103,8 +103,12 @@ data class VariableTexts(
     val name: String,
     /** What the indicator measures. */
     val measures: String,
-    /** Guidance per state. */
-    val guidance: Map<HealthState, String> = emptyMap(),
+    /**
+     * Recommendation ("what to do") per state, from the professional rules document. Keys are a state
+     * (OBSERVATION, ALERT), optionally narrowed by the direction of the value and the crew member's sex:
+     * `ALERT_HIGH`, `OBSERVATION_HIGH_FEMALE`. The most specific key that matches is shown.
+     */
+    val guidance: Map<String, String> = emptyMap(),
 )
 
 /** A clinical combination (spec section 7.13): adds a high-priority alert, never changes a color. */

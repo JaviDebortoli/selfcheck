@@ -39,7 +39,7 @@ class CatalogController(private val catalog: RuleCatalog) {
                         "group" to group.group.name,
                         "name" to texts?.name,
                         "measures" to texts?.measures,
-                        "guidance" to texts?.guidance?.mapKeys { it.key.name },
+                        "guidance" to texts?.guidance,
                         "unit" to definition.unit,
                         "hasState" to definition.hasState,
                         "review" to definition.review,

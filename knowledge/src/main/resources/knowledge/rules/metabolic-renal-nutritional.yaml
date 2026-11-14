@@ -13,86 +13,94 @@ variables:
     fasting: true
     thresholds:
       ALERT: [">= 126", "< 54"]
-      OBSERVATION: ["> 99", "< 70"]
-      NORMAL: ["70..99"]
-    source: Rules document
-    notes: [Evaluated only when fasting. Observation from 100 mg/dL (spec section 13, implemented as final until professional review).]
+      OBSERVATION: ["> 109", "< 70"]
+      NORMAL: ["70..109"]
+    source: Rules document (WHO criterion)
+    notes:
+      - Evaluated only when fasting.
+      - Normal 70-109, Observation 110-125 or 54-69, Alert 126 or more or below 54 mg/dL.
     texts:
       es:
         name: Glucemia
         measures: Azúcar en sangre en ayunas. Fuera del ayuno se muestra sin estado.
         guidance:
-          NORMAL: Glucemia en ayunas en rango.
-          OBSERVATION: Glucemia en ayunas algo alta o baja. Revise horarios de comidas y repita la medición en ayunas.
-          ALERT: Glucemia muy alta o hipoglucemia. Si hay hipoglucemia, tome azúcares rápidos; avise al oficial médico.
-          NOT_EVALUABLE: No hay una medición en ayunas en las últimas 36 horas.
+          OBSERVATION: "Verificar que el ayuno haya sido adecuado, repetir la medición si corresponde y registrar sudoración, temblores, hambre, sed o aumento de la diuresis. Comunicar el resultado."
+          ALERT: "Con menos de 54 mg/dL, activar el protocolo de hipoglucemia: si el astronauta está consciente y puede tragar, seguir el protocolo de aporte de glucosa; si no, no dar nada por boca y pedir asistencia inmediata. Con 126 mg/dL o más, confirmar y evaluar según protocolo; con vómitos, dolor abdominal o confusión, evaluación urgente."
       en:
         name: Blood glucose
         measures: Fasting blood sugar. Outside fasting it is shown without state.
         guidance:
-          NORMAL: Fasting glucose in range.
-          OBSERVATION: Fasting glucose somewhat high or low. Review meal times and measure again fasting.
-          ALERT: Very high glucose or hypoglycaemia. For hypoglycaemia take fast-acting sugar; notify the medical officer.
-          NOT_EVALUABLE: No fasting measurement in the last 36 hours.
+          OBSERVATION: "Check that fasting was adequate, measure again if appropriate and note sweating, tremors, hunger, thirst or increased urination. Report the result."
+          ALERT: "Below 54 mg/dL, activate the hypoglycaemia protocol: if the astronaut is conscious and can swallow, follow the glucose intake protocol; if not, give nothing by mouth and ask for immediate assistance. At 126 mg/dL or more, confirm and assess per protocol; with vomiting, abdominal pain or confusion, urgent evaluation."
 
   - variable: CALORIC_INTAKE
     unit: kcal
     interval: P1D
     reference: DAILY_CALORIES
+    evaluator: CALORIC_INTAKE
+    params:
+      alertBelowPercent: 75
+      fatigueHigh: 7
+      moodHigh: 10
+      glucoseLow: 70
     thresholds:
-      ALERT: ["< 75"]
       OBSERVATION: ["< 90", "> 110"]
       NORMAL: ["90..110"]
     persistence:
-      ALERT: 3
       OBSERVATION: 3
-    source: Rules document (proposed rule)
-    review: true
-    notes: [Evaluated as % of the daily target; both cuts need 3 days in a row.]
+    source: Rules document
+    notes:
+      - Evaluated as % of the daily target.
+      - Observation - out of 90-110 % three days in a row.
+      - Alert - below 75 % together with fatigue 7-10, mood (PHQ-9) 10 or more or glucose below 70 mg/dL, with no streak.
     texts:
       es:
         name: Ingesta calórica
         measures: Calorías consumidas en el día comparadas con el objetivo diario.
         guidance:
-          NORMAL: Ingesta entre el 90 % y el 110 % del objetivo.
-          OBSERVATION: Ingesta por debajo del 90 % o por encima del 110 % del objetivo tres días seguidos. Si el apetito está bajo, coméntelo; ajuste las porciones al plan.
-          ALERT: Ingesta por debajo del 75 % del objetivo tres días seguidos. Avise al oficial médico para revisar el plan de alimentación.
-          NOT_EVALUABLE: No hay un registro de ingesta en las últimas 36 horas.
+          OBSERVATION: "Revisar el registro de ingesta y compararlo con el objetivo nutricional. Comunicar al equipo de nutrición las dificultades para alimentarse, la falta de apetito o la intolerancia digestiva."
+          ALERT: "Informar al equipo médico y nutricional. Seguir el plan nutricional individual, sin intentar compensar el déficit de forma brusca."
       en:
         name: Caloric intake
         measures: Calories eaten in the day compared with the daily target.
         guidance:
-          NORMAL: Intake between 90 % and 110 % of the target.
-          OBSERVATION: Intake below 90 % or above 110 % of the target three days in a row. If your appetite is low, say so; adjust portions to the plan.
-          ALERT: Intake below 75 % of the target three days in a row. Notify the medical officer to review the meal plan.
-          NOT_EVALUABLE: No intake record in the last 36 hours.
+          OBSERVATION: "Review the intake record and compare it with the nutrition target. Tell the nutrition team about difficulty eating, lack of appetite or digestive intolerance."
+          ALERT: "Inform the medical and nutrition team. Follow the individual nutrition plan, without trying to make up the deficit abruptly."
 
   - variable: FLUID_INTAKE
     unit: mL
     interval: P1D
     reference: DAILY_FLUIDS
-    thresholds:
-      NORMAL: [">= 100"]
+    evaluator: FLUID_INTAKE
+    params:
+      targetPercent: 100
+      diuresisLow: 0.5
+      creatinineHigh: 1.3
+      ureaHigh: 50
+      sodiumHigh: 145
+      potassiumLow: 3.5
+      potassiumHigh: 5.0
     source: Rules document
-    notes: [Evaluated as % of the daily target. Pending - how much deviation gives Observation; until then a value below target is shown without state.]
+    notes:
+      - Evaluated as % of the daily target.
+      - Observation - target not met together with signs of dehydration (urine output below 0.5 mL/kg/h, creatinine or urea above range) or electrolyte changes (sodium above range, potassium out of range).
+      - Target not met without those signs - Normal with a "target not met" notice.
     texts:
       es:
         name: Ingesta de líquidos
         measures: Líquidos consumidos en el día comparados con el objetivo diario.
         guidance:
-          NORMAL: Objetivo diario de líquidos cumplido.
-          NOT_EVALUABLE: No hay un registro de líquidos en las últimas 36 horas.
+          OBSERVATION: "Revisar el registro y compararlo con el objetivo de la misión. Comunicar sed excesiva, náuseas, vómitos, mareos o cambios en la orina. No forzar ni restringir la ingesta de agua por cuenta propia."
       en:
         name: Fluid intake
         measures: Fluids drunk in the day compared with the daily target.
         guidance:
-          NORMAL: Daily fluid target met.
-          NOT_EVALUABLE: No fluid record in the last 36 hours.
+          OBSERVATION: "Review the record and compare it with the mission target. Report excessive thirst, nausea, vomiting, dizziness or changes in urine. Do not force or restrict water intake on your own."
 
   - variable: CREATININE
     unit: mg/dL
     interval: P7D
-    evaluator: CREATININE_KDIGO
+    evaluator: CREATININE
     params:
       low: 0.6
       high: 1.3
@@ -100,56 +108,91 @@ variables:
       riseWindowHours: 48
       ratio: 1.5
       ratioWindowDays: 7
-    persistence:
-      OBSERVATION: 2
-    source: KDIGO acute kidney injury guideline
+      systolicHigh: 140
+      systolicLow: 90
+      diastolicHigh: 90
+      diastolicLow: 60
+      ureaLow: 10
+      ureaHigh: 50
+      diuresisLow: 0.5
+    source: Rules document; rise criteria from the KDIGO acute kidney injury guideline
     notes:
-      - Alert - rise of 0.3 mg/dL within 48 h, or 1.5 times within 7 days, against the lowest value of the window.
-      - Observation - out of range or rising, in 2 analyses in a row.
+      - Observation - out of range (0.6-1.3 mg/dL) in one analysis.
+      - Alert - out of range together with blood pressure of 140/90 or more or below 90/60, urea out of range, urine output below 0.5 mL/kg/h, or a rise of 0.3 mg/dL within 48 h or 1.5 times within 7 days against the lowest value of the window.
       - Interval provisional (P7D).
     texts:
       es:
         name: Creatinina
         measures: Desecho muscular que eliminan los riñones; su aumento indica que filtran menos.
         guidance:
-          NORMAL: Función renal sin cambios.
-          OBSERVATION: Creatinina fuera de rango o en ascenso en dos análisis seguidos. Mantenga la hidratación y consulte al oficial médico.
-          ALERT: Aumento rápido de la creatinina (posible lesión renal aguda). Avise al oficial médico e hidrátese según indicación.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado, registrar cantidad y frecuencia de orina, y revisar con el equipo médico la ingesta de líquidos, el ejercicio y la medicación."
+          ALERT: "Solicitar evaluación médica prioritaria. Si hay disminución marcada de la orina, edema, vómitos o alteración del potasio, activar el protocolo renal urgente."
       en:
         name: Creatinine
         measures: Muscle waste removed by the kidneys; a rise means they filter less.
         guidance:
-          NORMAL: Kidney function unchanged.
-          OBSERVATION: Creatinine out of range or rising in two analyses in a row. Keep hydrated and contact the medical officer.
-          ALERT: Fast creatinine rise (possible acute kidney injury). Notify the medical officer and hydrate as instructed.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result, note the amount and frequency of urine, and review fluid intake, exercise and medication with the medical team."
+          ALERT: "Request a priority medical evaluation. With a marked drop in urine, oedema, vomiting or abnormal potassium, activate the urgent renal protocol."
 
   - variable: UREA
     unit: mg/dL
     interval: P7D
-    thresholds:
-      OBSERVATION: ["< 10", "> 50"]
-      NORMAL: ["10..50"]
+    evaluator: UREA
+    params:
+      low: 10
+      high: 50
+      diuresisLow: 0.5
+      creatinineLow: 0.6
+      creatinineHigh: 1.3
+      fluidTargetPercent: 100
     persistence:
       OBSERVATION: 2
     source: Rules document
-    notes: [Interval provisional (P7D).]
+    notes:
+      - Observation - out of range (10-50 mg/dL) in two analyses in a row, or in one analysis together with urine output below 0.5 mL/kg/h, creatinine out of range or the daily fluid target not met.
+      - Interval provisional (P7D).
     texts:
       es:
         name: Urea
         measures: Desecho de las proteínas que eliminan los riñones.
         guidance:
-          NORMAL: Urea en rango.
-          OBSERVATION: Urea fuera de rango en dos análisis seguidos. Revise hidratación e ingesta de proteínas con el oficial médico.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado y revisarlo junto con creatinina, ingesta de líquidos, diuresis y alimentación."
       en:
         name: Urea
         measures: Protein waste removed by the kidneys.
         guidance:
-          NORMAL: Urea in range.
-          OBSERVATION: Urea out of range in two analyses in a row. Review hydration and protein intake with the medical officer.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result and review it together with creatinine, fluid intake, urine output and diet."
+
+  - variable: DIURESIS
+    unit: mL/kg/h
+    interval: PT1H
+    evaluator: DIURESIS
+    params:
+      normalLow: 0.5
+      normalHigh: 2
+      veryLow: 0.3
+      lowHours: 12
+      veryLowHours: 24
+      anuriaHours: 12
+    source: Rules document
+    notes:
+      - One value per hour that stands for the hour before, in mL/kg/h with the pre-flight body mass.
+      - Observation - 0.3 to 0.49, and any value below 0.5 that does not yet meet an Alert duration.
+      - Alert - below 0.5 for 12 values in a row, below 0.3 for 24, or 0 for 12.
+      - Above 2 mL/kg/h has no state (healthy-crew premise).
+    texts:
+      es:
+        name: Diuresis
+        measures: Orina producida por hora, por kilo de peso previo al vuelo.
+        guidance:
+          OBSERVATION: "Repetir la medición, evaluar la ingesta de líquidos, registrar el balance hídrico (ingresos y egresos), controlar presión y frecuencia, y avisar de síntomas como sed intensa, mareos, debilidad, náuseas o cambios en el color de la orina. Informar al sistema de monitoreo médico para seguimiento."
+          ALERT: "Notificar inmediatamente al equipo médico, suspender el entrenamiento y las actividades físicas exigentes, y evaluar presión arterial, frecuencia y conciencia. Informar signos de deshidratación (edema, disnea intensa, hipotensión). Solicitar evaluación de la función renal mediante creatinina, urea y electrolitos, especialmente potasio y sodio."
+      en:
+        name: Urine output
+        measures: Urine produced per hour, per kilogram of pre-flight body mass.
+        guidance:
+          OBSERVATION: "Measure again, assess fluid intake, record the fluid balance (intake and output), check blood pressure and heart rate, and report symptoms such as intense thirst, dizziness, weakness, nausea or changes in urine colour. Inform the medical monitoring system for follow-up."
+          ALERT: "Notify the medical team immediately, stop training and demanding physical activities, and check blood pressure, heart rate and consciousness. Report signs of dehydration (oedema, severe shortness of breath, low blood pressure). Request a kidney function evaluation with creatinine, urea and electrolytes, especially potassium and sodium."
 
   - variable: SODIUM
     unit: mmol/L
@@ -165,18 +208,14 @@ variables:
         name: Sodio
         measures: Sal en la sangre; refleja el balance de agua del cuerpo.
         guidance:
-          NORMAL: Sodio en rango.
-          OBSERVATION: Sodio algo bajo o alto. Revise la ingesta de líquidos y consulte al oficial médico.
-          ALERT: Sodio muy bajo o muy alto. Avise al oficial médico; no corrija la hidratación por su cuenta.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Informar el resultado y registrar cefalea, náuseas, debilidad, sed o cambios en la orina. No modificar la ingesta de agua o sal sin indicación médica."
+          ALERT: "Solicitar evaluación médica inmediata. Si hay confusión, convulsiones, somnolencia intensa o pérdida de conciencia, activar el protocolo de emergencia. No intentar corregir el sodio por cuenta propia."
       en:
         name: Sodium
         measures: Salt in the blood; it reflects the body's water balance.
         guidance:
-          NORMAL: Sodium in range.
-          OBSERVATION: Sodium somewhat low or high. Review fluid intake and contact the medical officer.
-          ALERT: Very low or very high sodium. Notify the medical officer; do not correct hydration on your own.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result and note headache, nausea, weakness, thirst or changes in urine. Do not change water or salt intake without medical instruction."
+          ALERT: "Request an immediate medical evaluation. With confusion, seizures, severe drowsiness or loss of consciousness, activate the emergency protocol. Do not try to correct sodium on your own."
 
   - variable: POTASSIUM
     unit: mmol/L
@@ -192,18 +231,14 @@ variables:
         name: Potasio
         measures: Mineral clave para el ritmo del corazón y los músculos.
         guidance:
-          NORMAL: Potasio en rango.
-          OBSERVATION: Potasio algo bajo o alto. Consulte al oficial médico.
-          ALERT: Potasio muy bajo o muy alto, con riesgo de arritmias. Avise de inmediato al oficial médico.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado, registrar debilidad, calambres, palpitaciones u hormigueos y solicitar revisión médica. No tomar suplementos de potasio ni cambiar la alimentación sin indicación."
+          ALERT: "Avisar de inmediato al equipo médico y solicitar evaluación electrocardiográfica y renal. No hacer ejercicio intenso mientras se evalúa."
       en:
         name: Potassium
         measures: Mineral that is key for heart rhythm and muscles.
         guidance:
-          NORMAL: Potassium in range.
-          OBSERVATION: Potassium somewhat low or high. Contact the medical officer.
-          ALERT: Very low or very high potassium, with a risk of arrhythmia. Notify the medical officer immediately.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result, note weakness, cramps, palpitations or tingling and request a medical review. Do not take potassium supplements or change diet without instruction."
+          ALERT: "Notify the medical team immediately and request an ECG and renal evaluation. No intense exercise while being assessed."
 
   - variable: URINARY_CALCIUM
     unit: mg/24 h
@@ -224,18 +259,14 @@ variables:
         name: Calcio urinario
         measures: Calcio eliminado por la orina en 24 horas; sube cuando el hueso pierde mineral.
         guidance:
-          NORMAL: Calcio urinario en rango.
-          OBSERVATION: Calcio urinario fuera de rango en dos análisis seguidos. Aumente la hidratación y consulte al oficial médico.
-          ALERT: Calcio urinario alto con cólico renal o sangre en la orina (posible cálculo renal). Avise de inmediato al oficial médico.
-          NOT_EVALUABLE: No hay un análisis vigente.
+          OBSERVATION: "Comunicar el resultado, revisar el registro de ingesta y seguir el plan de hidratación y nutrición. El equipo médico lo relaciona con la densidad ósea y otros marcadores."
+          ALERT: "Solicitar evaluación médica prioritaria por posible litiasis."
       en:
         name: Urinary calcium
         measures: Calcium removed in the urine over 24 hours; it rises when bone loses mineral.
         guidance:
-          NORMAL: Urinary calcium in range.
-          OBSERVATION: Urinary calcium out of range in two analyses in a row. Increase hydration and contact the medical officer.
-          ALERT: High urinary calcium with renal colic or blood in the urine (possible kidney stone). Notify the medical officer immediately.
-          NOT_EVALUABLE: No current analysis.
+          OBSERVATION: "Report the result, review the intake record and follow the hydration and nutrition plan. The medical team relates it to bone density and other markers."
+          ALERT: "Request a priority medical evaluation for a possible kidney stone."
 
   - variable: URINE_SPECIFIC_GRAVITY
     unit: ""
@@ -251,16 +282,12 @@ variables:
         name: Densidad urinaria
         measures: Concentración de la orina; sube con la deshidratación.
         guidance:
-          NORMAL: Densidad urinaria en rango.
-          OBSERVATION: Densidad urinaria fuera de rango tres días seguidos. Ajuste la ingesta de líquidos y consulte al oficial médico.
-          NOT_EVALUABLE: No hay una medición en las últimas 36 horas.
+          OBSERVATION: "Repetir el análisis según indicación, registrar la ingesta de líquidos y observar cambios en la frecuencia y cantidad de orina."
       en:
         name: Urine specific gravity
         measures: Urine concentration; it rises with dehydration.
         guidance:
-          NORMAL: Urine specific gravity in range.
-          OBSERVATION: Urine specific gravity out of range three days in a row. Adjust fluid intake and contact the medical officer.
-          NOT_EVALUABLE: No measurement in the last 36 hours.
+          OBSERVATION: "Repeat the test as indicated, record fluid intake and watch for changes in urine frequency and amount."
 
   - variable: PROTEIN_INTAKE
     unit: g

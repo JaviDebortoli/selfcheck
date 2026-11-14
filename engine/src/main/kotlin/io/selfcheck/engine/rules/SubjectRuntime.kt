@@ -47,13 +47,21 @@ data class VariableRuntime(
     /** Free memory for rules that track an episode (solar event start dose). */
     val memory: Map<String, Double> = emptyMap(),
 ) {
-    /** Whether a change from [previous] must be published: state, reason code, flag, or streak progress. */
+    /**
+     * Whether a change from [previous] must be published: state, reason code, flag, streak progress, or the detail of a
+     * combined condition (which variables complete it, which limit was held).
+     */
     fun differsFrom(previous: VariableRuntime?): Boolean =
         previous == null ||
             previous.state != state ||
             previous.code != code ||
             previous.toConfirm != toConfirm ||
-            (code == ReasonCodes.PERSISTENCE_PENDING && previous.params != params)
+            (code == ReasonCodes.PERSISTENCE_PENDING && previous.params != params) ||
+            DETAIL_PARAMS.any { previous.params[it] != params[it] }
+
+    private companion object {
+        val DETAIL_PARAMS = listOf("findings", "limit")
+    }
 }
 
 data class SummaryRuntime(val state: HealthState, val triggerVariable: Variable?)

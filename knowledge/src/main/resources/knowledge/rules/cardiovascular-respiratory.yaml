@@ -22,18 +22,14 @@ variables:
         name: Frecuencia cardíaca
         measures: Latidos del corazón por minuto. Se evalúa solo en reposo; durante el ejercicio o el sueño se muestra sin estado.
         guidance:
-          NORMAL: Frecuencia dentro de lo esperable en reposo.
-          OBSERVATION: Frecuencia fuera del rango de reposo. Descanse unos minutos y repita la medición en reposo; si persiste, consulte al oficial médico.
-          ALERT: Frecuencia muy alta o muy baja en reposo. Suspenda la actividad, siéntese o recuéstese y avise de inmediato al oficial médico.
-          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+          OBSERVATION: "Detener el ejercicio, descansar unos minutos y volver a medir. Registrar si hay palpitaciones, mareos o debilidad, y comunicar al equipo médico."
+          ALERT: "Interrumpir la actividad, adoptar una posición segura y avisar de inmediato al equipo médico. Si aparece dolor torácico, dificultad respiratoria o sensación de inestabilidad, activar el protocolo de emergencia."
       en:
         name: Heart rate
         measures: Heartbeats per minute. Evaluated only at rest; during exercise or sleep it is shown without state.
         guidance:
-          NORMAL: Heart rate within the expected resting range.
-          OBSERVATION: Heart rate outside the resting range. Rest for a few minutes and measure again at rest; if it persists, contact the medical officer.
-          ALERT: Very high or very low resting heart rate. Stop the activity, sit or lie down and notify the medical officer immediately.
-          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+          OBSERVATION: "Stop exercising, rest a few minutes and measure again. Note any palpitations, dizziness or weakness, and inform the medical team."
+          ALERT: "Stop the activity, get into a safe position and notify the medical team immediately. If chest pain, difficulty breathing or a feeling of instability appears, activate the emergency protocol."
 
   - variable: SYSTOLIC_BP
     unit: mmHg
@@ -48,18 +44,14 @@ variables:
         name: Presión sistólica
         measures: Presión de la sangre en las arterias cuando el corazón late (valor alto de la presión arterial).
         guidance:
-          NORMAL: Presión sistólica en rango.
-          OBSERVATION: Presión sistólica algo baja o elevada. Repita la medición en reposo, mantenga la hidratación y consulte al oficial médico si persiste.
-          ALERT: Presión sistólica muy baja o alta. Avise al oficial médico. Con 180/120 mmHg o más se aplica el protocolo urgente.
-          NOT_EVALUABLE: No hay una medición válida en las últimas 36 horas.
+          OBSERVATION: "Evitar esfuerzos y repetir la medición tras 5 minutos de reposo, con técnica correcta. Registrar si hay cefalea, mareos o visión borrosa."
+          ALERT: "Suspender la actividad y solicitar evaluación médica inmediata. Avisar si hay dolor torácico, déficit neurológico, falta de aire o alteraciones visuales. Con 180 mmHg o más, protocolo urgente."
       en:
         name: Systolic blood pressure
         measures: Arterial pressure while the heart beats (the upper blood pressure value).
         guidance:
-          NORMAL: Systolic pressure in range.
-          OBSERVATION: Systolic pressure somewhat low or high. Measure again at rest, keep hydrated and contact the medical officer if it persists.
-          ALERT: Very low or high systolic pressure. Notify the medical officer. At 180/120 mmHg or more the urgent protocol applies.
-          NOT_EVALUABLE: No valid measurement in the last 36 hours.
+          OBSERVATION: "Avoid exertion and measure again after 5 minutes of rest, with the correct technique. Note any headache, dizziness or blurred vision."
+          ALERT: "Stop the activity and request an immediate medical evaluation. Report chest pain, neurological deficit, shortness of breath or visual changes. At 180 mmHg or more, urgent protocol."
 
   - variable: DIASTOLIC_BP
     unit: mmHg
@@ -74,18 +66,14 @@ variables:
         name: Presión diastólica
         measures: Presión de la sangre en las arterias entre latidos (valor bajo de la presión arterial).
         guidance:
-          NORMAL: Presión diastólica en rango.
-          OBSERVATION: Presión diastólica algo baja o elevada. Repita la medición en reposo y consulte al oficial médico si persiste.
-          ALERT: Presión diastólica muy baja o alta. Avise al oficial médico. Con 180/120 mmHg o más se aplica el protocolo urgente.
-          NOT_EVALUABLE: No hay una medición válida en las últimas 36 horas.
+          OBSERVATION: "Repetir la medición tras 5 minutos de reposo y verificar la técnica. Comunicar el resultado al equipo médico."
+          ALERT: "Detener la actividad y solicitar evaluación médica prioritaria, más aún si hay dolor torácico, dificultad respiratoria, confusión o síntomas neurológicos. Con 120 mmHg o más, activar el protocolo de emergencia."
       en:
         name: Diastolic blood pressure
         measures: Arterial pressure between beats (the lower blood pressure value).
         guidance:
-          NORMAL: Diastolic pressure in range.
-          OBSERVATION: Diastolic pressure somewhat low or high. Measure again at rest and contact the medical officer if it persists.
-          ALERT: Very low or high diastolic pressure. Notify the medical officer. At 180/120 mmHg or more the urgent protocol applies.
-          NOT_EVALUABLE: No valid measurement in the last 36 hours.
+          OBSERVATION: "Measure again after 5 minutes of rest and check the technique. Report the result to the medical team."
+          ALERT: "Stop the activity and request a priority medical evaluation, especially with chest pain, difficulty breathing, confusion or neurological symptoms. At 120 mmHg or more, activate the emergency protocol."
 
   - variable: SPO2
     unit: "%"
@@ -101,18 +89,14 @@ variables:
         name: SpO2
         measures: Saturación de oxígeno en sangre medida por pulsioximetría.
         guidance:
-          NORMAL: Oxigenación adecuada.
-          OBSERVATION: Oxigenación algo baja. Verifique la señal del sensor y respire con calma; si persiste, consulte al oficial médico.
-          ALERT: Oxigenación baja. Avise de inmediato al oficial médico y verifique el aire del hábitat.
-          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+          OBSERVATION: "Detener el ejercicio, permanecer en reposo y verificar la colocación del oxímetro. Repetir la medición y comunicar el resultado."
+          ALERT: "Avisar de inmediato al equipo médico, suspender toda actividad física y seguir el protocolo de evaluación respiratoria. Si hay falta de aire intensa, confusión o coloración azulada de piel y mucosas, activar la respuesta de emergencia."
       en:
         name: SpO2
         measures: Blood oxygen saturation measured by pulse oximetry.
         guidance:
-          NORMAL: Adequate oxygenation.
-          OBSERVATION: Slightly low oxygenation. Check the sensor signal and breathe calmly; if it persists, contact the medical officer.
-          ALERT: Low oxygenation. Notify the medical officer immediately and check the habitat air.
-          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+          OBSERVATION: "Stop exercising, stay at rest and check the oximeter placement. Measure again and report the result."
+          ALERT: "Notify the medical team immediately, stop all physical activity and follow the respiratory assessment protocol. With severe shortness of breath, confusion or bluish skin and lips, activate the emergency response."
 
   - variable: RESPIRATORY_RATE
     unit: rpm
@@ -129,18 +113,14 @@ variables:
         name: Frecuencia respiratoria
         measures: Respiraciones por minuto.
         guidance:
-          NORMAL: Respiración dentro de lo esperable.
-          OBSERVATION: Respiración más lenta o más rápida de lo habitual. Descanse y repita la medición; si persiste, consulte al oficial médico.
-          ALERT: Respiración muy alterada o dificultad para respirar. Avise de inmediato al oficial médico.
-          NOT_EVALUABLE: No hay una medición válida y reciente. Verifique la colocación del sensor.
+          OBSERVATION: "Detener la actividad física, descansar y repetir el recuento durante un minuto. Evaluar si hay tos, sensación de falta de aire o dolor torácico."
+          ALERT: "Interrumpir de inmediato la actividad y avisar al equipo médico. Activar el protocolo de emergencia si hay dificultad respiratoria importante, respiración irregular, confusión o pérdida de conciencia."
       en:
         name: Respiratory rate
         measures: Breaths per minute.
         guidance:
-          NORMAL: Breathing within the expected range.
-          OBSERVATION: Breathing slower or faster than usual. Rest and measure again; if it persists, contact the medical officer.
-          ALERT: Severely altered breathing or difficulty breathing. Notify the medical officer immediately.
-          NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+          OBSERVATION: "Stop physical activity, rest and count again for one minute. Check for cough, shortness of breath or chest pain."
+          ALERT: "Stop the activity immediately and notify the medical team. Activate the emergency protocol with marked difficulty breathing, irregular breathing, confusion or loss of consciousness."
 
   - variable: ECG_RHYTHM
     unit: ""
@@ -162,15 +142,11 @@ variables:
         name: Ritmo/ECG
         measures: Ritmo del corazón clasificado por el monitor cardíaco de la nave.
         guidance:
-          NORMAL: Ritmo sinusal.
-          OBSERVATION: Extrasístoles aisladas o una arritmia nueva. Evite estimulantes y esfuerzos intensos y consulte al oficial médico.
-          ALERT: Arritmia grave, o dolor torácico o síncope. Avise de inmediato al oficial médico y prepare el protocolo de reanimación.
-          NOT_EVALUABLE: No hay una señal de ECG válida y reciente.
+          OBSERVATION: "Guardar el trazo electrocardiográfico, evitar el ejercicio intenso y comunicar el hallazgo al equipo médico y sus síntomas acompañantes para su revisión."
+          ALERT: "Suspender la actividad, permanecer en posición segura y solicitar asistencia médica inmediata. Si hay síncope, dolor torácico, falta de aire o inestabilidad, activar el protocolo de emergencia."
       en:
         name: Rhythm/ECG
         measures: Heart rhythm classified by the ship's cardiac monitor.
         guidance:
-          NORMAL: Sinus rhythm.
-          OBSERVATION: Isolated premature beats or a new arrhythmia. Avoid stimulants and intense effort and contact the medical officer.
-          ALERT: Severe arrhythmia, or chest pain or fainting. Notify the medical officer immediately and prepare the resuscitation protocol.
-          NOT_EVALUABLE: No valid recent ECG signal.
+          OBSERVATION: "Save the ECG trace, avoid intense exercise and report the finding and any accompanying symptoms to the medical team for review."
+          ALERT: "Stop the activity, stay in a safe position and request immediate medical assistance. With fainting, chest pain, shortness of breath or instability, activate the emergency protocol."

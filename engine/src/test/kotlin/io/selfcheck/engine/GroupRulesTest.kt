@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** Rules of spec section 7 beyond plain thresholds: streaks, rhythm, sex, KDIGO, lab ranges, combinations. */
+/** Rules of spec section 7 beyond plain thresholds: streaks, rhythm, sex, combined conditions, lab ranges, combinations. */
 class GroupRulesTest {
 
     private val engine = EngineHarness()
@@ -46,31 +46,65 @@ class GroupRulesTest {
     }
 
     @Test
-    fun `caloric intake - normal with pending streak, observation after 3 days, alert after 3 days under 75 percent`() {
+    fun `caloric intake - observation out of 90-110 percent 3 days in a row`() {
         engine.history(calories = 2000.0)
         engine.send(measurement(Variable.CALORIC_INTAKE, 1700.0, DAY)) // 85 %
         assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
         assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.CALORIC_INTAKE))
         assertEquals("1", engine.state(Variable.CALORIC_INTAKE)!!.reason.params["count"])
-        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 2 * DAY)) // 70 %
-        assertEquals("2", engine.state(Variable.CALORIC_INTAKE)!!.reason.params["count"])
-        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 3 * DAY)) // 70 %, but only 2 days under 75 %
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 2 * DAY)) // 70 %, no symptoms: no alert
+        assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 2300.0, 3 * DAY)) // 115 %
         assertEquals(OBSERVATION, engine.stateOf(Variable.CALORIC_INTAKE))
-        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 4 * DAY)) // third day under 75 %
-        assertEquals(ALERT, engine.stateOf(Variable.CALORIC_INTAKE))
-        engine.send(measurement(Variable.CALORIC_INTAKE, 2000.0, 5 * DAY))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 2000.0, 4 * DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
         assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.CALORIC_INTAKE))
     }
 
     @Test
-    fun `fluid intake below target has no state until the deviation cut has a number`() {
+    fun `caloric intake - alert below 75 percent with fatigue, low mood or low glucose, without a streak`() {
+        engine.history(calories = 2000.0)
+        engine.send(measurement(Variable.GLUCOSE, 65.0, DAY, fasting = true))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, DAY + 1)) // 70 %
+        assertEquals(ALERT, engine.stateOf(Variable.CALORIC_INTAKE))
+        assertEquals(ReasonCodes.CALORIC_LOW_WITH_FINDINGS, engine.codeOf(Variable.CALORIC_INTAKE))
+        assertEquals("GLUCOSE", engine.state(Variable.CALORIC_INTAKE)!!.reason.params["findings"])
+
+        engine.send(measurement(Variable.GLUCOSE, 90.0, 2 * DAY, fasting = true))
+        engine.send(measurement(Variable.FATIGUE, 6.0, 2 * DAY + 1))
+        engine.send(measurement(Variable.MOOD_PHQ9, 9.0, 2 * DAY + 2))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 2 * DAY + 3))
+        assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
+        engine.send(measurement(Variable.FATIGUE, 7.0, 3 * DAY))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 3 * DAY + 1))
+        assertEquals(ALERT, engine.stateOf(Variable.CALORIC_INTAKE))
+        assertEquals("FATIGUE", engine.state(Variable.CALORIC_INTAKE)!!.reason.params["findings"])
+    }
+
+    @Test
+    fun `fluid intake - below target is normal with a notice, observation with dehydration or electrolyte signs`() {
         engine.history(fluids = 2500.0)
         engine.send(measurement(Variable.FLUID_INTAKE, 2600.0, DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.FLUID_INTAKE))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.FLUID_INTAKE))
         engine.send(measurement(Variable.FLUID_INTAKE, 1200.0, 2 * DAY))
-        assertNull(engine.stateOf(Variable.FLUID_INTAKE))
-        assertEquals(ReasonCodes.NO_CUT, engine.codeOf(Variable.FLUID_INTAKE))
+        assertEquals(NORMAL, engine.stateOf(Variable.FLUID_INTAKE))
+        assertEquals(ReasonCodes.FLUID_TARGET_NOT_MET, engine.codeOf(Variable.FLUID_INTAKE))
+
+        engine.send(measurement(Variable.SODIUM, 134.0, 3 * DAY)) // low sodium does not count
+        engine.send(measurement(Variable.FLUID_INTAKE, 1200.0, 3 * DAY + 1))
+        assertEquals(ReasonCodes.FLUID_TARGET_NOT_MET, engine.codeOf(Variable.FLUID_INTAKE))
+        engine.send(measurement(Variable.SODIUM, 147.0, 4 * DAY))
+        engine.send(measurement(Variable.FLUID_INTAKE, 1200.0, 4 * DAY + 1))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.FLUID_INTAKE))
+        assertEquals(ReasonCodes.FLUID_TARGET_WITH_FINDINGS, engine.codeOf(Variable.FLUID_INTAKE))
+        assertEquals("SODIUM", engine.state(Variable.FLUID_INTAKE)!!.reason.params["findings"])
+
+        engine.send(measurement(Variable.SODIUM, 140.0, 5 * DAY))
+        engine.send(measurement(Variable.DIURESIS, 0.4, 5 * DAY + 1))
+        engine.send(measurement(Variable.FLUID_INTAKE, 1200.0, 5 * DAY + 2))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.FLUID_INTAKE))
+        assertEquals("DIURESIS", engine.state(Variable.FLUID_INTAKE)!!.reason.params["findings"])
     }
 
     @Test
@@ -98,8 +132,44 @@ class GroupRulesTest {
     fun `urea - observation only after 2 analyses in a row out of range`() {
         engine.send(measurement(Variable.UREA, 55.0, DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.UREA))
+        assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.UREA))
         engine.send(measurement(Variable.UREA, 58.0, 8 * DAY))
         assertEquals(OBSERVATION, engine.stateOf(Variable.UREA))
+    }
+
+    @Test
+    fun `urea - observation in one analysis with low urine output, creatinine out of range or fluid target not met`() {
+        engine.send(measurement(Variable.DIURESIS, 0.4, DAY))
+        engine.send(measurement(Variable.UREA, 55.0, DAY + 1))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.UREA))
+        assertEquals(ReasonCodes.UREA_WITH_FINDINGS, engine.codeOf(Variable.UREA))
+        assertEquals("DIURESIS", engine.state(Variable.UREA)!!.reason.params["findings"])
+    }
+
+    @Test
+    fun `urine output - observation below 0,5, alert after 12 hours, 24 hours below 0,3 or 12 hours at zero`() {
+        engine.send(measurement(Variable.DIURESIS, 1.0, HOUR))
+        assertEquals(NORMAL, engine.stateOf(Variable.DIURESIS))
+        for (hour in 2..12) {
+            engine.send(measurement(Variable.DIURESIS, 0.4, hour * HOUR))
+            assertEquals(OBSERVATION, engine.stateOf(Variable.DIURESIS))
+        }
+        engine.send(measurement(Variable.DIURESIS, 0.4, 13 * HOUR)) // 12 values in a row below 0,5
+        assertEquals(ALERT, engine.stateOf(Variable.DIURESIS))
+        assertEquals(ReasonCodes.DIURESIS_LOW_SUSTAINED, engine.codeOf(Variable.DIURESIS))
+        assertEquals("12", engine.state(Variable.DIURESIS)!!.reason.params["hours"])
+
+        engine.send(measurement(Variable.DIURESIS, 2.5, 14 * HOUR)) // above 2: no state
+        assertNull(engine.stateOf(Variable.DIURESIS))
+        assertEquals(ReasonCodes.NO_CUT, engine.codeOf(Variable.DIURESIS))
+
+        for (hour in 15..38) engine.send(measurement(Variable.DIURESIS, 0.2, hour * HOUR))
+        assertEquals("0.3", engine.state(Variable.DIURESIS)!!.reason.params["limit"])
+        assertEquals("24", engine.state(Variable.DIURESIS)!!.reason.params["hours"])
+
+        for (hour in 39..50) engine.send(measurement(Variable.DIURESIS, 0.0, hour * HOUR))
+        assertEquals(ALERT, engine.stateOf(Variable.DIURESIS))
+        assertEquals(ReasonCodes.DIURESIS_ANURIA, engine.codeOf(Variable.DIURESIS))
     }
 
     @Test
@@ -130,21 +200,42 @@ class GroupRulesTest {
     }
 
     @Test
-    fun `creatinine - KDIGO alerts on 0,3 mg per dL in 48 h and 1,5 times in 7 days`() {
-        engine.send(measurement(Variable.CREATININE, 0.9, DAY))
+    fun `creatinine - observation out of range in one analysis, alert with blood pressure, urea or urine output`() {
+        engine.send(measurement(Variable.CREATININE, 1.0, DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.CREATININE))
-        engine.send(measurement(Variable.CREATININE, 1.2, 2 * DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, 8 * DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CREATININE))
+        assertEquals(ReasonCodes.HIGH, engine.codeOf(Variable.CREATININE))
+
+        engine.send(measurement(Variable.SYSTOLIC_BP, 85.0, 15 * DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, 15 * DAY + 1))
+        assertEquals(ALERT, engine.stateOf(Variable.CREATININE))
+        assertEquals(ReasonCodes.CREATININE_WITH_FINDINGS, engine.codeOf(Variable.CREATININE))
+        assertEquals("SYSTOLIC_BP", engine.state(Variable.CREATININE)!!.reason.params["findings"])
+    }
+
+    @Test
+    fun `creatinine - out of range with a rise of 0,3 mg per dL in 48 h`() {
+        engine.send(measurement(Variable.CREATININE, 1.1, DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, 2 * DAY))
         assertEquals(ALERT, engine.stateOf(Variable.CREATININE))
         assertEquals(ReasonCodes.CREATININE_RISE_48H, engine.codeOf(Variable.CREATININE))
     }
 
     @Test
-    fun `creatinine - 1,5 times the lowest value of the last 7 days`() {
-        engine.send(measurement(Variable.CREATININE, 0.6, DAY))
-        engine.send(measurement(Variable.CREATININE, 0.7, 4 * DAY))
-        engine.send(measurement(Variable.CREATININE, 0.9, 7 * DAY))
+    fun `creatinine - out of range at 1,5 times the lowest value of the last 7 days`() {
+        engine.send(measurement(Variable.CREATININE, 0.8, DAY))
+        engine.send(measurement(Variable.CREATININE, 0.9, 4 * DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, 7 * DAY))
         assertEquals(ALERT, engine.stateOf(Variable.CREATININE))
         assertEquals(ReasonCodes.CREATININE_RISE_7D, engine.codeOf(Variable.CREATININE))
+    }
+
+    @Test
+    fun `a rise that stays in range is normal`() {
+        engine.send(measurement(Variable.CREATININE, 0.9, DAY))
+        engine.send(measurement(Variable.CREATININE, 1.2, 2 * DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.CREATININE))
     }
 
     @Test
@@ -180,8 +271,62 @@ class GroupRulesTest {
     fun `glucose is only evaluated fasting`() {
         engine.send(measurement(Variable.GLUCOSE, 140.0, DAY, fasting = false))
         assertNull(engine.stateOf(Variable.GLUCOSE))
-        engine.send(measurement(Variable.GLUCOSE, 100.0, 2 * DAY, fasting = true))
+        engine.send(measurement(Variable.GLUCOSE, 105.0, 2 * DAY, fasting = true))
+        assertEquals(NORMAL, engine.stateOf(Variable.GLUCOSE))
+        engine.send(measurement(Variable.GLUCOSE, 110.0, 3 * DAY, fasting = true))
         assertEquals(OBSERVATION, engine.stateOf(Variable.GLUCOSE))
+        engine.send(measurement(Variable.GLUCOSE, 53.0, 4 * DAY, fasting = true))
+        assertEquals(ALERT, engine.stateOf(Variable.GLUCOSE))
+    }
+
+    @Test
+    fun `vomiting - observation for 1-2 episodes, alert from 3 or with nausea, abdominal pain or liquid stool`() {
+        engine.send(measurement(Variable.VOMITING, 2.0, DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.VOMITING))
+        engine.send(measurement(Variable.VOMITING, 3.0, 2 * DAY))
+        assertEquals(ALERT, engine.stateOf(Variable.VOMITING))
+        engine.send(measurement(Variable.NAUSEA, 7.0, 3 * DAY))
+        engine.send(measurement(Variable.VOMITING, 1.0, 3 * DAY + 1))
+        assertEquals(ALERT, engine.stateOf(Variable.VOMITING))
+        assertEquals(ReasonCodes.VOMITING_WITH_FINDINGS, engine.codeOf(Variable.VOMITING))
+        engine.send(measurement(Variable.NAUSEA, 2.0, 4 * DAY))
+        engine.send(measurement(Variable.STOOL_FORM_BRISTOL, 7.0, 4 * DAY + 1))
+        engine.send(measurement(Variable.VOMITING, 1.0, 4 * DAY + 2))
+        assertEquals(ALERT, engine.stateOf(Variable.VOMITING))
+        assertEquals("STOOL_FORM_BRISTOL", engine.state(Variable.VOMITING)!!.reason.params["findings"])
+        assertEquals(OBSERVATION, engine.stateOf(Variable.STOOL_FORM_BRISTOL)) // liquid stool alone is observation
+        engine.send(measurement(Variable.VOMITING, 0.0, 5 * DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.VOMITING))
+    }
+
+    @Test
+    fun `sleep - one short night with high fatigue and low mood gives alert`() {
+        engine.send(measurement(Variable.FATIGUE, 8.0, DAY))
+        engine.send(measurement(Variable.SLEEP_HOURS, 5.5, DAY + 1))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.SLEEP_HOURS)) // fatigue alone is not enough
+        engine.send(measurement(Variable.MOOD_PHQ9, 12.0, 2 * DAY))
+        engine.send(measurement(Variable.SLEEP_HOURS, 5.5, 2 * DAY + 1))
+        assertEquals(ALERT, engine.stateOf(Variable.SLEEP_HOURS))
+        assertEquals(ReasonCodes.SLEEP_SHORT_WITH_FINDINGS, engine.codeOf(Variable.SLEEP_HOURS))
+    }
+
+    @Test
+    fun `hematocrit and red blood cells - cuts depend on sex, high hematocrit has no state`() {
+        engine.history("crew-1", sex = Sex.MALE)
+        engine.history("crew-2", sex = Sex.FEMALE)
+        engine.send(measurement(Variable.HEMATOCRIT, 40.0, DAY, subjectId = "crew-1"))
+        engine.send(measurement(Variable.HEMATOCRIT, 40.0, DAY, subjectId = "crew-2"))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.HEMATOCRIT, "crew-1"))
+        assertEquals(NORMAL, engine.stateOf(Variable.HEMATOCRIT, "crew-2"))
+        engine.send(measurement(Variable.HEMATOCRIT, 52.0, 8 * DAY, subjectId = "crew-1"))
+        assertNull(engine.stateOf(Variable.HEMATOCRIT, "crew-1"))
+
+        engine.send(measurement(Variable.RED_BLOOD_CELLS, 4.45, 9 * DAY, subjectId = "crew-1"))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.RED_BLOOD_CELLS, "crew-1"))
+        engine.send(measurement(Variable.RED_BLOOD_CELLS, 6.3, 16 * DAY, subjectId = "crew-1"))
+        assertEquals(ALERT, engine.stateOf(Variable.RED_BLOOD_CELLS, "crew-1"))
+        engine.send(measurement(Variable.RED_BLOOD_CELLS, 5.3, 2 * DAY, subjectId = "crew-2"))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.RED_BLOOD_CELLS, "crew-2"))
     }
 
     @Test

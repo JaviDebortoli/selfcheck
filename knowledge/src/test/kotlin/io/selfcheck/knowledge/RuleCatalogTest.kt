@@ -15,6 +15,9 @@ import kotlin.test.assertTrue
 
 class RuleCatalogTest {
 
+    /** A state, optionally narrowed by the direction of the value and the crew member's sex. */
+    private val guidanceKey = Regex("^(OBSERVATION|ALERT)(_(HIGH|LOW))?(_(MALE|FEMALE))?$")
+
     private val catalog = RuleCatalog.load()
     private val languages = listOf("es", "en")
 
@@ -32,15 +35,22 @@ class RuleCatalogTest {
                 languages.forEach { language ->
                     val texts = assertNotNull(definition.texts[language], "${definition.variable} $language")
                     assertTrue(texts.name.isNotBlank() && texts.measures.isNotBlank(), "${definition.variable} $language")
-                    if (definition.hasState) {
-                        assertNotNull(texts.guidance[HealthState.NORMAL], "${definition.variable} $language NORMAL")
-                        assertNotNull(texts.guidance[HealthState.NOT_EVALUABLE], "${definition.variable} $language NOT_EVALUABLE")
-                        val states = definition.thresholds?.keys.orEmpty() + definition.thresholdsBySex?.values?.flatMap { it.keys }.orEmpty()
-                        states.forEach { state -> assertNotNull(texts.guidance[state], "${definition.variable} $language $state") }
+                    texts.guidance.keys.forEach { key ->
+                        assertTrue(definition.hasState && guidanceKey.matches(key), "${definition.variable} $language $key")
                     }
                 }
             }
         }
+    }
+
+    @Test
+    fun `recommendations exist only for Observation and Alert, with the same keys in both languages`() {
+        catalog.variables.values.forEach { definition ->
+            assertEquals(definition.texts["es"]?.guidance?.keys, definition.texts["en"]?.guidance?.keys, "${definition.variable}")
+        }
+        val hemoglobin = catalog[Variable.HEMOGLOBIN]!!.texts.getValue("es").guidance
+        assertEquals(setOf("OBSERVATION", "ALERT", "OBSERVATION_HIGH_MALE", "ALERT_HIGH_MALE", "OBSERVATION_HIGH_FEMALE", "ALERT_HIGH_FEMALE"), hemoglobin.keys)
+        assertTrue(catalog.variables.values.none { it.texts.values.any { texts -> HealthState.NORMAL.name in texts.guidance } })
     }
 
     @Test

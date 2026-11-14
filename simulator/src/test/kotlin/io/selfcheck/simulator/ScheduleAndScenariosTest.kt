@@ -31,6 +31,8 @@ class ScheduleAndScenariosTest {
         assertEquals(Cadence.Periodic(1, 7), Schedule.cadences[Variable.SLEEP_HOURS])
         assertEquals(14, (Schedule.cadences[Variable.MOOD_PHQ9] as Cadence.Periodic).everyDays)
         assertEquals(30, (Schedule.cadences[Variable.SLEEP_QUALITY_PSQI] as Cadence.Periodic).everyDays)
+        assertEquals(Cadence.Hourly, Schedule.cadences[Variable.DIURESIS])
+        assertEquals(listOf(HOUR_MS, 2 * HOUR_MS), Schedule.hourlyTimes(HOUR_MS / 2, 2 * HOUR_MS))
         // Every variable except the derived ones has a cadence.
         val derived = setOf(Variable.CAREER_EFFECTIVE_DOSE, Variable.SOLAR_EVENT_DOSE, Variable.ECG_RHYTHM)
         assertEquals(Variable.entries.toSet() - derived, Schedule.cadences.keys)
