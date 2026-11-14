@@ -41,6 +41,8 @@ data class AlertView(
     val code: String,
     val params: Map<String, String>,
     val missionTimeMs: Long,
+    /** Clinical combination: high priority, it never changes a color (spec section 7.13). */
+    val combination: Boolean = false,
 )
 
 data class CrewMemberView(

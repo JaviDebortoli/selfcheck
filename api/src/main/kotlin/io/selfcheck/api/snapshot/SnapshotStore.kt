@@ -120,7 +120,7 @@ class SnapshotStore {
 
     fun onAlert(a: Alert) = change {
         alerts.addFirst(
-            AlertView(a.subjectId, a.subjectType.name, a.variable?.name, a.state.name, a.code, a.params, a.missionTimeMs),
+            AlertView(a.subjectId, a.subjectType.name, a.variable?.name, a.state.name, a.code, a.params, a.missionTimeMs, a.combination),
         )
         while (alerts.size > MAX_ALERTS) alerts.removeLast()
     }
