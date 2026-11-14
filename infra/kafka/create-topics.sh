@@ -15,6 +15,7 @@ create selfcheck.mission-profile --config cleanup.policy=compact
 create selfcheck.medical-history --config cleanup.policy=compact
 create selfcheck.measurements
 create selfcheck.variable-states
+create selfcheck.summary-states
 create selfcheck.alerts
 
 kafka-topics --bootstrap-server "$BOOTSTRAP" --list

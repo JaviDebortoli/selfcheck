@@ -151,6 +151,30 @@ protocol SelfCheckContracts {
     NOT_EVALUABLE
   }
 
+  /** The seven body groups and the shared habitat (spec section 6.1). */
+  enum MeasurementGroup {
+    RADIOLOGICAL,
+    CARDIOVASCULAR_RESPIRATORY,
+    HEMATOLOGICAL_IMMUNE,
+    MUSCULOSKELETAL_BONE,
+    METABOLIC_RENAL_NUTRITIONAL,
+    NEUROLOGICAL_COGNITIVE_BEHAVIORAL,
+    DIGESTIVE_GENERAL,
+    HABITAT
+  }
+
+  /** Bone resorption marker reported by the laboratory (spec section 7.6). */
+  enum BoneResorptionMarker {
+    CTX,
+    NTX
+  }
+
+  /** Laboratory reference range that arrives with a measurement (spec section 7.6). */
+  record ReferenceRange {
+    double low;
+    double high;
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Published by the simulator at start-up
   // ---------------------------------------------------------------------------------------------
@@ -158,6 +182,8 @@ protocol SelfCheckContracts {
   /** Mission profile. Published by the simulator when the mission starts. */
   record MissionProfile {
     MissionEnvironment environment;
+    /** Planned mission duration, used to project the career dose to the end of the mission (spec section 7.4). */
+    int plannedDurationDays;
     long missionTimeMs;
   }
 
@@ -182,6 +208,8 @@ protocol SelfCheckContracts {
     double priorEffectiveDoseMsv;
     /** Pre-flight muscle strength, in the same unit as MUSCLE_STRENGTH measurements. */
     double preflightMuscleStrength;
+    /** Pre-flight body mass, in kg. */
+    double preflightBodyMassKg;
     PreflightBoneDensity preflightBoneDensity;
     DailyTargets dailyTargets;
     long missionTimeMs;
@@ -214,6 +242,10 @@ protocol SelfCheckContracts {
     array<AlarmSignReading> alarmSigns = [];
     /** Only for heart-rate readings from the ECG monitor. */
     union { null, RhythmLabel } rhythm = null;
+    /** Only for BONE_RESORPTION_MARKERS: which marker was measured. */
+    union { null, BoneResorptionMarker } boneMarker = null;
+    /** Laboratory reference range, when the laboratory sends one (BONE_RESORPTION_MARKERS). */
+    union { null, ReferenceRange } referenceRange = null;
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -236,6 +268,21 @@ protocol SelfCheckContracts {
     /** True when the evaluated measurement had DOUBTFUL quality ("to confirm"). */
     boolean toConfirm = false;
     Reason reason;
+    long missionTimeMs;
+  }
+
+  /**
+   * State of a group, of a crew member as a whole, or of the habitat (spec section 7.3):
+   * the worst state among its variables, ordered ALERT, OBSERVATION, NOT_EVALUABLE, NORMAL.
+   */
+  record SummaryState {
+    SubjectType subjectType;
+    string subjectId;
+    /** The group this state summarizes; null for a crew member's overall state. */
+    union { null, MeasurementGroup } group = null;
+    HealthState state;
+    /** Variable that set the state (the worst one); null when every variable is NORMAL. */
+    union { null, Variable } triggerVariable = null;
     long missionTimeMs;
   }
 

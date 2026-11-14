@@ -19,6 +19,9 @@ public final class Topics {
     /** {@link VariableState}, keyed by subject id. */
     public static final String VARIABLE_STATES = "selfcheck.variable-states";
 
+    /** {@link SummaryState} of groups, crew members and habitat, keyed by subject id. */
+    public static final String SUMMARY_STATES = "selfcheck.summary-states";
+
     /** {@link Alert}, keyed by subject id. */
     public static final String ALERTS = "selfcheck.alerts";
 

@@ -27,6 +27,7 @@ class SmokePublisher(private val kafka: KafkaTemplate<String, SpecificRecord>) :
     override fun run(args: ApplicationArguments) {
         val profile = MissionProfile.newBuilder()
             .setEnvironment(MissionEnvironment.ORBITAL_STATION)
+            .setPlannedDurationDays(180)
             .setMissionTimeMs(0)
             .build()
         kafka.send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, profile).get()
