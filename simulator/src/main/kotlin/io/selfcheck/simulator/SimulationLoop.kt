@@ -9,6 +9,7 @@ import io.selfcheck.contracts.Variable
 import io.selfcheck.knowledge.RuleCatalog
 import io.selfcheck.simulator.clock.MissionClock
 import io.selfcheck.simulator.control.Overrides
+import io.selfcheck.simulator.crew.CrewActivity
 import io.selfcheck.simulator.crew.CrewMember
 import io.selfcheck.simulator.crew.CrewRoster
 import io.selfcheck.simulator.mission.MissionSettings
@@ -38,6 +39,7 @@ class SimulationLoop(
     private val body: BodyModel,
     private val scenarios: ScenarioRunner,
     private val overrides: Overrides,
+    private val crewActivity: CrewActivity,
     private val publisher: MeasurementPublisher,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -84,6 +86,7 @@ class SimulationLoop(
         missionDose.clear()
         scenarios.clear()
         overrides.clear()
+        crewActivity.clear()
         body.reset()
         nextContinuousAt = MissionSettings.START_TIME_MS
         nextMinuteAt = MissionSettings.START_TIME_MS
@@ -167,7 +170,7 @@ class SimulationLoop(
         return when {
             variable == Variable.MISSION_EFFECTIVE_DOSE -> round((missionDose[subjectId] ?: 0.0) * 1000) / 1000
             variable == Variable.ABSORBED_DOSE -> round((missionDose[subjectId] ?: 0.0) * 0.4 * 1000) / 1000
-            member != null -> body.crew(member, variable, t, currentEnvironment)
+            member != null -> body.crew(member, variable, t, currentEnvironment, activityOf(subjectId, t))
             else -> body.habitat(variable, t, currentEnvironment)
         }
     }
@@ -179,7 +182,7 @@ class SimulationLoop(
 
         val effect = scenarios.effect(subjectId, variable, t)
         val context = when (variable) {
-            Variable.HEART_RATE, Variable.SPO2, Variable.RESPIRATORY_RATE -> Schedule.activityAt(t)
+            Variable.HEART_RATE, Variable.SPO2, Variable.RESPIRATORY_RATE -> activityOf(subjectId, t)
             Variable.SYSTOLIC_BP, Variable.DIASTOLIC_BP, Variable.BODY_TEMPERATURE, Variable.GLUCOSE -> ActivityContext.REST
             else -> null
         }
@@ -198,6 +201,10 @@ class SimulationLoop(
             referenceRange = if (variable == Variable.BONE_RESORPTION_MARKERS) CTX_RANGE else null,
         )
     }
+
+    /** Daily routine, unless the crew member started a training session from the quick view. */
+    private fun activityOf(subjectId: String, t: Long): ActivityContext =
+        if (crewActivity.isTraining(subjectId)) ActivityContext.EXERCISE else Schedule.activityAt(t)
 
     fun crewMember(id: String): CrewMember? = CrewRoster.members.firstOrNull { it.id == id }
 

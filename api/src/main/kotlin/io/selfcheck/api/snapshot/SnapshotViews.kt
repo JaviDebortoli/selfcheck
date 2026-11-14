@@ -55,6 +55,14 @@ data class CrewMemberView(
     val dailyTargets: Map<String, Double>,
 )
 
+/** Crew actions from the quick view (training, medical assistance) and since when. */
+data class CrewStatusView(
+    val training: Boolean = false,
+    val trainingSinceMs: Long? = null,
+    val assistance: Boolean = false,
+    val assistanceSinceMs: Long? = null,
+)
+
 data class MissionView(val environment: String?, val plannedDurationDays: Int?)
 
 data class SnapshotView(
@@ -64,4 +72,5 @@ data class SnapshotView(
     val crew: List<CrewMemberView>,
     val subjects: Map<String, SubjectView>,
     val alerts: List<AlertView>,
+    val crewStatus: Map<String, CrewStatusView>,
 )

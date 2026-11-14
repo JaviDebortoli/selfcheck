@@ -14,6 +14,9 @@ explanation of what each indicator measures and what to do when it leaves its ra
 - Four states: **Normal** (green), **Observation** (yellow), **Alert** (red) and **Not evaluable** (grey).
   Missing, expired or poor-quality data is never shown as Normal.
 - Two crew screens (quick view and control center) and a simulator control screen, in **Spanish and English**.
+- From the quick view a crew member can start a training session (the control center is told that heart and breathing
+  rate, temperature, pressure and SpO2 will be altered by exercise) and request medical assistance (a high-priority
+  item in the control center's alert log).
 
 ## Run it
 
@@ -36,7 +39,8 @@ The mission starts on **day 1 at 08:00** in real time. Use the simulator screen 
 
 Useful endpoints: `GET :8080/api/snapshot`, `GET :8080/api/stream` (SSE), `GET :8080/api/catalog/{es|en}`,
 `GET :8080/api/history/{subjectId}?days=14`, `GET :8081/api/simulator/status`, `POST :8081/api/simulator/scenarios/{id}`,
-`POST :8081/api/simulator/reset`.
+`POST :8081/api/simulator/reset`, `POST :8080/api/crew/{crewMemberId}/training` and
+`POST :8080/api/crew/{crewMemberId}/assistance` with `{"active": true|false}` (crew actions from the quick view).
 
 ## How it works
 

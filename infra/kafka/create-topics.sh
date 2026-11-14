@@ -20,5 +20,6 @@ create selfcheck.variable-states
 create selfcheck.summary-states
 create selfcheck.alerts
 create selfcheck.control
+create selfcheck.crew-events
 
 kafka-topics --bootstrap-server "$BOOTSTRAP" --list

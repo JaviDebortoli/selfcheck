@@ -23,6 +23,10 @@ class MissionEpochGuard(
     private var current: Long? = null
     private var loaded = false
 
+    /** Epoch of the running mission, to stamp records the api publishes itself. */
+    @Synchronized
+    fun currentEpoch(): Long? = current
+
     /** Whether the record belongs to the running mission (switching to it first if it is newer). */
     @Synchronized
     fun accept(record: ConsumerRecord<*, *>): Boolean {

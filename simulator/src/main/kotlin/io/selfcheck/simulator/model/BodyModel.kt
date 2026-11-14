@@ -28,12 +28,17 @@ class BodyModel {
     fun reset() = walks.clear()
 
     /** Value of a crew member's variable at mission time [t]. */
-    fun crew(member: CrewMember, variable: Variable, t: Long, environment: MissionEnvironment): Double {
+    fun crew(
+        member: CrewMember,
+        variable: Variable,
+        t: Long,
+        environment: MissionEnvironment,
+        activity: ActivityContext = Schedule.activityAt(t),
+    ): Double {
         val day = (t / DAY_MS).toInt()
         val u = uniform(member.id, variable, day)
         val months = t.toDouble() / (30 * DAY_MS)
         val male = member.sex == Sex.MALE
-        val activity = Schedule.activityAt(t)
         return when (variable) {
             // A healthy crew member stays inside the normal resting range; only scenarios push values out.
             Variable.HEART_RATE -> when (activity) {

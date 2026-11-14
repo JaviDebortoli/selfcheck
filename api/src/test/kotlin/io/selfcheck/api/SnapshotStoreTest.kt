@@ -47,6 +47,29 @@ class SnapshotStoreTest {
     }
 }
 
+class CrewEventSnapshotTest {
+    @Test
+    fun `training and assistance requests show in the snapshot, and a request enters the alert log once`() {
+        val store = SnapshotStore()
+        store.onCrewEvent(io.selfcheck.contracts.CrewEvent("crew-2", io.selfcheck.contracts.CrewEventType.TRAINING, true, 1_000))
+        store.onCrewEvent(io.selfcheck.contracts.CrewEvent("crew-2", io.selfcheck.contracts.CrewEventType.MEDICAL_ASSISTANCE, true, 2_000))
+        store.onCrewEvent(io.selfcheck.contracts.CrewEvent("crew-2", io.selfcheck.contracts.CrewEventType.MEDICAL_ASSISTANCE, true, 3_000))
+
+        val view = store.snapshot()
+        val status = view.crewStatus.getValue("crew-2")
+        assertEquals(true, status.training)
+        assertEquals(1_000L, status.trainingSinceMs)
+        assertEquals(true, status.assistance)
+        assertEquals(listOf(SnapshotStore.ASSISTANCE_CODE), view.alerts.map { it.code })
+
+        store.onCrewEvent(io.selfcheck.contracts.CrewEvent("crew-2", io.selfcheck.contracts.CrewEventType.MEDICAL_ASSISTANCE, false, 4_000))
+        store.onCrewEvent(io.selfcheck.contracts.CrewEvent("crew-2", io.selfcheck.contracts.CrewEventType.TRAINING, false, 4_000))
+        val ended = store.snapshot().crewStatus.getValue("crew-2")
+        assertEquals(false, ended.assistance)
+        assertEquals(false, ended.training)
+    }
+}
+
 class CatalogControllerTest {
     private val controller = io.selfcheck.api.web.CatalogController(io.selfcheck.knowledge.RuleCatalog.load())
 

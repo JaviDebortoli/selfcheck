@@ -262,6 +262,25 @@ protocol SelfCheckContracts {
   }
 
   // ---------------------------------------------------------------------------------------------
+  // Published by the api when a crew member acts from the quick view
+  // ---------------------------------------------------------------------------------------------
+
+  enum CrewEventType {
+    /** Physical training: heart rate, breathing, temperature, pressure and SpO2 will be altered by exercise. */
+    TRAINING,
+    /** The crew member asks for medical assistance. */
+    MEDICAL_ASSISTANCE
+  }
+
+  /** A crew action started (active = true) or ended. */
+  record CrewEvent {
+    string crewMemberId;
+    CrewEventType type;
+    boolean active;
+    long missionTimeMs;
+  }
+
+  // ---------------------------------------------------------------------------------------------
   // Published by the engine
   // ---------------------------------------------------------------------------------------------
 

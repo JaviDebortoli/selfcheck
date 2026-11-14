@@ -25,6 +25,9 @@ public final class Topics {
     /** {@link Alert}, keyed by subject id. */
     public static final String ALERTS = "selfcheck.alerts";
 
+    /** {@link CrewEvent} from the quick view (training, medical assistance), keyed by crew member id. */
+    public static final String CREW_EVENTS = "selfcheck.crew-events";
+
     /** {@link MissionControl} commands from the simulator's control API, keyed by {@link #MISSION_KEY}. */
     public static final String CONTROL = "selfcheck.control";
 

@@ -3,6 +3,7 @@ package io.selfcheck.api.ingest
 import io.selfcheck.api.history.HistoryRepository
 import io.selfcheck.api.snapshot.SnapshotStore
 import io.selfcheck.contracts.Alert
+import io.selfcheck.contracts.CrewEvent
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionControl
@@ -78,6 +79,11 @@ class EventListeners(
     @KafkaListener(topics = [Topics.ALERTS], groupId = REPLAY_GROUP, properties = [EARLIEST])
     fun onAlert(record: ConsumerRecord<String, Alert>) {
         if (guard.accept(record)) snapshot.onAlert(record.value())
+    }
+
+    @KafkaListener(topics = [Topics.CREW_EVENTS], groupId = REPLAY_GROUP, properties = [EARLIEST])
+    fun onCrewEvent(record: ConsumerRecord<String, CrewEvent>) {
+        if (guard.accept(record)) snapshot.onCrewEvent(record.value())
     }
 
     /** Mission reset (spec section 5): the guard clears the snapshot and the history on the new epoch. */

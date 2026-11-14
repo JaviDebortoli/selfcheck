@@ -1,6 +1,8 @@
 package io.selfcheck.api.snapshot
 
 import io.selfcheck.contracts.Alert
+import io.selfcheck.contracts.CrewEvent
+import io.selfcheck.contracts.CrewEventType
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionProfile
@@ -24,6 +26,7 @@ class SnapshotStore {
     private val crew = sortedMapOf<String, CrewMemberView>()
     private val subjects = sortedMapOf<String, MutableSubject>()
     private val alerts = ArrayDeque<AlertView>()
+    private val crewStatus = sortedMapOf<String, CrewStatusView>()
 
     private class MutableSubject(val id: String, val type: String) {
         var overall: SummaryView? = null
@@ -43,6 +46,7 @@ class SnapshotStore {
             crew = crew.values.toList(),
             subjects = subjects.mapValues { it.value.view() },
             alerts = alerts.toList(),
+            crewStatus = crewStatus.toMap(),
         )
     }
 
@@ -126,6 +130,24 @@ class SnapshotStore {
         while (alerts.size > MAX_ALERTS) alerts.removeLast()
     }
 
+    /**
+     * Crew action from the quick view. A medical assistance request also enters the alert log of the
+     * control center, as a high-priority item.
+     */
+    fun onCrewEvent(e: CrewEvent) = change {
+        val current = crewStatus[e.crewMemberId] ?: CrewStatusView()
+        crewStatus[e.crewMemberId] = when (e.type) {
+            CrewEventType.TRAINING -> current.copy(training = e.active, trainingSinceMs = if (e.active) e.missionTimeMs else null)
+            else -> current.copy(assistance = e.active, assistanceSinceMs = if (e.active) e.missionTimeMs else null)
+        }
+        if (e.type == CrewEventType.MEDICAL_ASSISTANCE && e.active && !current.assistance) {
+            alerts.addFirst(
+                AlertView(e.crewMemberId, "CREW_MEMBER", null, "ALERT", ASSISTANCE_CODE, emptyMap(), e.missionTimeMs, false),
+            )
+            while (alerts.size > MAX_ALERTS) alerts.removeLast()
+        }
+    }
+
     /** Grows every time the snapshot is cleared, so a caller can tell that a new mission started. */
     fun clearCount(): Long = synchronized(lock) { clears }
 
@@ -137,6 +159,7 @@ class SnapshotStore {
         crew.clear()
         subjects.clear()
         alerts.clear()
+        crewStatus.clear()
     }
 
     private fun subject(id: String, type: String): MutableSubject = subjects.getOrPut(id) { MutableSubject(id, type) }
@@ -150,5 +173,8 @@ class SnapshotStore {
 
     companion object {
         const val MAX_ALERTS = 200
+
+        /** Alert log code of a medical assistance request (not a rule: translated by the frontend). */
+        const val ASSISTANCE_CODE = "MEDICAL_ASSISTANCE_REQUESTED"
     }
 }

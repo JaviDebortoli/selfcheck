@@ -69,6 +69,6 @@ class ResetService(
 
     companion object {
         const val SETTLE_MS = 1_500L
-        val TOPICS = listOf(Topics.MEASUREMENTS, Topics.VARIABLE_STATES, Topics.SUMMARY_STATES, Topics.ALERTS)
+        val TOPICS = listOf(Topics.MEASUREMENTS, Topics.VARIABLE_STATES, Topics.SUMMARY_STATES, Topics.ALERTS, Topics.CREW_EVENTS)
     }
 }
