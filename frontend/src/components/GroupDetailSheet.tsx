@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { Catalog } from '../api/catalog'
-import type { HealthState, SubjectView, SummaryView } from '../api/types'
+import type { CrewMemberView, HealthState, Reason, SubjectView, SummaryView } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
 import { formatAgo, formatReason, formatValue } from '../lib/format'
 import { GROUP_VARIABLES } from '../lib/groups'
@@ -15,6 +15,8 @@ interface Props {
   catalog: Catalog | null
   t: UiTexts
   language: Language
+  /** Sex of the crew member, for recommendations that depend on it; absent for the habitat. */
+  sex?: CrewMemberView['sex']
   onClose: () => void
 }
 
@@ -22,7 +24,7 @@ interface Props {
  * Detail of one group (spec sections 8.1 and 8.2): every variable with its value, state, reason, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -58,6 +60,7 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
               catalog={catalog}
               t={t}
               language={language}
+              sex={sex}
             />
           ))}
         </div>
@@ -73,6 +76,7 @@ function VariableRow({
   catalog,
   t,
   language,
+  sex,
 }: {
   variable: string
   subject: SubjectView | undefined
@@ -80,12 +84,13 @@ function VariableRow({
   catalog: Catalog | null
   t: UiTexts
   language: Language
+  sex?: CrewMemberView['sex']
 }) {
   const view = subject?.variables[variable]
   const info = catalog?.variables[variable]
   // A stateful variable never measured is "not evaluable": never green by default (spec section 3).
   const state = view?.state ?? (info?.hasState && !view?.reason ? 'NOT_EVALUABLE' : null)
-  const guidance = guidanceFor(state, state ? info?.guidance?.[state] : undefined)
+  const guidance = guidanceFor(state, view?.reason, sex, info?.guidance)
   const reason = formatReason(view?.reason, catalog, language, variable)
   const derived = variable === 'CAREER_EFFECTIVE_DOSE' || variable === 'SOLAR_EVENT_DOSE' || variable === 'ECG_RHYTHM'
   const shown =
@@ -132,12 +137,22 @@ function VariableRow({
 }
 
 /**
- * "What to do" only when there is something to do: hidden in NORMAL; in OBSERVATION and ALERT only the
- * instructions (the first sentence of each guidance text restates the state, already shown next to it).
+ * Recommendation of the professional rules document, only in OBSERVATION and ALERT. The most specific key wins:
+ * state + direction of the value + sex, then state + direction, then the state alone (spec section 8.2).
  */
-function guidanceFor(state: HealthState | null, text: string | undefined): string | undefined {
-  if (!text || state == null || state === 'NORMAL') return undefined
-  if (state !== 'OBSERVATION' && state !== 'ALERT') return text
-  const sentences = text.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡])/)
-  return sentences.length > 1 ? sentences.slice(1).join(' ') : text
+function guidanceFor(
+  state: HealthState | null,
+  reason: Reason | null | undefined,
+  sex: CrewMemberView['sex'] | undefined,
+  texts: Record<string, string> | null | undefined,
+): string | undefined {
+  if (!texts || (state !== 'OBSERVATION' && state !== 'ALERT')) return undefined
+  const direction = reason?.code === 'HIGH' || reason?.code === 'LOW' ? reason.code : undefined
+  const keys = [
+    direction && sex ? `${state}_${direction}_${sex}` : undefined,
+    direction ? `${state}_${direction}` : undefined,
+    state,
+  ]
+  for (const key of keys) if (key && texts[key]) return texts[key]
+  return undefined
 }

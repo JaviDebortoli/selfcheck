@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import type { HealthState } from './types'
 import type { Language } from '../i18n/ui'
 
 /** Texts of one language served by GET /api/catalog/{lang} (spec section 4.4). */
@@ -12,7 +11,11 @@ export interface Catalog {
       group: string
       name: string
       measures: string
-      guidance: Partial<Record<HealthState, string>> | null
+      /**
+       * Recommendation per state (OBSERVATION, ALERT), optionally narrowed by the direction of the value and the
+       * crew member's sex: ALERT_HIGH, OBSERVATION_HIGH_FEMALE. See [guidanceKeys].
+       */
+      guidance: Record<string, string> | null
       unit: string
       hasState: boolean
       review: boolean

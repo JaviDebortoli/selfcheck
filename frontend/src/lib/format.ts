@@ -20,6 +20,10 @@ export function digitsFor(variable: string): number {
     case 'ABSORBED_DOSE':
     case 'AIRBORNE_DUST':
       return 3
+    case 'RED_BLOOD_CELLS':
+    case 'DIURESIS':
+    case 'CREATININE':
+      return 2
     case 'HEART_RATE':
     case 'SPO2':
     case 'RESPIRATORY_RATE':
@@ -36,6 +40,11 @@ export function digitsFor(variable: string): number {
     default:
       return 1
   }
+}
+
+/** Lower-cases the first letter of a name used inside a sentence, unless it starts an acronym (PCR, CO2). */
+function lowerFirst(name: string): string {
+  return /^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ0-9]/.test(name) ? name : name.charAt(0).toLowerCase() + name.slice(1)
 }
 
 /** Value of a variable with its unit, or a dash. */
@@ -74,8 +83,11 @@ export function formatReason(
     if (key === 'signs') return raw.split(',').map((s) => catalog.alarmSigns[s] ?? s).join(', ')
     if (key === 'rhythm') return catalog.rhythms[raw] ?? raw
     if (key === 'context') return catalog.contexts[raw] ?? raw
+    if (key === 'findings') return raw.split(',').map((v) => lowerFirst(catalog.variables[v]?.name ?? v)).join(', ')
     const number = Number(raw)
-    return Number.isFinite(number) && /^-?\d+(\.\d+)?$/.test(raw) ? formatNumber(number, language, 3) : raw
+    // A % of a target reads better whole (98 %, not 98,609 %).
+    const digits = key === 'value' && params.unit === '%' ? 0 : 3
+    return Number.isFinite(number) && /^-?\d+(\.\d+)?$/.test(raw) ? formatNumber(number, language, digits) : raw
   })
 }
 
