@@ -1,0 +1,11 @@
+# Fever with high CRP (spec section 9): temperature of 38 °C or more and high CRP in an on-demand analysis.
+id: fever-crp
+target: CREW_MEMBER
+texts:
+  es: { name: "Fiebre con PCR alta", description: "Temperatura de 38 °C o más y PCR elevada en un análisis a demanda." }
+  en: { name: "Fever with high CRP", description: "Temperature of 38 °C or more and high CRP in an on-demand analysis." }
+effects:
+  - { variable: BODY_TEMPERATURE, value: 38.6, until: P3D }
+  - { variable: CRP, value: 48, until: P3D }
+  - { variable: WHITE_BLOOD_CELLS, value: 12800, until: P3D }
+measureNow: [BODY_TEMPERATURE, CRP, WHITE_BLOOD_CELLS]

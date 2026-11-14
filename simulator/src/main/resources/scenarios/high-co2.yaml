@@ -1,0 +1,8 @@
+# High CO2 (spec section 9): habitat in Alert when the 1-hour mean goes above 3 mmHg.
+id: high-co2
+target: HABITAT
+texts:
+  es: { name: "CO2 alto", description: "Falla del depurador de CO2: el promedio de una hora supera 3 mmHg y el hábitat pasa a Alerta." }
+  en: { name: "High CO2", description: "CO2 scrubber failure: the 1-hour mean goes above 3 mmHg and the habitat goes to Alert." }
+effects:
+  - { variable: CO2, value: 4.6, until: PT3H }

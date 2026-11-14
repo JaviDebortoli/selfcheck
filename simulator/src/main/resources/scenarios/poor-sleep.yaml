@@ -1,0 +1,10 @@
+# Sustained poor sleep (spec section 9): under 6 h gives Observation the first night and Alert on the third in a row.
+id: poor-sleep
+target: CREW_MEMBER
+texts:
+  es: { name: "Mal sueño sostenido", description: "Menos de 6 horas de sueño: Observación la primera noche y Alerta a la tercera seguida." }
+  en: { name: "Sustained poor sleep", description: "Less than 6 hours of sleep: Observation the first night and Alert on the third in a row." }
+effects:
+  - { variable: SLEEP_HOURS, value: 5.3, until: P3D }
+  - { variable: FATIGUE, value: 5, until: P3D }
+measureNow: [SLEEP_HOURS, FATIGUE]

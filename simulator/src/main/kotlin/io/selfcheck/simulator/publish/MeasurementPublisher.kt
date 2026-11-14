@@ -3,13 +3,17 @@ package io.selfcheck.simulator.publish
 import io.selfcheck.contracts.ActivityContext
 import io.selfcheck.contracts.AlarmSign
 import io.selfcheck.contracts.AlarmSignReading
+import io.selfcheck.contracts.BoneResorptionMarker
+import io.selfcheck.contracts.ControlCommand
 import io.selfcheck.contracts.DailyTargets
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
+import io.selfcheck.contracts.MissionControl
 import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.PreflightBoneDensity
 import io.selfcheck.contracts.Quality
+import io.selfcheck.contracts.ReferenceRange
 import io.selfcheck.contracts.RhythmLabel
 import io.selfcheck.contracts.SubjectType
 import io.selfcheck.contracts.Topics
@@ -24,8 +28,7 @@ import org.springframework.stereotype.Component
 class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificRecord>) {
 
     fun publishProfile(environment: MissionEnvironment, plannedDurationDays: Int, missionTimeMs: Long) {
-        val profile = MissionProfile(environment, plannedDurationDays, missionTimeMs)
-        kafka.send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, profile)
+        kafka.send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, MissionProfile(environment, plannedDurationDays, missionTimeMs))
     }
 
     fun publishHistory(member: CrewMember, missionTimeMs: Long) {
@@ -42,6 +45,13 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
         kafka.send(Topics.MEDICAL_HISTORY, member.id, history)
     }
 
+    /** Sends a control command and waits until Kafka has it. */
+    fun publishControl(command: ControlCommand) {
+        kafka.send(Topics.CONTROL, Topics.MISSION_KEY, MissionControl(command)).get()
+    }
+
+    fun flush() = kafka.flush()
+
     fun publish(
         subjectId: String,
         variable: Variable,
@@ -53,6 +63,8 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
         quality: Quality = Quality.GOOD,
         alarmSigns: Map<AlarmSign, Boolean> = emptyMap(),
         rhythm: RhythmLabel? = null,
+        boneMarker: BoneResorptionMarker? = null,
+        referenceRange: Pair<Double, Double>? = null,
     ) {
         val measurement = Measurement.newBuilder()
             .setSubjectType(if (subjectId == Topics.HABITAT_ID) SubjectType.HABITAT else SubjectType.CREW_MEMBER)
@@ -66,6 +78,8 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
             .setQuality(quality)
             .setAlarmSigns(alarmSigns.map { (sign, present) -> AlarmSignReading(sign, present) })
             .setRhythm(rhythm)
+            .setBoneMarker(boneMarker)
+            .setReferenceRange(referenceRange?.let { ReferenceRange(it.first, it.second) })
             .build()
         kafka.send(Topics.MEASUREMENTS, subjectId, measurement)
     }

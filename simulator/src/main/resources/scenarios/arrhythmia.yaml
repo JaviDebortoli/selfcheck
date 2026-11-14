@@ -1,0 +1,9 @@
+# Arrhythmia (spec section 9): sinus, then premature beats (Observation), then ventricular tachycardia (Alert).
+id: arrhythmia
+target: CREW_MEMBER
+texts:
+  es: { name: "Arritmia", description: "Ritmo sinusal, luego extrasístoles (Observación) y luego taquicardia ventricular (Alerta)." }
+  en: { name: "Arrhythmia", description: "Sinus rhythm, then premature beats (Observation), then ventricular tachycardia (Alert)." }
+effects:
+  - { variable: HEART_RATE, value: 88, rhythm: PREMATURE_BEATS, from: PT2M, until: PT20M }
+  - { variable: HEART_RATE, value: 172, rhythm: VENTRICULAR_TACHYCARDIA, from: PT20M, until: PT30M }

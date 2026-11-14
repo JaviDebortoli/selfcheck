@@ -1,0 +1,10 @@
+# Dehydration (spec section 9): fluid intake and urine specific gravity out of range for three days.
+id: dehydration
+target: CREW_MEMBER
+texts:
+  es: { name: "Deshidratación", description: "Ingesta de líquidos por debajo del objetivo y densidad urinaria alta durante tres días." }
+  en: { name: "Dehydration", description: "Fluid intake below target and high urine specific gravity for three days." }
+effects:
+  - { variable: FLUID_INTAKE, percentOfReference: 55, until: P3D }
+  - { variable: URINE_SPECIFIC_GRAVITY, value: 1.034, until: P3D }
+measureNow: [FLUID_INTAKE, URINE_SPECIFIC_GRAVITY]
