@@ -1,0 +1,156 @@
+# Neurological, cognitive and behavioral group (spec section 7.9). Draft, to be reviewed by a professional.
+group: NEUROLOGICAL_COGNITIVE_BEHAVIORAL
+texts:
+  es:
+    name: "Neurológico, cognitivo y conductual"
+  en:
+    name: "Neurological, cognitive and behavioral"
+variables:
+  - variable: SLEEP_HOURS
+    unit: h
+    interval: P1D
+    thresholds:
+      ALERT: ["< 6"]
+      OBSERVATION: ["< 7", "> 9"]
+      NORMAL: ["7..9"]
+    persistence:
+      ALERT: 3
+    source: National Sleep Foundation (Hirshkowitz et al., 2015)
+    review: true
+    notes:
+      - Less than 6 h gives Observation the first night and Alert on the third night in a row.
+      - Not adjusted for flight - in-flight sleep loss is a risk, not an adaptation (spec section 7.9).
+    texts:
+      es:
+        name: Horas de sueño
+        measures: Horas dormidas por noche. Se usan los rangos de la National Sleep Foundation, sin ajustar por vuelo.
+        guidance:
+          NORMAL: Sueño suficiente.
+          OBSERVATION: Sueño corto o largo. Respete el horario de descanso, reduzca la luz y las pantallas antes de dormir.
+          ALERT: Menos de 6 horas tres noches seguidas. Avise al oficial médico; la falta de sueño afecta el rendimiento y la seguridad.
+          NOT_EVALUABLE: No hay un registro de sueño en las últimas 36 horas.
+      en:
+        name: Sleep hours
+        measures: Hours slept per night, against the National Sleep Foundation ranges, not adjusted for flight.
+        guidance:
+          NORMAL: Enough sleep.
+          OBSERVATION: Short or long sleep. Keep the rest schedule and reduce light and screens before sleeping.
+          ALERT: Less than 6 hours three nights in a row. Notify the medical officer; sleep loss affects performance and safety.
+          NOT_EVALUABLE: No sleep record in the last 36 hours.
+
+  - variable: SLEEP_QUALITY_PSQI
+    unit: PSQI
+    interval: P30D
+    thresholds:
+      OBSERVATION: ["> 5"]
+      NORMAL: ["<= 5"]
+    source: Buysse et al., 1989
+    review: true
+    texts:
+      es:
+        name: Calidad del sueño (PSQI)
+        measures: Índice de calidad de sueño de Pittsburgh, mensual; más de 5 indica mala calidad.
+        guidance:
+          NORMAL: Buena calidad de sueño.
+          OBSERVATION: Mala calidad de sueño. Revise rutinas, ruido y luz del módulo de descanso con el oficial médico.
+          NOT_EVALUABLE: No hay un cuestionario en los últimos 45 días.
+      en:
+        name: Sleep quality (PSQI)
+        measures: Pittsburgh Sleep Quality Index, monthly; above 5 means poor quality.
+        guidance:
+          NORMAL: Good sleep quality.
+          OBSERVATION: Poor sleep quality. Review routines, noise and light in the sleep quarters with the medical officer.
+          NOT_EVALUABLE: No questionnaire in the last 45 days.
+
+  - variable: MOOD_PHQ9
+    unit: PHQ-9
+    interval: P14D
+    thresholds:
+      ALERT: [">= 10"]
+      OBSERVATION: [">= 5"]
+      NORMAL: ["0..4"]
+    source: Kroenke, Spitzer and Williams, 2001
+    review: true
+    texts:
+      es:
+        name: Estado de ánimo (PHQ-9)
+        measures: Cuestionario de síntomas depresivos, cada dos semanas.
+        guidance:
+          NORMAL: Sin síntomas depresivos relevantes.
+          OBSERVATION: Síntomas depresivos leves. Hable con el oficial médico o con el equipo de apoyo psicológico.
+          ALERT: Síntomas depresivos moderados o mayores. Avise al oficial médico para una evaluación.
+          NOT_EVALUABLE: No hay un cuestionario en las últimas 3 semanas.
+      en:
+        name: Mood (PHQ-9)
+        measures: Depressive symptoms questionnaire, every two weeks.
+        guidance:
+          NORMAL: No relevant depressive symptoms.
+          OBSERVATION: Mild depressive symptoms. Talk to the medical officer or the psychological support team.
+          ALERT: Moderate or greater depressive symptoms. Notify the medical officer for an assessment.
+          NOT_EVALUABLE: No questionnaire in the last 3 weeks.
+
+  - variable: FATIGUE
+    unit: /10
+    interval: P1D
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 4"]
+      NORMAL: ["0..3"]
+    source: NCCN fatigue guideline (0-10 scale)
+    review: true
+    notes: [The NCCN guideline is for cancer-related fatigue; a professional must confirm it applies.]
+    texts:
+      es:
+        name: Fatiga
+        measures: Cansancio percibido en una escala de 0 a 10.
+        guidance:
+          NORMAL: Fatiga leve o ausente.
+          OBSERVATION: Fatiga moderada. Revise el sueño y la carga de trabajo; planifique pausas.
+          ALERT: Fatiga intensa. Avise al oficial médico y evite tareas críticas hasta la evaluación.
+          NOT_EVALUABLE: No hay una autoevaluación en las últimas 36 horas.
+      en:
+        name: Fatigue
+        measures: Perceived tiredness on a 0 to 10 scale.
+        guidance:
+          NORMAL: Mild or no fatigue.
+          OBSERVATION: Moderate fatigue. Review sleep and workload; plan breaks.
+          ALERT: Severe fatigue. Notify the medical officer and avoid critical tasks until assessed.
+          NOT_EVALUABLE: No self-assessment in the last 36 hours.
+
+  - variable: STRESS_PSS10
+    unit: PSS-10
+    interval: P30D
+    notes: [Shown as data - the scale has no official cuts.]
+    texts:
+      es:
+        name: "Estrés (PSS-10)"
+        measures: "Escala de estrés percibido, mensual. Se muestra como dato porque la escala no tiene cortes oficiales."
+      en:
+        name: "Stress (PSS-10)"
+        measures: "Perceived stress scale, monthly. Shown as data because the scale has no official cuts."
+
+  - variable: ATTENTION
+    unit: ms
+    interval: P30D
+    source: Basner et al., 2015
+    notes: [Shown as data - the Cognition battery publishes no fixed cuts.]
+    texts:
+      es:
+        name: "Atención y concentración"
+        measures: "Tiempo de respuesta en la batería Cognition de la NASA, mensual. Se muestra como dato."
+      en:
+        name: "Attention and concentration"
+        measures: "Response time in NASA's Cognition battery, monthly. Shown as data."
+
+  - variable: MEMORY
+    unit: "%"
+    interval: P30D
+    source: Basner et al., 2015
+    notes: [Shown as data - the Cognition battery publishes no fixed cuts.]
+    texts:
+      es:
+        name: "Memoria"
+        measures: "Respuestas correctas en la batería Cognition de la NASA, mensual. Se muestra como dato."
+      en:
+        name: "Memory"
+        measures: "Correct answers in NASA's Cognition battery, monthly. Shown as data."

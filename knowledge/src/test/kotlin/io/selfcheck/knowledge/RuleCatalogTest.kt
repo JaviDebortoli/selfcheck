@@ -1,6 +1,9 @@
 package io.selfcheck.knowledge
 
+import io.selfcheck.contracts.AlarmSign
+import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.MeasurementGroup
+import io.selfcheck.contracts.RhythmLabel
 import io.selfcheck.contracts.Variable
 import java.time.Duration
 import kotlin.test.Test
@@ -13,19 +16,59 @@ import kotlin.test.assertTrue
 class RuleCatalogTest {
 
     private val catalog = RuleCatalog.load()
+    private val languages = listOf("es", "en")
 
     @Test
-    fun `loads cardiovascular rules with texts in both languages`() {
-        val heartRate = assertNotNull(catalog[Variable.HEART_RATE])
-        assertEquals(MeasurementGroup.CARDIOVASCULAR_RESPIRATORY, catalog.groupOf[Variable.HEART_RATE])
-        assertEquals(Duration.ofMinutes(1), heartRate.effectiveExpiry)
-        assertTrue(heartRate.texts.keys.containsAll(listOf("es", "en")))
+    fun `every variable of spec section 6 belongs to exactly one group file`() {
+        assertEquals(Variable.entries.toSet(), catalog.variables.keys)
+        assertEquals(MeasurementGroup.entries.toSet(), catalog.groups.map { it.group }.toSet())
+    }
+
+    @Test
+    fun `every variable and group has texts in Spanish and English`() {
+        catalog.groups.forEach { group ->
+            languages.forEach { assertNotNull(group.texts[it], "${group.group} $it") }
+            group.variables.forEach { definition ->
+                languages.forEach { language ->
+                    val texts = assertNotNull(definition.texts[language], "${definition.variable} $language")
+                    assertTrue(texts.name.isNotBlank() && texts.measures.isNotBlank(), "${definition.variable} $language")
+                    if (definition.hasState) {
+                        assertNotNull(texts.guidance[HealthState.NORMAL], "${definition.variable} $language NORMAL")
+                        assertNotNull(texts.guidance[HealthState.NOT_EVALUABLE], "${definition.variable} $language NOT_EVALUABLE")
+                        val states = definition.thresholds?.keys.orEmpty() + definition.thresholdsBySex?.values?.flatMap { it.keys }.orEmpty()
+                        states.forEach { state -> assertNotNull(texts.guidance[state], "${definition.variable} $language $state") }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `shared texts cover every alarm sign, rhythm and combination in both languages`() {
+        AlarmSign.entries.forEach { sign -> languages.forEach { assertNotNull(catalog.shared.alarmSigns[sign.name]?.get(it), "$sign $it") } }
+        RhythmLabel.entries.forEach { label -> languages.forEach { assertNotNull(catalog.shared.rhythms[label.name]?.get(it), "$label $it") } }
+        assertEquals(7, catalog.combinations.size)
+        catalog.combinations.forEach { combination -> languages.forEach { assertNotNull(combination.texts[it], "${combination.code} $it") } }
+    }
+
+    @Test
+    fun `derived variables are triggered by their inputs`() {
+        assertEquals(
+            setOf(Variable.HEART_RATE, Variable.ECG_RHYTHM),
+            catalog.triggeredBy.getValue(Variable.HEART_RATE).map { it.variable }.toSet(),
+        )
+        assertEquals(
+            setOf(Variable.MISSION_EFFECTIVE_DOSE, Variable.CAREER_EFFECTIVE_DOSE, Variable.SOLAR_EVENT_DOSE),
+            catalog.triggeredBy.getValue(Variable.MISSION_EFFECTIVE_DOSE).map { it.variable }.toSet(),
+        )
     }
 
     @Test
     fun `default expiry is one and a half times the interval`() {
-        val daily = VariableDefinition(Variable.SLEEP_HOURS, "h", Duration.ofDays(1))
-        assertEquals(Duration.ofHours(36), daily.effectiveExpiry)
+        assertEquals(Duration.ofHours(36), catalog[Variable.SLEEP_HOURS]!!.effectiveExpiry)
+        assertEquals(Duration.ofDays(21), catalog[Variable.MOOD_PHQ9]!!.effectiveExpiry)
+        assertEquals(Duration.ofDays(45), catalog[Variable.SLEEP_QUALITY_PSQI]!!.effectiveExpiry)
+        assertEquals(Duration.ofMinutes(1), catalog[Variable.HEART_RATE]!!.effectiveExpiry)
     }
 
     @Test

@@ -1,0 +1,117 @@
+# Radiological group (spec section 7.4).
+group: RADIOLOGICAL
+texts:
+  es:
+    name: "Radiológico"
+  en:
+    name: "Radiological"
+variables:
+  - variable: CAREER_EFFECTIVE_DOSE
+    unit: mSv
+    derivedFrom: [MISSION_EFFECTIVE_DOSE]
+    interval: PT1M
+    evaluator: CAREER_DOSE
+    params:
+      limitMsv: 600
+      # 80 % of the limit: "regla propuesta" of the rules document.
+      observationMsv: 480
+    source: NASA-STD-3001 Vol. 1 [V1 4030]; the 80 % observation cut is a proposed rule
+    review: true
+    notes:
+      - Career dose = dose from previous missions (medical history) + mission effective dose.
+      - Projection = career dose + mean mission dose rate x days left of the planned duration.
+    texts:
+      es:
+        name: Dosis efectiva acumulada de carrera
+        measures: Dosis de misiones anteriores más la de esta misión, comparada con el límite de carrera de la NASA de 600 mSv. También se proyecta al final de la misión.
+        guidance:
+          NORMAL: Dosis acumulada y proyectada por debajo del 80 % del límite.
+          OBSERVATION: La dosis acumulada o la proyectada al final de la misión alcanza el 80 % del límite. Minimice el tiempo en zonas menos blindadas y siga el plan de protección.
+          ALERT: Se alcanzó el límite de carrera de 600 mSv. Avise al oficial médico y al comandante; se requiere revisar el plan de la misión.
+          NOT_EVALUABLE: No hay una lectura reciente del dosímetro.
+      en:
+        name: Career effective dose
+        measures: Dose from previous missions plus this mission, compared with NASA's 600 mSv career limit. It is also projected to the end of the mission.
+        guidance:
+          NORMAL: Accumulated and projected dose below 80 % of the limit.
+          OBSERVATION: The accumulated dose, or the dose projected to the end of the mission, reaches 80 % of the limit. Minimize time in less shielded areas and follow the protection plan.
+          ALERT: The 600 mSv career limit has been reached. Notify the medical officer and the commander; the mission plan must be reviewed.
+          NOT_EVALUABLE: No recent dosimeter reading.
+
+  - variable: SOLAR_EVENT_DOSE
+    unit: mSv
+    derivedFrom: [SOLAR_PARTICLE_EVENT, MISSION_EFFECTIVE_DOSE]
+    interval: PT1M
+    evaluator: SOLAR_EVENT_DOSE
+    params:
+      limitMsv: 250
+    source: NASA-STD-3001 Vol. 1 [V1 4031]
+    notes:
+      - The engine adds up each crew member's dose from the start to the end of the event.
+    texts:
+      es:
+        name: Dosis del evento solar en curso
+        measures: Dosis recibida desde que empezó el evento de partículas solares, comparada con el límite de 250 mSv por evento.
+        guidance:
+          NORMAL: No hay un evento solar activo.
+          OBSERVATION: Hay un evento solar activo según el aviso de clima espacial. Diríjase al refugio de radiación y siga el protocolo de evento solar.
+          ALERT: La dosis del evento alcanzó 250 mSv. Permanezca en el refugio y avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay datos recientes del aviso de clima espacial o del dosímetro.
+      en:
+        name: Current solar event dose
+        measures: Dose received since the solar particle event started, compared with the 250 mSv per-event limit.
+        guidance:
+          NORMAL: No active solar event.
+          OBSERVATION: A solar event is active according to the space weather alert. Go to the radiation shelter and follow the solar event protocol.
+          ALERT: The event dose reached 250 mSv. Stay in the shelter and notify the medical officer immediately.
+          NOT_EVALUABLE: No recent space weather or dosimeter data.
+
+  - variable: MISSION_EFFECTIVE_DOSE
+    unit: mSv
+    interval: PT1M
+    source: NASA-STD-3001 Vol. 1 [V1 4030]
+    notes: [Shown as data; added to previous missions to form the career dose, which has the limit.]
+    texts:
+      es:
+        name: "Dosis equivalente/efectiva de la misión"
+        measures: "Dosis efectiva acumulada durante esta misión. Se suma a la de misiones anteriores para formar la dosis de carrera."
+      en:
+        name: "Mission equivalent/effective dose"
+        measures: "Effective dose accumulated during this mission. It is added to previous missions to form the career dose."
+
+  - variable: DOSE_RATE
+    unit: µSv/h
+    interval: PT1S
+    expiry: PT1M
+    notes: [Shown as data. Pending - operational threshold without a number.]
+    texts:
+      es:
+        name: "Tasa de dosis"
+        measures: "Dosis recibida por hora en este momento. El límite de 250 mSv es de dosis acumulada, no de tasa."
+      en:
+        name: "Dose rate"
+        measures: "Dose received per hour right now. The 250 mSv limit applies to accumulated dose, not to the rate."
+
+  - variable: ABSORBED_DOSE
+    unit: mGy
+    interval: PT1M
+    notes: [Shown as data - NASA limits are per organ and the system does not receive organ doses.]
+    texts:
+      es:
+        name: "Dosis absorbida"
+        measures: "Energía de radiación absorbida en la misión según el dosímetro."
+      en:
+        name: "Absorbed dose"
+        measures: "Radiation energy absorbed during the mission according to the dosimeter."
+
+  - variable: SOLAR_PARTICLE_EVENT
+    unit: ""
+    interval: PT1M
+    notes: [1 while the space weather alert reports an active solar particle event, 0 otherwise.]
+    texts:
+      es:
+        name: "Eventos de radiación solar"
+        measures: "Aviso de clima espacial sobre eventos de partículas solares."
+      en:
+        name: "Solar radiation events"
+        measures: "Space weather alert about solar particle events."

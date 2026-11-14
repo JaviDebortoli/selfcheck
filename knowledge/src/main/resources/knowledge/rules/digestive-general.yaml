@@ -1,0 +1,186 @@
+# Digestive and general symptoms group (spec section 7.10).
+group: DIGESTIVE_GENERAL
+texts:
+  es:
+    name: "Digestivo y síntomas generales"
+  en:
+    name: "Digestive and general symptoms"
+variables:
+  - variable: BODY_TEMPERATURE
+    unit: °C
+    interval: P1D
+    thresholds:
+      ALERT: ["< 35.5", ">= 38.0"]
+      OBSERVATION: ["< 36.0", "> 37.2"]
+      NORMAL: ["36.0..37.2"]
+    source: Rules document
+    notes: [Axillary. Not adjusted for flight (spec section 13, implemented as final until professional review).]
+    texts:
+      es:
+        name: Temperatura axilar
+        measures: Temperatura del cuerpo medida en la axila.
+        guidance:
+          NORMAL: Temperatura en rango.
+          OBSERVATION: Temperatura algo baja o elevada. Hidrátese, descanse y repita la medición.
+          ALERT: Fiebre o hipotermia. Avise al oficial médico y repita la medición en una hora.
+          NOT_EVALUABLE: No hay una medición en las últimas 36 horas.
+      en:
+        name: Axillary temperature
+        measures: Body temperature measured at the armpit.
+        guidance:
+          NORMAL: Temperature in range.
+          OBSERVATION: Temperature somewhat low or high. Drink fluids, rest and measure again.
+          ALERT: Fever or hypothermia. Notify the medical officer and measure again in one hour.
+          NOT_EVALUABLE: No measurement in the last 36 hours.
+
+  - variable: NAUSEA
+    unit: /10
+    interval: P1D
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document (scale source to cite)
+    texts:
+      es:
+        name: Náuseas
+        measures: Intensidad de las náuseas en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          NORMAL: Sin náuseas.
+          OBSERVATION: Náuseas leves a moderadas. Coma en porciones pequeñas, hidrátese y evite movimientos bruscos de cabeza.
+          ALERT: Náuseas intensas. Avise al oficial médico; puede requerir medicación.
+          NOT_EVALUABLE: No hay una autoevaluación en las últimas 36 horas.
+      en:
+        name: Nausea
+        measures: Nausea intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          NORMAL: No nausea.
+          OBSERVATION: Mild to moderate nausea. Eat small portions, drink fluids and avoid sudden head movements.
+          ALERT: Severe nausea. Notify the medical officer; medication may be needed.
+          NOT_EVALUABLE: No self-assessment in the last 36 hours.
+
+  - variable: VOMITING
+    unit: /24 h
+    interval: P1D
+    alarmSigns: [VOMIT_WITH_BLOOD, PERSISTENT_GREEN_VOMIT, CANNOT_RETAIN_FLUIDS]
+    thresholds:
+      ALERT: [">= 3"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document (source to cite)
+    texts:
+      es:
+        name: Vómitos
+        measures: Episodios de vómito en las últimas 24 horas.
+        guidance:
+          NORMAL: Sin vómitos.
+          OBSERVATION: Uno o dos vómitos. Hidrátese a sorbos y avise si se repiten.
+          ALERT: Tres o más vómitos, o con sangre, verde persistente o sin retener líquidos. Avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay un registro en las últimas 36 horas.
+      en:
+        name: Vomiting
+        measures: Vomiting episodes in the last 24 hours.
+        guidance:
+          NORMAL: No vomiting.
+          OBSERVATION: One or two episodes. Sip fluids and report if they repeat.
+          ALERT: Three or more episodes, or with blood, persistently green or unable to keep fluids down. Notify the medical officer immediately.
+          NOT_EVALUABLE: No record in the last 36 hours.
+
+  - variable: ABDOMINAL_PAIN
+    unit: /10
+    interval: P1D
+    alarmSigns: [SUDDEN_ABDOMINAL_PAIN, RIGID_ABDOMEN]
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document (scale source to cite)
+    texts:
+      es:
+        name: Dolor abdominal
+        measures: Intensidad del dolor abdominal en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          NORMAL: Sin dolor abdominal.
+          OBSERVATION: Dolor abdominal leve a moderado. Observe su evolución y avise si aumenta.
+          ALERT: Dolor intenso, súbito o con abdomen rígido. Avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay una autoevaluación en las últimas 36 horas.
+      en:
+        name: Abdominal pain
+        measures: Abdominal pain intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          NORMAL: No abdominal pain.
+          OBSERVATION: Mild to moderate abdominal pain. Watch how it evolves and report if it increases.
+          ALERT: Severe or sudden pain, or a rigid abdomen. Notify the medical officer immediately.
+          NOT_EVALUABLE: No self-assessment in the last 36 hours.
+
+  - variable: BOWEL_FREQUENCY
+    unit: /day
+    interval: P1D
+    alarmSigns: [NO_STOOL_OR_GAS_WITH_DISTENSION]
+    evaluator: BOWEL_FREQUENCY
+    params:
+      maxPerDay: 3
+      minPerWeek: 3
+      urineSpecificGravityLow: 1.005
+      urineSpecificGravityHigh: 1.030
+      sodiumLow: 135
+      sodiumHigh: 145
+    source: Rules document (range source to cite)
+    notes:
+      - Normal from 3 per day to 3 per week; the weekly count needs 7 days of records.
+      - Alert also for diarrhoea with dehydration - more than 3 per day with urine specific gravity or sodium out of range.
+    texts:
+      es:
+        name: Frecuencia de deposiciones
+        measures: Deposiciones por día; lo normal va de 3 por día a 3 por semana.
+        guidance:
+          NORMAL: Frecuencia de deposiciones habitual.
+          OBSERVATION: Menos de 3 deposiciones por semana o más de 3 por día. Ajuste fibra y líquidos.
+          ALERT: Sin deposiciones ni gases con distensión, o diarrea con signos de deshidratación. Avise al oficial médico.
+          NOT_EVALUABLE: No hay un registro en las últimas 36 horas.
+      en:
+        name: Bowel movements
+        measures: Bowel movements per day; normal goes from 3 per day to 3 per week.
+        guidance:
+          NORMAL: Usual bowel movement frequency.
+          OBSERVATION: Fewer than 3 per week or more than 3 per day. Adjust fibre and fluids.
+          ALERT: No stool or gas with distension, or diarrhoea with signs of dehydration. Notify the medical officer.
+          NOT_EVALUABLE: No record in the last 36 hours.
+
+  - variable: STOOL_FORM_BRISTOL
+    unit: Bristol
+    interval: P1D
+    alarmSigns: [BLACK_TARRY_STOOL, HEAVY_BLOOD_IN_STOOL]
+    thresholds:
+      OBSERVATION: ["< 3", "> 4"]
+      NORMAL: ["3..4"]
+    source: Bristol stool scale (Lewis and Heaton, 1997)
+    texts:
+      es:
+        name: Características de las heces
+        measures: Forma de las heces según la escala de Bristol (1 a 7, autoevaluación).
+        guidance:
+          NORMAL: Heces de forma normal (tipos 3 y 4).
+          OBSERVATION: Heces duras (tipos 1 y 2) o blandas (tipos 5 a 7). Ajuste fibra y líquidos.
+          ALERT: Heces negras alquitranadas o sangre abundante. Avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay un registro en las últimas 36 horas.
+      en:
+        name: Stool form
+        measures: Stool form on the Bristol scale (1 to 7, self-assessment).
+        guidance:
+          NORMAL: Normal stool form (types 3 and 4).
+          OBSERVATION: Hard (types 1 and 2) or loose stool (types 5 to 7). Adjust fibre and fluids.
+          ALERT: Black tarry stool or heavy blood. Notify the medical officer immediately.
+          NOT_EVALUABLE: No record in the last 36 hours.
+
+  - variable: APPETITE
+    unit: /10
+    interval: P1D
+    notes: [Shown as data - the nutritional alert comes from caloric intake, so the same problem is not counted twice.]
+    texts:
+      es:
+        name: "Apetito"
+        measures: "Apetito percibido de 0 a 10. Se muestra como dato; explica la ingesta calórica cuando está en Observación o Alerta."
+      en:
+        name: "Appetite"
+        measures: "Perceived appetite from 0 to 10. Shown as data; it explains caloric intake when that is in Observation or Alert."

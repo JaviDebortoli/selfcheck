@@ -2,8 +2,10 @@
 # thresholds are checked in order ALERT, OBSERVATION, NORMAL; the first matching condition wins.
 group: CARDIOVASCULAR_RESPIRATORY
 texts:
-  es: { name: Cardiovascular y respiratorio }
-  en: { name: Cardiovascular and respiratory }
+  es:
+    name: "Cardiovascular y respiratorio"
+  en:
+    name: "Cardiovascular and respiratory"
 variables:
   - variable: HEART_RATE
     unit: bpm
@@ -32,6 +34,58 @@ variables:
           OBSERVATION: Heart rate outside the resting range. Rest for a few minutes and measure again at rest; if it persists, contact the medical officer.
           ALERT: Very high or very low resting heart rate. Stop the activity, sit or lie down and notify the medical officer immediately.
           NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+
+  - variable: SYSTOLIC_BP
+    unit: mmHg
+    interval: P1D
+    thresholds:
+      ALERT: ["< 80", ">= 140"]
+      OBSERVATION: ["< 90", "> 120"]
+      NORMAL: ["90..120"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: Presión sistólica
+        measures: Presión de la sangre en las arterias cuando el corazón late (valor alto de la presión arterial).
+        guidance:
+          NORMAL: Presión sistólica en rango.
+          OBSERVATION: Presión sistólica algo baja o elevada. Repita la medición en reposo, mantenga la hidratación y consulte al oficial médico si persiste.
+          ALERT: Presión sistólica muy baja o alta. Avise al oficial médico. Con 180/120 mmHg o más se aplica el protocolo urgente.
+          NOT_EVALUABLE: No hay una medición válida en las últimas 36 horas.
+      en:
+        name: Systolic blood pressure
+        measures: Arterial pressure while the heart beats (the upper blood pressure value).
+        guidance:
+          NORMAL: Systolic pressure in range.
+          OBSERVATION: Systolic pressure somewhat low or high. Measure again at rest, keep hydrated and contact the medical officer if it persists.
+          ALERT: Very low or high systolic pressure. Notify the medical officer. At 180/120 mmHg or more the urgent protocol applies.
+          NOT_EVALUABLE: No valid measurement in the last 36 hours.
+
+  - variable: DIASTOLIC_BP
+    unit: mmHg
+    interval: P1D
+    thresholds:
+      ALERT: ["< 50", ">= 90"]
+      OBSERVATION: ["< 60", "> 80"]
+      NORMAL: ["60..80"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: Presión diastólica
+        measures: Presión de la sangre en las arterias entre latidos (valor bajo de la presión arterial).
+        guidance:
+          NORMAL: Presión diastólica en rango.
+          OBSERVATION: Presión diastólica algo baja o elevada. Repita la medición en reposo y consulte al oficial médico si persiste.
+          ALERT: Presión diastólica muy baja o alta. Avise al oficial médico. Con 180/120 mmHg o más se aplica el protocolo urgente.
+          NOT_EVALUABLE: No hay una medición válida en las últimas 36 horas.
+      en:
+        name: Diastolic blood pressure
+        measures: Arterial pressure between beats (the lower blood pressure value).
+        guidance:
+          NORMAL: Diastolic pressure in range.
+          OBSERVATION: Diastolic pressure somewhat low or high. Measure again at rest and contact the medical officer if it persists.
+          ALERT: Very low or high diastolic pressure. Notify the medical officer. At 180/120 mmHg or more the urgent protocol applies.
+          NOT_EVALUABLE: No valid measurement in the last 36 hours.
 
   - variable: SPO2
     unit: "%"
@@ -87,3 +141,36 @@ variables:
           OBSERVATION: Breathing slower or faster than usual. Rest and measure again; if it persists, contact the medical officer.
           ALERT: Severely altered breathing or difficulty breathing. Notify the medical officer immediately.
           NOT_EVALUABLE: No valid recent measurement. Check the sensor placement.
+
+  - variable: ECG_RHYTHM
+    unit: ""
+    derivedFrom: [HEART_RATE]
+    interval: PT1S
+    expiry: PT1M
+    alarmSigns: [CHEST_PAIN, SYNCOPE]
+    labelStates:
+      NORMAL: [SINUS]
+      OBSERVATION: [PREMATURE_BEATS, OTHER_ARRHYTHMIA]
+      ALERT: [VENTRICULAR_FIBRILLATION, VENTRICULAR_TACHYCARDIA, ASYSTOLE, COMPLETE_AV_BLOCK, ATRIAL_FIBRILLATION_RAPID]
+    source: American Heart Association resuscitation guidelines (to cite)
+    review: true
+    notes:
+      - The rhythm arrives classified by the ship's cardiac monitor, as a label next to the heart rate.
+      - A slow or fast sinus rhythm is flagged by the heart rate rule.
+    texts:
+      es:
+        name: Ritmo/ECG
+        measures: Ritmo del corazón clasificado por el monitor cardíaco de la nave.
+        guidance:
+          NORMAL: Ritmo sinusal.
+          OBSERVATION: Extrasístoles aisladas o una arritmia nueva. Evite estimulantes y esfuerzos intensos y consulte al oficial médico.
+          ALERT: Arritmia grave, o dolor torácico o síncope. Avise de inmediato al oficial médico y prepare el protocolo de reanimación.
+          NOT_EVALUABLE: No hay una señal de ECG válida y reciente.
+      en:
+        name: Rhythm/ECG
+        measures: Heart rhythm classified by the ship's cardiac monitor.
+        guidance:
+          NORMAL: Sinus rhythm.
+          OBSERVATION: Isolated premature beats or a new arrhythmia. Avoid stimulants and intense effort and contact the medical officer.
+          ALERT: Severe arrhythmia, or chest pain or fainting. Notify the medical officer immediately and prepare the resuscitation protocol.
+          NOT_EVALUABLE: No valid recent ECG signal.

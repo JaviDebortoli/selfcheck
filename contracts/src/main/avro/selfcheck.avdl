@@ -296,5 +296,7 @@ protocol SelfCheckContracts {
     union { null, Variable } variable = null;
     HealthState state;
     long missionTimeMs;
+    /** True for a clinical combination (spec section 7.13): high priority, never changes a color. */
+    boolean combination = false;
   }
 }

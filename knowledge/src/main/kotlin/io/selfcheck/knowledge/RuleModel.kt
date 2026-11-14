@@ -5,6 +5,7 @@ import io.selfcheck.contracts.AlarmSign
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.MeasurementGroup
 import io.selfcheck.contracts.MissionEnvironment
+import io.selfcheck.contracts.RhythmLabel
 import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.Variable
 import java.time.Duration
@@ -18,10 +19,31 @@ data class GroupDefinition(
 
 data class GroupTexts(val name: String)
 
+/** Per-crew-member value a rule compares against (spec section 7.2: only strength, bone density and body mass use the baseline). */
+enum class Reference {
+    PREFLIGHT_MUSCLE_STRENGTH,
+    PREFLIGHT_BMD_HIP,
+    PREFLIGHT_BMD_SPINE,
+    PREFLIGHT_BMD_FEMORAL_NECK,
+    PREFLIGHT_BODY_MASS,
+    DAILY_CALORIES,
+    DAILY_FLUIDS,
+    DAILY_ACTIVITY,
+}
+
+/** How a value is expressed against its [Reference] before the thresholds are checked. */
+enum class Scale {
+    /** value / reference x 100. */
+    PERCENT_OF_REFERENCE,
+
+    /** |value - reference| / reference x 100. */
+    PERCENT_CHANGE_FROM_REFERENCE,
+}
+
 /**
  * Declarative rule of one variable.
  *
- * A variable without [thresholds], [thresholdsBySex] and [evaluator] is shown as data, without state.
+ * A variable without [thresholds], [thresholdsBySex], [labelStates] and [evaluator] is shown as data, without state.
  */
 data class VariableDefinition(
     val variable: Variable,
@@ -38,10 +60,26 @@ data class VariableDefinition(
     val environments: Set<MissionEnvironment>? = null,
     /** Alarm signs that put this variable in ALERT (spec section 7.12). */
     val alarmSigns: List<AlarmSign> = emptyList(),
+    /** When set, an alarm sign only gives ALERT if the value also matches this condition (urinary calcium > 300). */
+    val alarmSignCondition: String? = null,
+    /** Variables whose measurements trigger this rule; for values the engine derives (rhythm, career dose). */
+    val derivedFrom: List<Variable> = emptyList(),
+    /** Compare against a per-crew-member value instead of the raw value. */
+    val reference: Reference? = null,
+    val scale: Scale = Scale.PERCENT_OF_REFERENCE,
+    /** Evaluate the mean over this mission-time window instead of the latest value (CO2, noise). */
+    val window: Duration? = null,
     /** Ordered checks: ALERT, then OBSERVATION, then NORMAL. Each entry is a condition such as "< 40" or "60..100". */
     val thresholds: Map<HealthState, List<String>>? = null,
     /** Same as [thresholds], per sex (hemoglobin). */
     val thresholdsBySex: Map<Sex, Map<HealthState, List<String>>>? = null,
+    /**
+     * Consecutive measurements that must match a state's conditions for that state to apply
+     * ("persistent"/"sustained": 3 daily values or 2 analyses, spec section 7.2).
+     */
+    val persistence: Map<HealthState, Int> = emptyMap(),
+    /** State per label, for categorical values (ECG rhythm). */
+    val labelStates: Map<HealthState, List<RhythmLabel>>? = null,
     /** Name of a custom evaluator in the engine, for rules that are not plain thresholds. */
     val evaluator: String? = null,
     /** Numbers used by a custom evaluator, kept here so every cut lives in `knowledge/`. */
@@ -54,7 +92,8 @@ data class VariableDefinition(
     val notes: List<String> = emptyList(),
     val texts: Map<String, VariableTexts> = emptyMap(),
 ) {
-    val hasState: Boolean get() = thresholds != null || thresholdsBySex != null || evaluator != null
+    val hasState: Boolean
+        get() = thresholds != null || thresholdsBySex != null || labelStates != null || evaluator != null
 
     /** Expiry per spec section 7.2: explicit value, or 1.5 times the measurement interval. */
     val effectiveExpiry: Duration get() = expiry ?: interval.multipliedBy(3).dividedBy(2)
@@ -66,4 +105,23 @@ data class VariableTexts(
     val measures: String,
     /** Guidance per state. */
     val guidance: Map<HealthState, String> = emptyMap(),
+)
+
+/** A clinical combination (spec section 7.13): adds a high-priority alert, never changes a color. */
+data class CombinationDefinition(
+    val code: String,
+    val params: Map<String, Double> = emptyMap(),
+    val review: Boolean = true,
+    val texts: Map<String, CombinationTexts> = emptyMap(),
+)
+
+data class CombinationTexts(val name: String, val interpretation: String)
+
+/** Texts shared by every rule: reason codes, alarm signs, rhythm labels, contexts. */
+data class SharedTexts(
+    val reasons: Map<String, Map<String, String>> = emptyMap(),
+    val alarmSigns: Map<String, Map<String, String>> = emptyMap(),
+    val rhythms: Map<String, Map<String, String>> = emptyMap(),
+    val contexts: Map<String, Map<String, String>> = emptyMap(),
+    val environments: Map<String, Map<String, String>> = emptyMap(),
 )

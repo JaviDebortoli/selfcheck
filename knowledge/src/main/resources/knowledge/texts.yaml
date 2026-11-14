@@ -1,0 +1,126 @@
+# Texts shared by every rule. Reason templates use the parameters the engine sends with each reason code:
+# {value}, {unit}, {condition}, {evaluated} (% of a reference or window mean), {count}, {required}, {signs}, ...
+reasons:
+  DATA:
+    es: "{value} {unit}"
+    en: "{value} {unit}"
+  IN_RANGE:
+    es: "En rango: {value} {unit}"
+    en: "In range: {value} {unit}"
+  HIGH:
+    es: "Alto: {value} {unit} ({condition})"
+    en: "High: {value} {unit} ({condition})"
+  LOW:
+    es: "Bajo: {value} {unit} ({condition})"
+    en: "Low: {value} {unit} ({condition})"
+  OUT_OF_RANGE:
+    es: "Fuera de rango: {value} {unit}"
+    en: "Out of range: {value} {unit}"
+  ALARM_SIGN:
+    es: "Signo de alarma: {signs}"
+    en: "Alarm sign: {signs}"
+  POOR_QUALITY:
+    es: "Medición de mala calidad"
+    en: "Poor-quality measurement"
+  CONTEXT_NOT_APPLICABLE:
+    es: "Sin estado: medido en {context}"
+    en: "No state: measured during {context}"
+  NOT_FASTING:
+    es: "Sin estado: medido fuera del ayuno"
+    en: "No state: not measured fasting"
+  NOT_APPLICABLE_ENVIRONMENT:
+    es: "Sin estado: el límite no aplica en este entorno"
+    en: "No state: the limit does not apply in this environment"
+  DATA_EXPIRED:
+    es: "Dato vencido"
+    en: "Expired data"
+  NO_DATA:
+    es: "Sin datos"
+    en: "No data"
+  NO_REFERENCE:
+    es: "Falta el valor de referencia"
+    en: "Reference value missing"
+  NO_CUT:
+    es: "Sin estado: este corte aún no tiene número"
+    en: "No state: this cut has no number yet"
+  PERSISTENCE_PENDING:
+    es: "Fuera de rango: {count} de {required} seguidos"
+    en: "Out of range: {count} of {required} in a row"
+  RHYTHM:
+    es: "Ritmo: {rhythm}"
+    en: "Rhythm: {rhythm}"
+  CAREER_DOSE_LIMIT:
+    es: "Dosis de carrera {value} mSv: límite de {limit} mSv alcanzado"
+    en: "Career dose {value} mSv: {limit} mSv limit reached"
+  CAREER_DOSE_NEAR_LIMIT:
+    es: "Dosis de carrera {value} mSv: 80 % del límite ({observation} mSv)"
+    en: "Career dose {value} mSv: 80 % of the limit ({observation} mSv)"
+  CAREER_DOSE_PROJECTED:
+    es: "Proyección al final de la misión: {projected} mSv"
+    en: "Projected to the end of the mission: {projected} mSv"
+  NO_ACTIVE_EVENT:
+    es: "Sin evento solar activo"
+    en: "No active solar event"
+  SOLAR_EVENT_ACTIVE:
+    es: "Evento solar activo: {value} mSv en el evento"
+    en: "Active solar event: {value} mSv in the event"
+  SOLAR_EVENT_LIMIT:
+    es: "Evento solar: {value} mSv, límite de {limit} mSv"
+    en: "Solar event: {value} mSv, {limit} mSv limit"
+  CREATININE_RISE_48H:
+    es: "Aumento de {rise} mg/dL en 48 h (desde {baseline})"
+    en: "Rise of {rise} mg/dL within 48 h (from {baseline})"
+  CREATININE_RISE_7D:
+    es: "{ratio} veces el valor más bajo de 7 días ({baseline})"
+    en: "{ratio} times the lowest value of 7 days ({baseline})"
+  CREATININE_RISING:
+    es: "En ascenso: {value} {unit}"
+    en: "Rising: {value} {unit}"
+  NO_LAB_RANGE:
+    es: "Falta el rango del laboratorio"
+    en: "Laboratory range missing"
+  BONE_LOSS_MARKERS:
+    es: "Marcador fuera de rango con pérdida ósea o calcio urinario alto"
+    en: "Marker out of range with bone loss or high urinary calcium"
+  BOWEL_LOW_WEEK:
+    es: "{weekly} deposiciones en la semana"
+    en: "{weekly} bowel movements this week"
+  DIARRHEA_DEHYDRATION:
+    es: "Diarrea ({value} por día) con signos de deshidratación"
+    en: "Diarrhoea ({value} per day) with signs of dehydration"
+
+alarmSigns:
+  RESPIRATORY_DISTRESS: { es: "Dificultad respiratoria", en: "Respiratory distress" }
+  CHEST_PAIN: { es: "Dolor torácico", en: "Chest pain" }
+  SYNCOPE: { es: "Síncope", en: "Fainting" }
+  RENAL_COLIC_OR_HEMATURIA: { es: "Cólico renal o sangre en orina", en: "Renal colic or blood in urine" }
+  TRAUMA_OR_DEFORMITY: { es: "Traumatismo o deformidad", en: "Trauma or deformity" }
+  VOMIT_WITH_BLOOD: { es: "Vómito con sangre", en: "Vomit with blood" }
+  PERSISTENT_GREEN_VOMIT: { es: "Vómito verde persistente", en: "Persistent green vomit" }
+  CANNOT_RETAIN_FLUIDS: { es: "No retiene líquidos", en: "Cannot keep fluids down" }
+  SUDDEN_ABDOMINAL_PAIN: { es: "Dolor abdominal súbito", en: "Sudden abdominal pain" }
+  RIGID_ABDOMEN: { es: "Abdomen rígido", en: "Rigid abdomen" }
+  NO_STOOL_OR_GAS_WITH_DISTENSION: { es: "Sin deposiciones ni gases, con distensión", en: "No stool or gas, with distension" }
+  BLACK_TARRY_STOOL: { es: "Heces negras alquitranadas", en: "Black tarry stool" }
+  HEAVY_BLOOD_IN_STOOL: { es: "Sangre abundante en heces", en: "Heavy blood in stool" }
+
+rhythms:
+  SINUS: { es: "Sinusal", en: "Sinus" }
+  PREMATURE_BEATS: { es: "Extrasístoles", en: "Premature beats" }
+  OTHER_ARRHYTHMIA: { es: "Arritmia nueva", en: "New arrhythmia" }
+  VENTRICULAR_TACHYCARDIA: { es: "Taquicardia ventricular", en: "Ventricular tachycardia" }
+  VENTRICULAR_FIBRILLATION: { es: "Fibrilación ventricular", en: "Ventricular fibrillation" }
+  ASYSTOLE: { es: "Asistolia", en: "Asystole" }
+  COMPLETE_AV_BLOCK: { es: "Bloqueo auriculoventricular completo", en: "Complete AV block" }
+  ATRIAL_FIBRILLATION_RAPID: { es: "Fibrilación auricular rápida", en: "Rapid atrial fibrillation" }
+
+contexts:
+  REST: { es: "reposo", en: "rest" }
+  EXERCISE: { es: "ejercicio", en: "exercise" }
+  SLEEP: { es: "sueño", en: "sleep" }
+  UNKNOWN: { es: "contexto desconocido", en: "unknown context" }
+
+environments:
+  ORBITAL_STATION: { es: "Estación en órbita", en: "Orbital station" }
+  LUNAR_BASE: { es: "Base lunar", en: "Lunar base" }
+  DEEP_SPACE_TRANSIT: { es: "Tránsito de espacio profundo", en: "Deep space transit" }

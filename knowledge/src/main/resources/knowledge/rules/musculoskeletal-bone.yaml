@@ -1,0 +1,226 @@
+# Musculoskeletal and bone group (spec section 7.6).
+# Strength, bone density and body mass are the only rules that use the pre-flight baseline (spec section 7.2).
+group: MUSCULOSKELETAL_BONE
+texts:
+  es:
+    name: "Musculoesquelético y óseo"
+  en:
+    name: "Musculoskeletal and bone"
+variables:
+  - variable: MUSCLE_STRENGTH
+    unit: N·m
+    interval: P7D
+    reference: PREFLIGHT_MUSCLE_STRENGTH
+    thresholds:
+      ALERT: ["< 80"]
+      NORMAL: [">= 80"]
+    source: NASA-STD-3001 Vol. 1 (as reported by the HRP)
+    notes: [Evaluated as % of the pre-flight value. Interval provisional (P7D).]
+    texts:
+      es:
+        name: Fuerza muscular
+        measures: Fuerza máxima comparada con el valor previo al vuelo. El límite de la NASA es el 80 %.
+        guidance:
+          NORMAL: Fuerza en 80 % o más del valor previo al vuelo.
+          ALERT: Fuerza por debajo del 80 % del valor previo al vuelo. Avise al oficial médico para ajustar el plan de ejercicio de resistencia.
+          NOT_EVALUABLE: No hay una medición de fuerza vigente o falta el valor previo al vuelo.
+      en:
+        name: Muscle strength
+        measures: Peak strength compared with the pre-flight value. NASA's limit is 80 %.
+        guidance:
+          NORMAL: Strength at 80 % or more of the pre-flight value.
+          ALERT: Strength below 80 % of the pre-flight value. Notify the medical officer to adjust the resistance exercise plan.
+          NOT_EVALUABLE: No current strength measurement or the pre-flight value is missing.
+
+  - variable: BMD_HIP
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_HIP
+    thresholds:
+      ALERT: ["< 95"]
+      NORMAL: [">= 95"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    texts:
+      es:
+        name: Densidad mineral ósea (cadera)
+        measures: Densidad del hueso de la cadera comparada con el valor previo al vuelo. El límite de la NASA es el 95 %.
+        guidance:
+          NORMAL: Densidad de cadera en 95 % o más del valor previo al vuelo.
+          ALERT: Densidad de cadera por debajo del 95 % del valor previo al vuelo. Avise al oficial médico para revisar ejercicio, calcio y vitamina D.
+          NOT_EVALUABLE: No hay una densitometría vigente o falta el valor previo al vuelo.
+      en:
+        name: Bone mineral density (hip)
+        measures: Hip bone density compared with the pre-flight value. NASA's limit is 95 %.
+        guidance:
+          NORMAL: Hip density at 95 % or more of the pre-flight value.
+          ALERT: Hip density below 95 % of the pre-flight value. Notify the medical officer to review exercise, calcium and vitamin D.
+          NOT_EVALUABLE: No current densitometry or the pre-flight value is missing.
+
+  - variable: BMD_SPINE
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_SPINE
+    thresholds:
+      ALERT: ["< 95"]
+      NORMAL: [">= 95"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    texts:
+      es:
+        name: Densidad mineral ósea (columna)
+        measures: Densidad del hueso de la columna comparada con el valor previo al vuelo. El límite de la NASA es el 95 %.
+        guidance:
+          NORMAL: Densidad de columna en 95 % o más del valor previo al vuelo.
+          ALERT: Densidad de columna por debajo del 95 % del valor previo al vuelo. Avise al oficial médico para revisar ejercicio, calcio y vitamina D.
+          NOT_EVALUABLE: No hay una densitometría vigente o falta el valor previo al vuelo.
+      en:
+        name: Bone mineral density (spine)
+        measures: Spine bone density compared with the pre-flight value. NASA's limit is 95 %.
+        guidance:
+          NORMAL: Spine density at 95 % or more of the pre-flight value.
+          ALERT: Spine density below 95 % of the pre-flight value. Notify the medical officer to review exercise, calcium and vitamin D.
+          NOT_EVALUABLE: No current densitometry or the pre-flight value is missing.
+
+  - variable: BMD_FEMORAL_NECK
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_FEMORAL_NECK
+    thresholds:
+      ALERT: ["< 90"]
+      NORMAL: [">= 90"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    texts:
+      es:
+        name: Densidad mineral ósea (cuello del fémur)
+        measures: Densidad del cuello del fémur comparada con el valor previo al vuelo. El límite de la NASA es el 90 %.
+        guidance:
+          NORMAL: Densidad del cuello del fémur en 90 % o más del valor previo al vuelo.
+          ALERT: Densidad del cuello del fémur por debajo del 90 % del valor previo al vuelo. Avise al oficial médico para revisar ejercicio, calcio y vitamina D.
+          NOT_EVALUABLE: No hay una densitometría vigente o falta el valor previo al vuelo.
+      en:
+        name: Bone mineral density (femoral neck)
+        measures: Femoral neck density compared with the pre-flight value. NASA's limit is 90 %.
+        guidance:
+          NORMAL: Femoral neck density at 90 % or more of the pre-flight value.
+          ALERT: Femoral neck density below 90 % of the pre-flight value. Notify the medical officer to review exercise, calcium and vitamin D.
+          NOT_EVALUABLE: No current densitometry or the pre-flight value is missing.
+
+  - variable: MUSCULOSKELETAL_PAIN
+    unit: /10
+    interval: P1D
+    alarmSigns: [TRAUMA_OR_DEFORMITY]
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document
+    texts:
+      es:
+        name: Dolor muscular u óseo
+        measures: Intensidad del dolor muscular u óseo en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          NORMAL: Sin dolor.
+          OBSERVATION: Dolor leve a moderado. Ajuste la carga del ejercicio, aplique reposo relativo y consulte si empeora.
+          ALERT: Dolor intenso, o traumatismo o deformidad. Inmovilice la zona y avise de inmediato al oficial médico.
+          NOT_EVALUABLE: No hay una autoevaluación en las últimas 36 horas.
+      en:
+        name: Muscle or bone pain
+        measures: Muscle or bone pain intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          NORMAL: No pain.
+          OBSERVATION: Mild to moderate pain. Adjust the exercise load, rest the area and report if it gets worse.
+          ALERT: Severe pain, or trauma or deformity. Immobilize the area and notify the medical officer immediately.
+          NOT_EVALUABLE: No self-assessment in the last 36 hours.
+
+  - variable: PHYSICAL_ACTIVITY
+    unit: min
+    interval: P1D
+    reference: DAILY_ACTIVITY
+    thresholds:
+      OBSERVATION: ["< 100"]
+      NORMAL: [">= 100"]
+    persistence:
+      OBSERVATION: 3
+    source: Rules document
+    notes: [Evaluated as % of the daily target; below target 3 days in a row gives Observation.]
+    texts:
+      es:
+        name: Actividad física
+        measures: Minutos de ejercicio del día comparados con el objetivo diario del plan de ejercicio.
+        guidance:
+          NORMAL: Objetivo diario de ejercicio cumplido.
+          OBSERVATION: Por debajo del objetivo de ejercicio tres días seguidos. Retome el plan de ejercicio; protege músculos y huesos en microgravedad.
+          NOT_EVALUABLE: No hay un registro de actividad en las últimas 36 horas.
+      en:
+        name: Physical activity
+        measures: Exercise minutes of the day compared with the daily target of the exercise plan.
+        guidance:
+          NORMAL: Daily exercise target met.
+          OBSERVATION: Below the exercise target three days in a row. Resume the exercise plan; it protects muscles and bones in microgravity.
+          NOT_EVALUABLE: No activity record in the last 36 hours.
+
+  - variable: BODY_MASS
+    unit: kg
+    interval: P1D
+    reference: PREFLIGHT_BODY_MASS
+    scale: PERCENT_CHANGE_FROM_REFERENCE
+    thresholds:
+      ALERT: ["> 5"]
+      OBSERVATION: ["> 2"]
+      NORMAL: ["<= 2"]
+    persistence:
+      OBSERVATION: 3
+    source: Rules document (proposed rule)
+    review: true
+    notes: [Evaluated as % change from the pre-flight value, up or down.]
+    texts:
+      es:
+        name: Masa corporal
+        measures: Peso corporal comparado con el valor previo al vuelo (cambio en %).
+        guidance:
+          NORMAL: Cambio de peso de 2 % o menos.
+          OBSERVATION: Cambio de peso de más del 2 % durante tres días seguidos. Revise ingesta y ejercicio con el oficial médico.
+          ALERT: Cambio de peso de más del 5 %. Avise al oficial médico para revisar alimentación, hidratación y salud general.
+          NOT_EVALUABLE: No hay un pesaje en las últimas 36 horas o falta el valor previo al vuelo.
+      en:
+        name: Body mass
+        measures: Body weight compared with the pre-flight value (% change).
+        guidance:
+          NORMAL: Weight change of 2 % or less.
+          OBSERVATION: Weight change above 2 % for three days in a row. Review intake and exercise with the medical officer.
+          ALERT: Weight change above 5 %. Notify the medical officer to review diet, hydration and general health.
+          NOT_EVALUABLE: No weighing in the last 36 hours or the pre-flight value is missing.
+
+  - variable: BONE_RESORPTION_MARKERS
+    unit: ""
+    interval: P30D
+    evaluator: BONE_RESORPTION
+    params:
+      urinaryCalciumHigh: 300
+    persistence:
+      OBSERVATION: 2
+    source: Rules document
+    review: true
+    notes:
+      - CTX or NTX; the marker and the laboratory reference range arrive with the measurement.
+      - Alert when out of range together with bone density in Alert or urinary calcium above 300 mg/24 h.
+      - Interval provisional (P30D).
+    texts:
+      es:
+        name: Marcadores de resorción ósea
+        measures: CTX o NTX, sustancias que se liberan cuando el hueso se degrada, comparadas con el rango del laboratorio.
+        guidance:
+          NORMAL: Marcador dentro del rango del laboratorio.
+          OBSERVATION: Marcador fuera del rango en dos análisis seguidos. Revise el plan de ejercicio y la ingesta de calcio con el oficial médico.
+          ALERT: Marcador fuera del rango junto con densidad ósea en Alerta o calcio urinario alto. Avise al oficial médico.
+          NOT_EVALUABLE: No hay un análisis vigente o falta el rango del laboratorio.
+      en:
+        name: Bone resorption markers
+        measures: CTX or NTX, substances released when bone breaks down, compared with the laboratory range.
+        guidance:
+          NORMAL: Marker within the laboratory range.
+          OBSERVATION: Marker out of range in two analyses in a row. Review the exercise plan and calcium intake with the medical officer.
+          ALERT: Marker out of range together with bone density in Alert or high urinary calcium. Notify the medical officer.
+          NOT_EVALUABLE: No current analysis or the laboratory range is missing.
