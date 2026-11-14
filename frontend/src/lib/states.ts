@@ -28,6 +28,6 @@ export function stateColorVar(state: HealthState | null | undefined): string {
     case 'NOT_EVALUABLE':
       return '--unknown'
     default:
-      return '--muted'
+      return '--text-3'
   }
 }

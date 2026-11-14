@@ -1,53 +1,110 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useCatalog } from './api/catalog'
 import { useMission } from './api/useMission'
+import { AppHeader } from './components/AppHeader'
 import { ui, type Language } from './i18n/ui'
-import { missionClock, missionDay } from './lib/missionTime'
-import { stateClass } from './lib/states'
+import { ControlCenter } from './views/ControlCenter'
 import { QuickView } from './views/QuickView'
+import { SimulatorControl } from './views/SimulatorControl'
+
+export type Screen = 'quick' | 'control' | 'simulator'
+export type Theme = 'dark' | 'light'
+
+function screenFromHash(): Screen {
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  return hash === 'control' || hash === 'simulator' ? hash : 'quick'
+}
+
+/** Per-viewer conveniences only: storage may be unavailable, the app works without it. */
+function stored<T extends string>(key: string, fallback: T, allowed: readonly T[]): T {
+  try {
+    const value = window.localStorage.getItem(key) as T | null
+    return value && allowed.includes(value) ? value : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function store(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // ignore
+  }
+}
 
 export function App() {
   const { snapshot, connection } = useMission()
-  const [language, setLanguage] = useState<Language>('es')
+  const [screen, setScreen] = useState<Screen>(screenFromHash)
+  const [language, setLanguage] = useState<Language>(() => stored('selfcheck.language', 'es', ['es', 'en']))
+  const [theme, setTheme] = useState<Theme>(() => stored('selfcheck.theme', 'dark', ['dark', 'light']))
   const [crewMemberId, setCrewMemberId] = useState('crew-1')
+  const catalog = useCatalog(language)
   const t = ui(language)
 
+  useEffect(() => {
+    const onHash = () => setScreen(screenFromHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.lang = language
+  }, [theme, language])
+
+  const changeLanguage = (value: Language) => {
+    setLanguage(value)
+    store('selfcheck.language', value)
+  }
+  const changeTheme = (value: Theme) => {
+    setTheme(value)
+    store('selfcheck.theme', value)
+  }
+
+  const environment = snapshot?.mission.environment
+  const environmentName = environment ? (catalog?.environments[environment] ?? environment) : ''
+  const member = t.crewNames[crewMemberId]
+  const header = {
+    quick: { badge: t.quickViewBadge, title: member?.name ?? crewMemberId, subtitle: `${member?.role ?? ''} · ${environmentName}` },
+    control: { badge: t.controlBadge, title: t.controlTitle, subtitle: environmentName },
+    simulator: { badge: t.simulatorBadge, title: t.simulatorTitle, subtitle: environmentName },
+  }[screen]
+
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <strong>SelfCheck</strong>
-          <span className="muted">{t.appSubtitle}</span>
-        </div>
-        <nav className="crew-tabs">
-          {(snapshot?.crew ?? []).map((member, index) => {
-            const state = snapshot?.subjects[member.id]?.overall?.state ?? 'NOT_EVALUABLE'
-            return (
-              <button
-                key={member.id}
-                className={`crew-tab ${stateClass(state)} ${member.id === crewMemberId ? 'selected' : ''}`}
-                onClick={() => setCrewMemberId(member.id)}
-              >
-                <span className="dot" /> {t.crewMember} {index + 1}
-              </button>
-            )
-          })}
-        </nav>
-        <div className="topbar-right">
-          {snapshot && (
-            <span className="mission-time">
-              {t.day} {missionDay(snapshot.missionTimeMs)} · {missionClock(snapshot.missionTimeMs)}
-            </span>
-          )}
-          <select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Language">
-            <option value="es">ES</option>
-            <option value="en">EN</option>
-          </select>
-        </div>
-      </header>
-      <main>
-        {connection !== 'live' && <div className="banner">{connection === 'offline' ? t.offline : t.connecting}</div>}
-        {snapshot && <QuickView snapshot={snapshot} crewMemberId={crewMemberId} t={t} />}
-      </main>
+    <div className={`app screen-${screen}`}>
+      <AppHeader
+        t={t}
+        {...header}
+        missionTimeMs={snapshot?.missionTimeMs ?? null}
+        language={language}
+        onLanguage={changeLanguage}
+        theme={theme}
+        onTheme={changeTheme}
+        screen={screen}
+      />
+      {connection !== 'live' && <div className="banner">{connection === 'offline' ? t.offline : t.connecting}</div>}
+      {screen === 'simulator' && <SimulatorControl t={t} language={language} snapshot={snapshot} catalog={catalog} />}
+      {snapshot && screen === 'quick' && (
+        <QuickView
+          snapshot={snapshot}
+          catalog={catalog}
+          crewMemberId={crewMemberId}
+          onCrewMember={setCrewMemberId}
+          t={t}
+          language={language}
+        />
+      )}
+      {snapshot && screen === 'control' && (
+        <ControlCenter
+          snapshot={snapshot}
+          catalog={catalog}
+          crewMemberId={crewMemberId}
+          onCrewMember={setCrewMemberId}
+          t={t}
+          language={language}
+        />
+      )}
     </div>
   )
 }

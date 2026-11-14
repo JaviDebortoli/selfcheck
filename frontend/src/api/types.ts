@@ -48,6 +48,8 @@ export interface AlertView {
   code: string
   params: Record<string, string>
   missionTimeMs: number
+  /** Clinical combination: high priority, never changes a color (spec section 7.13). */
+  combination: boolean
 }
 
 export interface CrewMemberView {

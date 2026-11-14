@@ -7,6 +7,10 @@ interface Props {
   rhythm: string | null
   /** CSS custom property for the trace color, e.g. `--normal`. */
   colorVar: string
+  /** Canvas height in px (220 by default; small for the crew list). */
+  height?: number
+  /** Thinner trace and lower sweep speed for small monitors. */
+  compact?: boolean
 }
 
 const SWEEP_PX_PER_S = 160
@@ -34,7 +38,7 @@ function ventricularBeat(t: number, period: number): number {
  * Bedside-monitor style sweep: a cursor writes the trace left to right and erases just ahead of itself.
  * Each beat lasts 60 / heart rate seconds, read from the latest value when the beat starts.
  */
-export function EcgMonitor({ heartRate, rhythm, colorVar }: Props) {
+export function EcgMonitor({ heartRate, rhythm, colorVar, height = 220, compact = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const live = useRef({ heartRate, rhythm, colorVar })
   live.current = { heartRate, rhythm, colorVar }
@@ -84,12 +88,12 @@ export function EcgMonitor({ heartRate, rhythm, colorVar }: Props) {
       const height = canvas.clientHeight
       const elapsed = Math.min((nowMs - previous) / 1000, 0.1)
       previous = nowMs
-      const color = getComputedStyle(canvas).getPropertyValue(live.current.colorVar).trim() || '#3ddc84'
+      const color = getComputedStyle(canvas).getPropertyValue(live.current.colorVar).trim() || '#5fbfa0'
       const baseline = height * 0.62
       const amplitude = height * 0.45
 
-      const steps = Math.max(1, Math.round(elapsed * SWEEP_PX_PER_S))
-      ctx.lineWidth = 2
+      const steps = Math.max(1, Math.round(elapsed * (compact ? SWEEP_PX_PER_S / 2 : SWEEP_PX_PER_S)))
+      ctx.lineWidth = compact ? 1.5 : 2
       ctx.strokeStyle = color
       ctx.lineJoin = 'round'
       for (let i = 0; i < steps; i++) {
@@ -117,7 +121,7 @@ export function EcgMonitor({ heartRate, rhythm, colorVar }: Props) {
       cancelAnimationFrame(frame)
       window.removeEventListener('resize', resize)
     }
-  }, [])
+  }, [compact])
 
-  return <canvas ref={canvasRef} className="ecg-canvas" aria-label="ECG" />
+  return <canvas ref={canvasRef} className="ecg-canvas" style={{ height }} aria-label="ECG" />
 }
