@@ -1,0 +1,420 @@
+/* Control center (spec section 8.3), designed for 1920×1080; the page scrolls vertically. Uses only the theme tokens. */
+.control-center {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: start;
+  padding: 20px 24px 32px;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.control-center .ecg-canvas {
+  width: 100%;
+  display: block;
+}
+
+.cc-small {
+  font-size: 0.8rem;
+}
+.cc-spacer {
+  flex: 1;
+}
+.control-center .card.tinted {
+  background: var(--state-bg);
+}
+
+/* ---- crew list ---- */
+.cc-crew {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cc-crew-head {
+  padding: 6px 2px 2px;
+}
+.cc-crew-head .label {
+  font-size: 0.78rem;
+}
+.cc-crew-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  border-width: 1.5px;
+  transition: box-shadow 0.15s ease;
+}
+.cc-crew-card:hover {
+  border-color: var(--border-strong);
+}
+.cc-crew-card.stateful:not(.state-normal):hover {
+  border-color: var(--state);
+}
+.cc-crew-card.selected {
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 5px var(--focus);
+}
+.cc-crew-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.cc-crew-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+.cc-mini-ecg {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 2px 4px;
+}
+.cc-figures {
+  display: flex;
+  gap: 22px;
+}
+.cc-figure {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.cc-figure-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+/* ---- selected member ---- */
+.cc-center {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+.cc-member {
+  padding: 20px 22px;
+  border-width: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cc-member-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cc-member-head h2 {
+  font-size: 1.45rem;
+}
+.cc-history-button {
+  padding: 9px 18px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: var(--on-brand);
+  font-weight: 700;
+}
+.cc-history-button:hover {
+  filter: brightness(1.08);
+}
+.cc-ecg {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cc-vitals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.cc-vital {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text);
+}
+.cc-vital.state-observation,
+.cc-vital.state-alert,
+.cc-vital.state-unknown {
+  border-color: var(--state);
+}
+.cc-vital-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--state);
+}
+.cc-vital.state-none .cc-vital-top,
+.cc-vital.state-normal .cc-vital-top {
+  color: var(--text-3);
+}
+.cc-vital.state-normal .cc-vital-top svg {
+  color: var(--normal);
+}
+.cc-vital-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cc-vital-value .mono {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.cc-vital.state-observation .cc-vital-value .mono,
+.cc-vital.state-alert .cc-vital-value .mono {
+  color: var(--state);
+}
+.cc-vital .cc-spark {
+  color: var(--text-3);
+}
+.cc-vital.state-observation .cc-spark,
+.cc-vital.state-alert .cc-spark {
+  color: var(--state);
+}
+.cc-review {
+  font-size: 0.92rem;
+}
+.cc-review-item {
+  color: var(--state);
+}
+
+/* ---- group panels ---- */
+.cc-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+.cc-panel {
+  padding: 6px 16px 10px;
+  border-width: 1.5px;
+  min-width: 0;
+}
+.cc-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: var(--r-sm);
+}
+.cc-panel-head h3 {
+  font-size: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+.cc-panel-head:hover h3 {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.cc-table th {
+  text-align: left;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.7rem;
+}
+.cc-table td {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.cc-table tr:last-child td {
+  border-bottom: none;
+}
+.cc-table .cc-col-trend {
+  width: 96px;
+}
+.cc-table .cc-col-value {
+  width: 34%;
+  text-align: right;
+}
+.cc-row-name {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+.cc-row-sub {
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+.cc-row .cc-spark {
+  display: block;
+  color: var(--text-3);
+}
+.cc-row.state-observation .cc-spark,
+.cc-row.state-alert .cc-spark {
+  color: var(--state);
+}
+.cc-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.cc-row.state-observation .cc-value,
+.cc-row.state-alert .cc-value,
+.cc-row.state-unknown .cc-value {
+  color: var(--state);
+}
+.cc-col-value .flag {
+  display: inline-flex;
+  margin-top: 2px;
+}
+
+/* ---- right column ---- */
+.cc-side {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 16px;
+}
+.cc-habitat .cc-table .cc-col-trend {
+  width: 72px;
+}
+.cc-habitat .cc-table .cc-col-value {
+  width: 38%;
+}
+.cc-side-panel {
+  padding: 14px 16px;
+}
+.cc-side-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cc-alerts .cc-alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+.cc-alert {
+  border: 1.5px solid var(--state);
+  background: var(--state-bg);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cc-alert-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cc-alert-time {
+  margin-left: auto;
+}
+.cc-alert-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.cc-alert-reason {
+  font-weight: 600;
+}
+.cc-priority {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--alert);
+  color: var(--alert);
+}
+
+/* ---- medical history modal ---- */
+.sheet-backdrop.cc-modal-backdrop {
+  align-items: center;
+}
+.cc-modal {
+  width: min(640px, calc(100% - 32px));
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 24px 24px;
+  animation: fade-in 0.15s ease-out;
+}
+.cc-modal-sub {
+  margin: 18px 0 6px;
+}
+.cc-dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  margin: 0;
+}
+.cc-dl dt,
+.cc-dl dd {
+  margin: 0;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.cc-dl dt {
+  color: var(--text-2);
+}
+.cc-dl dd {
+  padding-left: 16px;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Narrower than the target station: stack the side column under the rest. */
+@media (max-width: 1400px) {
+  .control-center {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  .cc-side {
+    grid-column: 1 / -1;
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .control-center {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cc-groups,
+  .cc-side,
+  .cc-vitals {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
