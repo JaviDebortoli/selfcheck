@@ -29,6 +29,21 @@ function sinusBeat(t: number): number {
   )
 }
 
+/**
+ * Atrial fibrillation: no P wave, a small fast wavy baseline (fibrillatory waves) and normal narrow QRS complexes;
+ * the irregular spacing comes from the beat period (valueAt).
+ */
+function fibrillationBeat(t: number, nowS: number): number {
+  return (
+    0.035 * Math.sin(2 * Math.PI * 7 * nowS) +
+    0.02 * Math.sin(2 * Math.PI * 11.3 * nowS) -
+    0.12 * gauss(t, 0.19, 0.01) +
+    1.0 * gauss(t, 0.21, 0.011) -
+    0.28 * gauss(t, 0.235, 0.012) +
+    0.22 * gauss(t, 0.36, 0.04)
+  )
+}
+
 /** Ventricular tachycardia: wide, regular complexes without P waves. */
 function ventricularBeat(t: number, period: number): number {
   return 0.8 * Math.sin((2 * Math.PI * t) / period) * gauss(t, period / 2, period / 2.2)
@@ -80,9 +95,12 @@ export function EcgMonitor({ heartRate, rhythm, colorVar, height = 220, compact 
         beatPeriod = 60 / hr
         // Isolated premature beats: every 7th beat comes early.
         if (label === 'PREMATURE_BEATS' && beatIndex % 7 === 0) beatPeriod *= 0.65
+        // Atrial fibrillation: irregularly irregular beats, between 60 % and 140 % of the mean period.
+        if (label === 'ATRIAL_FIBRILLATION_RAPID') beatPeriod *= 0.6 + 0.8 * Math.random()
       }
       const t = nowS - beatStart
-      return label === 'VENTRICULAR_TACHYCARDIA' ? ventricularBeat(t, beatPeriod) : sinusBeat(t)
+      if (label === 'VENTRICULAR_TACHYCARDIA') return ventricularBeat(t, beatPeriod)
+      return label === 'ATRIAL_FIBRILLATION_RAPID' ? fibrillationBeat(t, nowS) : sinusBeat(t)
     }
 
     const draw = (nowMs: number) => {
