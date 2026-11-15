@@ -1,8 +1,8 @@
 # Dehydration (spec section 9): fluid intake below target for three days, with a fast heart rate, low blood pressure,
 # hemoconcentration (hematocrit, hemoglobin and red blood cells up), urea and creatinine up, high sodium, low
 # potassium and high urine specific gravity. Hemoglobin, red cells and hematocrit use a separate value for women,
-# whose cuts are lower. Analyses and readings taken once a day are measured right away; fluid intake goes last so its
-# rule already sees the dehydration findings.
+# whose cuts are lower. Analyses and readings taken once a day are measured right away; creatinine goes before urea
+# and fluid intake last, so the rules that read other variables already see the dehydration findings.
 id: dehydration
 target: CREW_MEMBER
 texts:
@@ -21,4 +21,4 @@ effects:
   - { variable: SODIUM, value: 149, until: P3D }
   - { variable: POTASSIUM, value: 3.2, until: P3D }
   - { variable: URINE_SPECIFIC_GRAVITY, value: 1.034, until: P3D }
-measureNow: [HEART_RATE, SYSTOLIC_BP, DIASTOLIC_BP, HEMATOCRIT, HEMOGLOBIN, RED_BLOOD_CELLS, UREA, CREATININE, SODIUM, POTASSIUM, URINE_SPECIFIC_GRAVITY, FLUID_INTAKE]
+measureNow: [HEART_RATE, SYSTOLIC_BP, DIASTOLIC_BP, HEMATOCRIT, HEMOGLOBIN, RED_BLOOD_CELLS, CREATININE, UREA, SODIUM, POTASSIUM, URINE_SPECIFIC_GRAVITY, FLUID_INTAKE]
