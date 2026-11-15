@@ -73,13 +73,11 @@ export function App() {
     store('selfcheck.theme', value)
   }
 
-  const environment = snapshot?.mission.environment
-  const environmentName = environment ? (catalog?.environments[environment] ?? environment) : ''
   const member = t.crewNames[crewMemberId]
   const header = {
-    quick: { badge: t.quickViewBadge, title: member?.name ?? crewMemberId, subtitle: `${member?.role ?? ''} · ${environmentName}` },
-    control: { badge: t.controlBadge, title: t.controlTitle, subtitle: environmentName },
-    simulator: { badge: t.simulatorBadge, title: t.simulatorTitle, subtitle: environmentName },
+    quick: { badge: t.quickViewBadge, title: member?.name ?? crewMemberId, subtitle: member?.role ?? '' },
+    control: { badge: t.controlBadge, title: t.controlTitle, subtitle: '' },
+    simulator: { badge: t.simulatorBadge, title: t.simulatorTitle, subtitle: '' },
   }[screen]
 
   return (
@@ -108,7 +106,7 @@ export function App() {
       </div>
       <div className="app-content" style={{ zoom: scale, '--fit-scale': scale } as CSSProperties}>
         {connection !== 'live' && <div className="banner">{connection === 'offline' ? t.offline : t.connecting}</div>}
-        {screen === 'simulator' && <SimulatorControl t={t} language={language} snapshot={snapshot} catalog={catalog} />}
+        {screen === 'simulator' && <SimulatorControl t={t} language={language} snapshot={snapshot} />}
         {snapshot && screen === 'quick' && (
           <QuickView
             snapshot={snapshot}

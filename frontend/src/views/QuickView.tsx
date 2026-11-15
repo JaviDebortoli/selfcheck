@@ -4,7 +4,7 @@ import { setCrewAction, type CrewAction } from '../api/crewActions'
 import type { HealthState, Snapshot, SubjectView, VariableView } from '../api/types'
 import { EcgMonitor } from '../components/EcgMonitor'
 import { GroupDetailSheet } from '../components/GroupDetailSheet'
-import { ChevronIcon, GroupIcon, HelpIcon, StateIcon } from '../components/Icons'
+import { ChevronIcon, GroupIcon, StateIcon } from '../components/Icons'
 import { StatusPill } from '../components/StatusPill'
 import type { Language, UiTexts } from '../i18n/ui'
 import { formatAgo, formatNumber } from '../lib/format'
@@ -89,11 +89,6 @@ export function QuickView({ snapshot, catalog, crewMemberId, t, language }: Quic
               value={num(habitat?.variables.AIRBORNE_DUST?.value, 2)}
               unit="mg/m³"
               state={habitat?.variables.AIRBORNE_DUST?.state}
-              extra={
-                <span className="help" title={t.dustHelp}>
-                  <HelpIcon size={15} />
-                </span>
-              }
             />
           </div>
         </div>,

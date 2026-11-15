@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Catalog } from '../api/catalog'
 import type { Snapshot } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
 import { ConfirmDialog } from '../components/ConfirmDialog'
@@ -11,7 +10,6 @@ export interface SimulatorControlProps {
   t: UiTexts
   language: Language
   snapshot: Snapshot | null
-  catalog: Catalog | null
 }
 
 interface SimulatorStatus {
@@ -19,8 +17,6 @@ interface SimulatorStatus {
   running: boolean
   speed: number
   maxSpeed: number
-  environment: string
-  plannedDurationDays: number
   crew: string[]
   activeScenarios: { id: string; subjects: string[]; startedAt: number; endsAt: number }[]
 }
@@ -33,7 +29,6 @@ interface ScenarioInfo {
 }
 
 const SPEEDS = [1, 60, 600, 3600]
-const ENVIRONMENTS = ['ORBITAL_STATION', 'LUNAR_BASE', 'DEEP_SPACE_TRANSIT']
 const BASE = '/api/simulator'
 
 async function send(method: string, path: string, body?: unknown): Promise<SimulatorStatus> {
@@ -46,8 +41,8 @@ async function send(method: string, path: string, body?: unknown): Promise<Simul
   return (await response.json()) as SimulatorStatus
 }
 
-/** Simulator control screen (spec section 8.4): start, pause, speed, scenarios, reset and environment. */
-export function SimulatorControl({ t, language, catalog }: SimulatorControlProps) {
+/** Simulator control screen (spec section 8.4): start, pause, speed, scenarios and reset. */
+export function SimulatorControl({ t, language }: SimulatorControlProps) {
   const [status, setStatus] = useState<SimulatorStatus | null>(null)
   const [scenarios, setScenarios] = useState<ScenarioInfo[]>([])
   const [targets, setTargets] = useState<Record<string, string>>({})
@@ -134,22 +129,7 @@ export function SimulatorControl({ t, language, catalog }: SimulatorControlProps
         </section>
 
         <section className="card sim-card">
-          <div className="label">{t.environment}</div>
-          <div className="sim-buttons vertical">
-            {ENVIRONMENTS.map((environment) => (
-              <button
-                key={environment}
-                className={`btn ${status?.environment === environment ? 'selected' : ''}`}
-                disabled={busy}
-                onClick={() => act('PUT', '/environment', { environment })}
-              >
-                {catalog?.environments[environment] ?? environment}
-              </button>
-            ))}
-          </div>
-          {status && <p className="muted">{t.plannedDuration(status.plannedDurationDays)}</p>}
-
-          <div className="label sim-spaced">{t.activeScenarios}</div>
+          <div className="label">{t.activeScenarios}</div>
           {status?.activeScenarios.length ? (
             <ul className="sim-active">
               {status.activeScenarios.map((s) => (

@@ -60,7 +60,6 @@ const es = {
   actionFailed: 'No se pudo enviar. Intente de nuevo.',
   toConfirm: 'A confirmar',
   noState: 'Sin estado',
-  dustHelp: 'El polvo se mide en todos los entornos, pero su límite es de polvo lunar: solo da estado en la base lunar.',
   absorbedDoseHelp:
     'Sin estado: informa la dosis total absorbida por el cuerpo. Los límites de la NASA se fijan para cada órgano, y el sistema no recibe la dosis por órgano.',
   alertsLog: 'Registro de alertas',
@@ -108,8 +107,6 @@ const es = {
   speedLabel: (x: number) => (x === 1 ? 'Tiempo real' : `×${x}`),
   speedHelp:
     'Acelera el reloj de la misión para ver en poco tiempo reglas que miran horas o días. ×60: 1 minuto real es 1 hora de misión. ×600: un día en 2,4 minutos. ×3600: 1 segundo real es 1 hora.',
-  environment: 'Entorno de la misión',
-  plannedDuration: (days: number) => `Duración planificada: ${days} días`,
   scenarios: 'Escenarios',
   trigger: 'Disparar',
   target: 'Tripulante',
@@ -198,7 +195,6 @@ const en: UiTexts = {
   actionFailed: 'Could not send. Please try again.',
   toConfirm: 'To confirm',
   noState: 'No state',
-  dustHelp: 'Dust is measured in every environment, but its limit is for lunar dust: it only has a state at the lunar base.',
   absorbedDoseHelp:
     "No state: it reports the total dose absorbed by the body. NASA's limits are set for each organ, and the system does not receive the dose per organ.",
   alertsLog: 'Alert log',
@@ -245,8 +241,6 @@ const en: UiTexts = {
   speedLabel: (x: number) => (x === 1 ? 'Real time' : `×${x}`),
   speedHelp:
     'Speeds up the mission clock to show in a short time rules that look at hours or days. ×60: 1 real minute is 1 mission hour. ×600: one day in 2.4 minutes. ×3600: 1 real second is 1 hour.',
-  environment: 'Mission environment',
-  plannedDuration: (days: number) => `Planned duration: ${days} days`,
   scenarios: 'Scenarios',
   trigger: 'Trigger',
   target: 'Crew member',

@@ -47,12 +47,8 @@ function lowerFirst(name: string): string {
   return /^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ0-9]/.test(name) ? name : name.charAt(0).toLowerCase() + name.slice(1)
 }
 
-/**
- * Explanation shown behind a "?" next to a variable that needs one: dust (limit only at the lunar base) and the
- * absorbed dose (no state).
- */
+/** Explanation shown behind a "?" next to a variable that needs one: the absorbed dose (no state). */
 export function helpFor(variable: string, t: UiTexts): string | undefined {
-  if (variable === 'AIRBORNE_DUST') return t.dustHelp
   if (variable === 'ABSORBED_DOSE') return t.absorbedDoseHelp
   return undefined
 }

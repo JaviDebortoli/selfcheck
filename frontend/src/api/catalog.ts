@@ -22,7 +22,6 @@ export interface Catalog {
       raisesAlerts: boolean
       review: boolean
       source: string
-      environments: string[] | null
       /** Set when the rule compares a % of a pre-flight value or daily target. */
       reference: string | null
       /** Set when the rule uses a mean over this mission-time window (ISO-8601 duration). */
@@ -34,7 +33,6 @@ export interface Catalog {
   alarmSigns: Record<string, string>
   rhythms: Record<string, string>
   contexts: Record<string, string>
-  environments: Record<string, string>
   combinations: Record<string, { name: string; interpretation: string }>
 }
 

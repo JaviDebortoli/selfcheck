@@ -73,7 +73,6 @@ export interface CrewStatusView {
 export interface Snapshot {
   version: number
   missionTimeMs: number
-  mission: { environment: string | null; plannedDurationDays: number | null }
   crew: CrewMemberView[]
   subjects: Record<string, SubjectView>
   alerts: AlertView[]

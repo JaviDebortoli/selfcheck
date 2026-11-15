@@ -52,7 +52,10 @@ export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, 
         ) : (
           <h1>{title}</h1>
         )}
-        <div className="muted">{subtitle}</div>
+        {/* The line is kept when empty so the header measures the same on every screen. */}
+        <div className="muted" aria-hidden={subtitle ? undefined : true}>
+          {subtitle || ' '}
+        </div>
       </div>
       <nav className="screen-nav" aria-label="Screens">
         {(['quick', 'control', 'simulator'] as Screen[]).map((s) => (
