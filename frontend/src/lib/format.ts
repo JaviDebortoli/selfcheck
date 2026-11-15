@@ -95,7 +95,7 @@ export function formatReason(
     if (key === 'findings') return raw.split(',').map((v) => lowerFirst(catalog.variables[v]?.name ?? v)).join(', ')
     const number = Number(raw)
     // A % of a target reads better whole (98 %, not 98,609 %).
-    const digits = key === 'value' && params.unit === '%' ? 0 : 3
+    const digits = key === 'value' && params.unit === '%' ? 0 : key === 'value' && params.unit?.endsWith('/kg') ? 2 : 3
     return Number.isFinite(number) && /^-?\d+(\.\d+)?$/.test(raw) ? formatNumber(number, language, digits) : raw
   })
 }
