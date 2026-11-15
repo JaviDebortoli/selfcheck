@@ -22,13 +22,13 @@ variables:
     texts:
       es:
         name: Glucemia
-        measures: Azúcar en sangre en ayunas. Fuera del ayuno se muestra sin estado.
+        measures: "Azúcar en sangre en ayunas."
         guidance:
           OBSERVATION: "Verificar que el ayuno haya sido adecuado, repetir la medición si corresponde y registrar sudoración, temblores, hambre, sed o aumento de la diuresis. Comunicar el resultado."
           ALERT: "Con menos de 54 mg/dL, activar el protocolo de hipoglucemia: si el astronauta está consciente y puede tragar, seguir el protocolo de aporte de glucosa; si no, no dar nada por boca y pedir asistencia inmediata. Con 126 mg/dL o más, confirmar y evaluar según protocolo; con vómitos, dolor abdominal o confusión, evaluación urgente."
       en:
         name: Blood glucose
-        measures: Fasting blood sugar. Outside fasting it is shown without state.
+        measures: "Fasting blood sugar."
         guidance:
           OBSERVATION: "Check that fasting was adequate, measure again if appropriate and note sweating, tremors, hunger, thirst or increased urination. Report the result."
           ALERT: "Below 54 mg/dL, activate the hypoglycaemia protocol: if the astronaut is conscious and can swallow, follow the glucose intake protocol; if not, give nothing by mouth and ask for immediate assistance. At 126 mg/dL or more, confirm and assess per protocol; with vomiting, abdominal pain or confusion, urgent evaluation."
@@ -296,7 +296,7 @@ variables:
     texts:
       es:
         name: "Ingesta de proteínas"
-        measures: "Proteínas consumidas en el día. Se muestra como dato."
+        measures: "Proteínas consumidas en el día."
       en:
         name: "Protein intake"
-        measures: "Protein eaten in the day. Shown as data."
+        measures: "Protein eaten in the day."

@@ -20,13 +20,13 @@ variables:
     texts:
       es:
         name: Frecuencia cardíaca
-        measures: Latidos del corazón por minuto. Se evalúa solo en reposo; durante el ejercicio o el sueño se muestra sin estado.
+        measures: "Latidos del corazón por minuto."
         guidance:
           OBSERVATION: "Detener el ejercicio, descansar unos minutos y volver a medir. Registrar si hay palpitaciones, mareos o debilidad, y comunicar al equipo médico."
           ALERT: "Interrumpir la actividad, adoptar una posición segura y avisar de inmediato al equipo médico. Si aparece dolor torácico, dificultad respiratoria o sensación de inestabilidad, activar el protocolo de emergencia."
       en:
         name: Heart rate
-        measures: Heartbeats per minute. Evaluated only at rest; during exercise or sleep it is shown without state.
+        measures: "Heartbeats per minute."
         guidance:
           OBSERVATION: "Stop exercising, rest a few minutes and measure again. Note any palpitations, dizziness or weakness, and inform the medical team."
           ALERT: "Stop the activity, get into a safe position and notify the medical team immediately. If chest pain, difficulty breathing or a feeling of instability appears, activate the emergency protocol."

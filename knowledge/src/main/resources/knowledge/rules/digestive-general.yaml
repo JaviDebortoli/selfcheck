@@ -120,13 +120,13 @@ variables:
     texts:
       es:
         name: Frecuencia de deposiciones
-        measures: Deposiciones por día; lo normal va de 3 por día a 3 por semana.
+        measures: "Deposiciones por día."
         guidance:
           OBSERVATION: "Registrar frecuencia, hidratación y alimentación; favorecer la movilidad y ajustar los líquidos según el plan de misión."
           ALERT: "Evaluación médica urgente, sobre todo ante distensión, dolor, vómitos o imposibilidad de eliminar gases."
       en:
         name: Bowel movements
-        measures: Bowel movements per day; normal goes from 3 per day to 3 per week.
+        measures: "Bowel movements per day."
         guidance:
           OBSERVATION: "Note frequency, hydration and diet; encourage movement and adjust fluids according to the mission plan."
           ALERT: "Urgent medical evaluation, especially with distension, pain, vomiting or inability to pass gas."
@@ -160,7 +160,7 @@ variables:
     texts:
       es:
         name: "Apetito"
-        measures: "Apetito percibido de 0 a 10. Se muestra como dato; explica la ingesta calórica cuando está en Observación o Alerta."
+        measures: "Apetito percibido en una escala de 0 a 10."
       en:
         name: "Appetite"
-        measures: "Perceived appetite from 0 to 10. Shown as data; it explains caloric intake when that is in Observation or Alert."
+        measures: "Perceived appetite on a 0 to 10 scale."

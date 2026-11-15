@@ -30,13 +30,13 @@ variables:
     texts:
       es:
         name: Horas de sueño
-        measures: Horas dormidas por noche. Se usan los rangos de la National Sleep Foundation, sin ajustar por vuelo.
+        measures: "Horas dormidas por noche."
         guidance:
           OBSERVATION: "Revisar el horario de sueño y las condiciones del área de descanso (ruido, luz, temperatura) y priorizar el período de sueño previsto."
           ALERT: "Comunicar al equipo médico, evitar tareas críticas o de riesgo hasta recuperar el sueño y revisar la carga de trabajo."
       en:
         name: Sleep hours
-        measures: Hours slept per night, against the National Sleep Foundation ranges, not adjusted for flight.
+        measures: "Hours slept per night."
         guidance:
           OBSERVATION: "Review the sleep schedule and the conditions of the rest area (noise, light, temperature) and prioritise the planned sleep period."
           ALERT: "Inform the medical team, avoid critical or risky tasks until sleep recovers and review the workload."
@@ -54,12 +54,12 @@ variables:
     texts:
       es:
         name: Calidad del sueño (PSQI)
-        measures: Índice de calidad de sueño de Pittsburgh, mensual; más de 5 indica mala calidad.
+        measures: "Índice de calidad de sueño de Pittsburgh: cuestionario sobre cómo se durmió en el último mes."
         guidance:
           OBSERVATION: "Comunicar el resultado al equipo médico y revisar los hábitos y el entorno de sueño."
       en:
         name: Sleep quality (PSQI)
-        measures: Pittsburgh Sleep Quality Index, monthly; above 5 means poor quality.
+        measures: "Pittsburgh Sleep Quality Index: questionnaire on how one slept over the last month."
         guidance:
           OBSERVATION: "Report the result to the medical team and review sleep habits and environment."
 
@@ -77,13 +77,13 @@ variables:
     texts:
       es:
         name: Estado de ánimo (PHQ-9)
-        measures: Cuestionario de síntomas depresivos, cada dos semanas.
+        measures: "Cuestionario PHQ-9 de síntomas depresivos."
         guidance:
           OBSERVATION: "Repetir el cuestionario en el próximo control y conversar con el equipo médico si el ánimo afecta las tareas."
           ALERT: "Solicitar evaluación por el equipo médico o de salud conductual de la misión."
       en:
         name: Mood (PHQ-9)
-        measures: Depressive symptoms questionnaire, every two weeks.
+        measures: "PHQ-9 questionnaire of depressive symptoms."
         guidance:
           OBSERVATION: "Repeat the questionnaire at the next check and talk to the medical team if mood affects your tasks."
           ALERT: "Request an evaluation by the mission's medical or behavioral health team."
@@ -119,10 +119,10 @@ variables:
     texts:
       es:
         name: "Estrés (PSS-10)"
-        measures: "Escala de estrés percibido, mensual. Se muestra como dato porque la escala no tiene cortes oficiales."
+        measures: "Estrés percibido según la escala PSS-10."
       en:
         name: "Stress (PSS-10)"
-        measures: "Perceived stress scale, monthly. Shown as data because the scale has no official cuts."
+        measures: "Perceived stress on the PSS-10 scale."
 
   - variable: ATTENTION
     unit: ms
@@ -132,10 +132,10 @@ variables:
     texts:
       es:
         name: "Atención y concentración"
-        measures: "Tiempo de respuesta en la batería Cognition de la NASA, mensual. Se muestra como dato."
+        measures: "Tiempo de respuesta en las pruebas de atención de la batería Cognition."
       en:
         name: "Attention and concentration"
-        measures: "Response time in NASA's Cognition battery, monthly. Shown as data."
+        measures: "Response time in the attention tests of the Cognition battery."
 
   - variable: MEMORY
     unit: "%"
@@ -145,7 +145,7 @@ variables:
     texts:
       es:
         name: "Memoria"
-        measures: "Respuestas correctas en la batería Cognition de la NASA, mensual. Se muestra como dato."
+        measures: "Respuestas correctas en las pruebas de memoria de la batería Cognition."
       en:
         name: "Memory"
-        measures: "Correct answers in NASA's Cognition battery, monthly. Shown as data."
+        measures: "Correct answers in the memory tests of the Cognition battery."

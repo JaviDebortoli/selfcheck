@@ -27,7 +27,7 @@ variables:
     texts:
       es:
         name: Hemoglobina
-        measures: Proteína de los glóbulos rojos que transporta el oxígeno. Los cortes dependen del sexo.
+        measures: "Proteína de los glóbulos rojos que transporta el oxígeno."
         guidance:
           OBSERVATION: "Comunicar el resultado y registrar fatiga, palidez, mareos, cefalea o menor tolerancia al ejercicio. No aumentar la intensidad del entrenamiento hasta recibir indicaciones."
           ALERT: "Suspender el ejercicio y solicitar evaluación médica prioritaria. Si hay falta de aire, dolor torácico, síncope o debilidad intensa, activar el protocolo de emergencia."
@@ -37,7 +37,7 @@ variables:
           ALERT_HIGH_FEMALE: "Informar de inmediato al equipo médico junto con los valores de hemoglobina y glóbulos rojos. Evitar el esfuerzo intenso y seguir sus indicaciones."
       en:
         name: Hemoglobin
-        measures: Red blood cell protein that carries oxygen. Cuts depend on sex.
+        measures: "Red blood cell protein that carries oxygen."
         guidance:
           OBSERVATION: "Report the result and note fatigue, paleness, dizziness, headache or lower exercise tolerance. Do not increase training intensity until instructed."
           ALERT: "Stop exercising and request a priority medical evaluation. With shortness of breath, chest pain, fainting or severe weakness, activate the emergency protocol."

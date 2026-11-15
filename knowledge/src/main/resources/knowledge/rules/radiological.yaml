@@ -23,13 +23,13 @@ variables:
     texts:
       es:
         name: Dosis efectiva acumulada de carrera
-        measures: Dosis de misiones anteriores más la de esta misión, comparada con el límite de carrera de la NASA de 600 mSv.
+        measures: "Dosis efectiva total recibida en la carrera: misiones anteriores más esta misión."
         guidance:
           OBSERVATION: "Revisar la dosis acumulada y la proyección para el resto de la misión. Comunicar al equipo de radioprotección y revisar las actividades futuras para reducir la exposición."
           ALERT: "Activar el protocolo de exposición y no continuar con la actividad. El equipo responsable evalúa la exposición y la necesidad de modificar actividades."
       en:
         name: Career effective dose
-        measures: Dose from previous missions plus this mission, compared with NASA's 600 mSv career limit.
+        measures: "Total effective dose received over the career: previous missions plus this mission."
         guidance:
           OBSERVATION: "Review the accumulated dose and its projection for the rest of the mission. Inform the radiation protection team and review upcoming activities to reduce exposure."
           ALERT: "Activate the exposure protocol and do not continue the activity. The responsible team assesses the exposure and whether activities must change."
@@ -47,13 +47,13 @@ variables:
     texts:
       es:
         name: Dosis del evento solar en curso
-        measures: Dosis recibida desde que empezó el evento de partículas solares, comparada con el límite de 250 mSv por evento.
+        measures: "Dosis recibida desde que empezó el evento de partículas solares en curso."
         guidance:
           OBSERVATION: "Prepararse para ingresar al refugio radiológico; suspender o reprogramar la actividad según indique el centro de control."
           ALERT: "Ingresar de inmediato al refugio radiológico designado, permanecer allí hasta recibir autorización y registrar la exposición recibida."
       en:
         name: Current solar event dose
-        measures: Dose received since the solar particle event started, compared with the 250 mSv per-event limit.
+        measures: "Dose received since the current solar particle event started."
         guidance:
           OBSERVATION: "Get ready to enter the radiation shelter; suspend or reschedule the activity as the control center indicates."
           ALERT: "Enter the designated radiation shelter immediately, stay there until cleared and record the exposure received."
@@ -70,10 +70,10 @@ variables:
     texts:
       es:
         name: "Dosis equivalente/efectiva de la misión"
-        measures: "Dosis efectiva acumulada durante esta misión. Se suma a la de misiones anteriores para formar la dosis de carrera, y su estado es el de la dosis de carrera."
+        measures: "Dosis efectiva acumulada durante esta misión."
       en:
         name: "Mission equivalent/effective dose"
-        measures: "Effective dose accumulated during this mission. It is added to previous missions to form the career dose, and its state is the career dose state."
+        measures: "Effective dose accumulated during this mission."
 
   - variable: DOSE_RATE
     unit: µSv/h
@@ -88,10 +88,10 @@ variables:
     texts:
       es:
         name: "Tasa de dosis"
-        measures: "Dosis recibida por hora en este momento. El límite de 250 mSv es de dosis acumulada, no de tasa; el estado acompaña al aviso de evento solar."
+        measures: "Dosis de radiación recibida por hora en este momento."
       en:
         name: "Dose rate"
-        measures: "Dose received per hour right now. The 250 mSv limit applies to accumulated dose, not to the rate; the state follows the solar event alert."
+        measures: "Radiation dose received per hour right now."
 
   - variable: ABSORBED_DOSE
     unit: mGy

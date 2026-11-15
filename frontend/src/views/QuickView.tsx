@@ -197,6 +197,7 @@ export function QuickView({ snapshot, catalog, crewMemberId, t, language }: Quic
           t={t}
           language={language}
           sex={openGroup === 'HABITAT' ? undefined : snapshot.crew.find((c) => c.id === crewMemberId)?.sex}
+          showReason={false}
           onClose={() => setOpenGroup(null)}
         />
       )}

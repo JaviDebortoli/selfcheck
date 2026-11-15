@@ -22,6 +22,8 @@ interface Props {
    * professionals, so "what it measures" moves to a "?" after the variable name and there is no "what to do".
    */
   showInformation?: boolean
+  /** Show the reason under each state ("En rango: 86 mg/dL"). The quick view hides it to keep the detail short. */
+  showReason?: boolean
   onClose: () => void
 }
 
@@ -29,7 +31,7 @@ interface Props {
  * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, reason, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, showReason = true, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -67,6 +69,7 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
               language={language}
               sex={sex}
               showInformation={showInformation}
+              showReason={showReason}
             />
           ))}
         </div>
@@ -84,6 +87,7 @@ function VariableRow({
   language,
   sex,
   showInformation,
+  showReason,
 }: {
   variable: string
   subject: SubjectView | undefined
@@ -93,6 +97,7 @@ function VariableRow({
   language: Language
   sex?: CrewMemberView['sex']
   showInformation: boolean
+  showReason: boolean
 }) {
   const view = subject?.variables[variable]
   const info = catalog?.variables[variable]
@@ -101,9 +106,8 @@ function VariableRow({
   const guidance = guidanceFor(state, view?.reason, sex, info?.guidance)
   const reason = formatReason(view?.reason, catalog, language, variable)
   const help = helpFor(variable, t)
-  // Without the information column the "?" carries what the variable measures, plus the explanation when the
-  // measures text does not already say it (dust's does).
-  const compactHelp = [info?.measures, variable === 'AIRBORNE_DUST' ? undefined : help].filter(Boolean).join(' ')
+  // Without the information column the "?" carries what the variable measures, plus its explanation (dust, absorbed dose).
+  const compactHelp = [info?.measures, help].filter(Boolean).join(' ')
   const derived = variable === 'CAREER_EFFECTIVE_DOSE' || variable === 'SOLAR_EVENT_DOSE' || variable === 'ECG_RHYTHM'
   const shown =
     variable === 'ECG_RHYTHM'
@@ -139,7 +143,7 @@ function VariableRow({
       </div>
       <div>
         <StatusPill state={state} t={t} small />
-        {reason && <div className="reason muted">{reason}</div>}
+        {showReason && reason && <div className="reason muted">{reason}</div>}
       </div>
       {showInformation && (
         <div className="explain">

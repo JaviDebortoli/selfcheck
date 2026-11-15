@@ -92,11 +92,11 @@ variables:
     texts:
       es:
         name: Polvo en el aire
-        measures: Concentración de polvo en el aire. Se mide en todos los entornos, pero su límite es de polvo lunar y solo aplica en la base lunar.
+        measures: "Concentración de polvo en el aire del hábitat."
         guidance:
           ALERT: "Usar protección respiratoria, limpiar y filtrar el aire del hábitat y limitar la exposición hasta que baje."
       en:
         name: Airborne dust
-        measures: Dust concentration in the air. It is measured in every environment, but its limit is for lunar dust and only applies at the lunar base.
+        measures: "Dust concentration in the habitat air."
         guidance:
           ALERT: "Use respiratory protection, clean and filter the habitat air and limit exposure until it drops."
