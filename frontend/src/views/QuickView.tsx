@@ -261,7 +261,7 @@ function StatusPanel({
             </div>
             <div>
               <div className="muted small">{t.outOfRange}</div>
-              <div className="big-number">{outOfRangeCount(subject)}</div>
+              <div className="big-number">{outOfRangeCount(subject, catalog)}</div>
             </div>
           </div>
         </div>

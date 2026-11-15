@@ -1,3 +1,4 @@
+import type { Catalog } from '../api/catalog'
 import type { HealthState, SubjectView } from '../api/types'
 
 /** Body groups in display order (spec section 6.1); the habitat is shown apart. */
@@ -34,8 +35,13 @@ export function groupsToReview(subject: SubjectView | undefined): { group: strin
     .sort((a, b) => order[a.state] - order[b.state])
 }
 
-/** Variables currently in OBSERVATION or ALERT. */
-export function outOfRangeCount(subject: SubjectView | undefined): number {
+/**
+ * Variables currently in OBSERVATION or ALERT. Variables whose state repeats another one (dose rate, mission dose,
+ * solar event alert) are left out, so one situation is counted once.
+ */
+export function outOfRangeCount(subject: SubjectView | undefined, catalog: Catalog | null): number {
   if (!subject) return 0
-  return Object.values(subject.variables).filter((v) => v.state === 'OBSERVATION' || v.state === 'ALERT').length
+  return Object.entries(subject.variables).filter(
+    ([variable, v]) => (v.state === 'OBSERVATION' || v.state === 'ALERT') && catalog?.variables[variable]?.raisesAlerts !== false,
+  ).length
 }

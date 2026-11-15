@@ -46,7 +46,7 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
 
   return (
     <main className="control-center">
-      <CrewList snapshot={snapshot} selectedId={memberId} onSelect={onCrewMember} t={t} ct={ct} language={language} />
+      <CrewList snapshot={snapshot} selectedId={memberId} onSelect={onCrewMember} catalog={catalog} t={t} ct={ct} language={language} />
 
       <div className="cc-center">
         <MemberPanel

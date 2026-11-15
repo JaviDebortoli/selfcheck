@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import type { Catalog } from '../api/catalog'
 import type { CrewMemberView, HealthState, Reason, SubjectView, SummaryView } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
-import { formatAgo, formatReason, formatValue } from '../lib/format'
+import { formatAgo, formatNumber, formatReason, formatValue, helpFor } from '../lib/format'
 import { GROUP_VARIABLES } from '../lib/groups'
 import { stateClass } from '../lib/states'
 import { CloseIcon, GroupIcon, HelpIcon } from './Icons'
@@ -100,12 +100,18 @@ function VariableRow({
   const state = view?.state ?? (info?.hasState && !view?.reason ? 'NOT_EVALUABLE' : null)
   const guidance = guidanceFor(state, view?.reason, sex, info?.guidance)
   const reason = formatReason(view?.reason, catalog, language, variable)
+  const help = helpFor(variable, t)
+  // Without the information column the "?" carries what the variable measures, plus the explanation when the
+  // measures text does not already say it (dust's does).
+  const compactHelp = [info?.measures, variable === 'AIRBORNE_DUST' ? undefined : help].filter(Boolean).join(' ')
   const derived = variable === 'CAREER_EFFECTIVE_DOSE' || variable === 'SOLAR_EVENT_DOSE' || variable === 'ECG_RHYTHM'
   const shown =
     variable === 'ECG_RHYTHM'
       ? (catalog?.rhythms[subject?.variables.HEART_RATE?.rhythm ?? ''] ?? '—')
       : derived
-        ? (view?.reason?.params.value ? `${view.reason.params.value} ${info?.unit ?? ''}` : '—')
+        ? (view?.reason?.params.value
+          ? `${formatNumber(Number(view.reason.params.value), language, 2)} ${info?.unit ?? ''}`
+          : '—')
         : formatValue(view, language)
 
   return (
@@ -113,13 +119,13 @@ function VariableRow({
       <div>
         <strong>{info?.name ?? variable}</strong>
         {showInformation
-          ? variable === 'AIRBORNE_DUST' && (
-              <span className="help" title={t.dustHelp}>
+          ? help && (
+              <span className="help" title={help} aria-label={help}>
                 <HelpIcon />
               </span>
             )
-          : info?.measures && (
-              <span className="help" title={info.measures} aria-label={info.measures}>
+          : compactHelp && (
+              <span className="help" title={compactHelp} aria-label={compactHelp}>
                 <HelpIcon />
               </span>
             )}
@@ -145,7 +151,7 @@ function VariableRow({
               <strong>{t.guidance}:</strong> {guidance}
             </div>
           )}
-          {variable === 'AIRBORNE_DUST' && <div className="faint">{t.dustHelp}</div>}
+          {help && <div className="faint">{help}</div>}
         </div>
       )}
     </div>

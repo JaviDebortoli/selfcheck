@@ -18,6 +18,8 @@ export interface Catalog {
       guidance: Record<string, string> | null
       unit: string
       hasState: boolean
+      /** False when the state repeats another variable's; such variables are not counted twice. */
+      raisesAlerts: boolean
       review: boolean
       source: string
       environments: string[] | null

@@ -4,7 +4,7 @@ import { ChevronIcon, GroupIcon, HelpIcon, StateIcon } from '../../components/Ic
 import { Sparkline } from '../../components/Sparkline'
 import { StatusPill } from '../../components/StatusPill'
 import type { Language, UiTexts } from '../../i18n/ui'
-import { formatReason } from '../../lib/format'
+import { formatReason, helpFor } from '../../lib/format'
 import { GROUP_VARIABLES } from '../../lib/groups'
 import { stateClass } from '../../lib/states'
 import type { ControlTexts } from './texts'
@@ -78,8 +78,8 @@ function Row({
       <td>
         <div className="cc-row-name">
           {catalog?.variables[variable]?.name ?? variable}
-          {variable === 'AIRBORNE_DUST' && (
-            <span className="help" title={t.dustHelp} aria-label={t.dustHelp} role="img">
+          {helpFor(variable, t) && (
+            <span className="help" title={helpFor(variable, t)} aria-label={helpFor(variable, t)} role="img">
               <HelpIcon size={14} />
             </span>
           )}

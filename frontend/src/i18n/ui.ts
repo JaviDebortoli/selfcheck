@@ -60,6 +60,8 @@ const es = {
   toConfirm: 'A confirmar',
   noState: 'Sin estado',
   dustHelp: 'El polvo se mide en todos los entornos, pero su límite es de polvo lunar: solo da estado en la base lunar.',
+  absorbedDoseHelp:
+    'Sin estado: informa la dosis total absorbida por el cuerpo. Los límites de la NASA se fijan para cada órgano, y el sistema no recibe la dosis por órgano.',
   alertsLog: 'Registro de alertas',
   wholeCrew: 'Toda la tripulación',
   noAlerts: 'Sin alertas',
@@ -193,6 +195,8 @@ const en: UiTexts = {
   toConfirm: 'To confirm',
   noState: 'No state',
   dustHelp: 'Dust is measured in every environment, but its limit is for lunar dust: it only has a state at the lunar base.',
+  absorbedDoseHelp:
+    "No state: it reports the total dose absorbed by the body. NASA's limits are set for each organ, and the system does not receive the dose per organ.",
   alertsLog: 'Alert log',
   wholeCrew: 'Whole crew',
   noAlerts: 'No alerts',

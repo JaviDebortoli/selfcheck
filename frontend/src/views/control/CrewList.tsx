@@ -1,3 +1,4 @@
+import type { Catalog } from '../../api/catalog'
 import type { Snapshot } from '../../api/types'
 import { EcgMonitor } from '../../components/EcgMonitor'
 import { StatusPill } from '../../components/StatusPill'
@@ -12,13 +13,14 @@ interface Props {
   snapshot: Snapshot
   selectedId: string
   onSelect: (id: string) => void
+  catalog: Catalog | null
   t: UiTexts
   ct: ControlTexts
   language: Language
 }
 
 /** Left column: the four crew members with their overall state, a mini ECG and three key figures. */
-export function CrewList({ snapshot, selectedId, onSelect, t, ct, language }: Props) {
+export function CrewList({ snapshot, selectedId, onSelect, catalog, t, ct, language }: Props) {
   const overall = (id: string) => snapshot.subjects[id]?.overall?.state ?? 'NOT_EVALUABLE'
   const states = snapshot.crew.map((m) => overall(m.id))
   const count = (state: string) => states.filter((s) => s === state).length
@@ -73,7 +75,7 @@ export function CrewList({ snapshot, selectedId, onSelect, t, ct, language }: Pr
             <div className="cc-figures">
               <Figure value={heart?.value != null ? formatNumber(heart.value, language, 0) : '—'} label={t.bpm} />
               <Figure value={sleep != null ? formatNumber(sleep, language, 1) : '—'} label={t.sleepShort} />
-              <Figure value={formatNumber(outOfRangeCount(subject), language, 0)} label={t.outOfRangeShort} />
+              <Figure value={formatNumber(outOfRangeCount(subject, catalog), language, 0)} label={t.outOfRangeShort} />
             </div>
           </button>
         )
