@@ -106,6 +106,8 @@ const es = {
   pause: 'Pausar',
   speed: 'Velocidad',
   speedLabel: (x: number) => (x === 1 ? 'Tiempo real' : `×${x}`),
+  speedHelp:
+    'Acelera el reloj de la misión para ver en poco tiempo reglas que miran horas o días. ×60: 1 minuto real es 1 hora de misión. ×600: un día en 2,4 minutos. ×3600: 1 segundo real es 1 hora.',
   environment: 'Entorno de la misión',
   plannedDuration: (days: number) => `Duración planificada: ${days} días`,
   scenarios: 'Escenarios',
@@ -241,6 +243,8 @@ const en: UiTexts = {
   pause: 'Pause',
   speed: 'Speed',
   speedLabel: (x: number) => (x === 1 ? 'Real time' : `×${x}`),
+  speedHelp:
+    'Speeds up the mission clock to show in a short time rules that look at hours or days. ×60: 1 real minute is 1 mission hour. ×600: one day in 2.4 minutes. ×3600: 1 real second is 1 hour.',
   environment: 'Mission environment',
   plannedDuration: (days: number) => `Planned duration: ${days} days`,
   scenarios: 'Scenarios',

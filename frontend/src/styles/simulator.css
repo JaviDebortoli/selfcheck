@@ -57,6 +57,36 @@
 .sim-buttons.vertical {
   flex-direction: column;
 }
+/* Segmented control (speed): one row of joined options, the selected one highlighted. */
+.segmented {
+  display: flex;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.segmented button {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: var(--raised);
+  color: var(--text-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.segmented button:first-child {
+  border-left: none;
+}
+.segmented button.selected {
+  background: var(--normal-bg);
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+.segmented button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 .sim-spaced {
   margin-top: 10px;
 }

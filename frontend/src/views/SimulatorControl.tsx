@@ -3,6 +3,7 @@ import type { Catalog } from '../api/catalog'
 import type { Snapshot } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { HelpIcon } from '../components/Icons'
 import { missionClock, missionDay } from '../lib/missionTime'
 import '../styles/simulator.css'
 
@@ -109,12 +110,20 @@ export function SimulatorControl({ t, language, catalog }: SimulatorControlProps
               ❚❚ {t.pause}
             </button>
           </div>
-          <div className="label">{t.speed}</div>
-          <div className="sim-buttons">
+          <div className="label">
+            {t.speed}
+            <span className="help" title={t.speedHelp} aria-label={t.speedHelp} role="img">
+              <HelpIcon size={14} />
+            </span>
+          </div>
+          {/* Segmented control: the four speeds in one row, the current one highlighted. */}
+          <div className="segmented" role="radiogroup" aria-label={t.speed}>
             {SPEEDS.map((speed) => (
               <button
                 key={speed}
-                className={`btn ${status?.speed === speed ? 'selected' : ''}`}
+                role="radio"
+                aria-checked={status?.speed === speed}
+                className={status?.speed === speed ? 'selected' : ''}
                 disabled={busy}
                 onClick={() => act('PUT', '/speed', { speed })}
               >
