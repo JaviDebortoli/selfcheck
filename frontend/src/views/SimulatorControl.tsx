@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Catalog } from '../api/catalog'
 import type { Snapshot } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { missionClock, missionDay } from '../lib/missionTime'
 import '../styles/simulator.css'
 
@@ -157,34 +158,28 @@ export function SimulatorControl({ t, language, catalog }: SimulatorControlProps
           )}
 
           <div className="sim-reset">
-            {confirmReset ? (
-              <>
-                <p>{t.resetConfirm}</p>
-                <div className="sim-buttons">
-                  <button
-                    className="btn danger"
-                    disabled={busy}
-                    onClick={async () => {
-                      await act('POST', '/reset')
-                      setConfirmReset(false)
-                    }}
-                  >
-                    {busy ? t.resetting : t.reset}
-                  </button>
-                  <button className="btn" disabled={busy} onClick={() => setConfirmReset(false)}>
-                    {t.close}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <button className="btn danger" onClick={() => setConfirmReset(true)}>
-                ↺ {t.reset}
-              </button>
-            )}
+            <button className="btn danger" onClick={() => setConfirmReset(true)}>
+              ↺ {t.reset}
+            </button>
           </div>
         </section>
 
       </div>
+
+      {confirmReset && (
+        <ConfirmDialog
+          title={t.reset}
+          message={t.resetConfirm}
+          confirmLabel={busy ? t.resetting : t.reset}
+          cancelLabel={t.cancel}
+          busy={busy}
+          onConfirm={async () => {
+            await act('POST', '/reset')
+            setConfirmReset(false)
+          }}
+          onCancel={() => setConfirmReset(false)}
+        />
+      )}
 
       <section className="card sim-card sim-scenarios">
         <div className="label">{t.scenarios}</div>

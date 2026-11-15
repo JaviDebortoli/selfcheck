@@ -303,6 +303,40 @@ select.chip {
   border-color: var(--border);
 }
 
+/* ---- confirmation popup ---- */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  animation: fade-in 0.15s ease-out;
+}
+.confirm-dialog {
+  width: min(460px, calc(100% - 32px));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.35);
+}
+.confirm-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+.confirm-dialog p {
+  margin: 0 0 20px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+.confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* ---- bottom sheet (detail popup, spec section 8.2) ---- */
 .sheet-backdrop {
   position: fixed;
