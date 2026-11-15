@@ -350,9 +350,12 @@ select.chip {
   grid-template-columns: fit-content(280px) max-content fit-content(280px) minmax(260px, 1fr);
   column-gap: 24px;
 }
-/* Without the information column (control center): name, value, and state with its reason taking the rest. */
+/*
+ * Without the information column (control center) the three columns share the full width by what they hold:
+ * names and state reasons are long text, the value is a short number with its unit.
+ */
 .variable-table.compact {
-  grid-template-columns: fit-content(320px) max-content minmax(260px, 1fr);
+  grid-template-columns: minmax(240px, 2fr) minmax(130px, 1fr) minmax(240px, 2fr);
 }
 .variable-row {
   display: grid;
