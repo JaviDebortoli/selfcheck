@@ -102,6 +102,7 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
           t={t}
           language={language}
           sex={snapshot.crew.find((c) => c.id === detail.subjectId)?.sex}
+          showInformation={false}
           onClose={closeDetail}
         />
       )}

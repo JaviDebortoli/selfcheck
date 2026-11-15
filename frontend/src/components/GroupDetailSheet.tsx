@@ -17,14 +17,19 @@ interface Props {
   language: Language
   /** Sex of the crew member, for recommendations that depend on it; absent for the habitat. */
   sex?: CrewMemberView['sex']
+  /**
+   * Show the information column (what it measures, what to do). The control center hides it: its readers are health
+   * professionals, so "what it measures" moves to a "?" after the variable name and there is no "what to do".
+   */
+  showInformation?: boolean
   onClose: () => void
 }
 
 /**
- * Detail of one group (spec sections 8.1 and 8.2): every variable with its value, state, reason, what it measures
+ * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, reason, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -44,12 +49,12 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
           </button>
         </div>
         {/* One grid for every row: columns line up and size to their content (CSS subgrid). */}
-        <div className="variable-table" role="table">
+        <div className={`variable-table${showInformation ? '' : ' compact'}`} role="table">
           <div className="variable-row variable-head" role="row">
             <span>{t.variable}</span>
             <span>{t.value}</span>
             <span>{t.state}</span>
-            <span>{t.information}</span>
+            {showInformation && <span>{t.information}</span>}
           </div>
           {GROUP_VARIABLES[group]?.map((variable) => (
             <VariableRow
@@ -61,6 +66,7 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
               t={t}
               language={language}
               sex={sex}
+              showInformation={showInformation}
             />
           ))}
         </div>
@@ -77,6 +83,7 @@ function VariableRow({
   t,
   language,
   sex,
+  showInformation,
 }: {
   variable: string
   subject: SubjectView | undefined
@@ -85,6 +92,7 @@ function VariableRow({
   t: UiTexts
   language: Language
   sex?: CrewMemberView['sex']
+  showInformation: boolean
 }) {
   const view = subject?.variables[variable]
   const info = catalog?.variables[variable]
@@ -104,11 +112,17 @@ function VariableRow({
     <div className={`variable-row ${stateClass(state)}`} role="row">
       <div>
         <strong>{info?.name ?? variable}</strong>
-        {variable === 'AIRBORNE_DUST' && (
-          <span className="help" title={t.dustHelp}>
-            <HelpIcon />
-          </span>
-        )}
+        {showInformation
+          ? variable === 'AIRBORNE_DUST' && (
+              <span className="help" title={t.dustHelp}>
+                <HelpIcon />
+              </span>
+            )
+          : info?.measures && (
+              <span className="help" title={info.measures} aria-label={info.measures}>
+                <HelpIcon />
+              </span>
+            )}
         <div className="faint small">
           {t.lastMeasured}: {formatAgo(missionTimeMs, view?.measuredAtMs ?? view?.stateAtMs, t)}
         </div>
@@ -121,17 +135,19 @@ function VariableRow({
         <StatusPill state={state} t={t} small />
         {reason && <div className="reason muted">{reason}</div>}
       </div>
-      <div className="explain">
-        <div>
-          <strong>{t.whatItMeasures}:</strong> {info?.measures}
-        </div>
-        {guidance && (
+      {showInformation && (
+        <div className="explain">
           <div>
-            <strong>{t.guidance}:</strong> {guidance}
+            <strong>{t.whatItMeasures}:</strong> {info?.measures}
           </div>
-        )}
-        {variable === 'AIRBORNE_DUST' && <div className="faint">{t.dustHelp}</div>}
-      </div>
+          {guidance && (
+            <div>
+              <strong>{t.guidance}:</strong> {guidance}
+            </div>
+          )}
+          {variable === 'AIRBORNE_DUST' && <div className="faint">{t.dustHelp}</div>}
+        </div>
+      )}
     </div>
   )
 }
