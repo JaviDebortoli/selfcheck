@@ -149,7 +149,7 @@ class SimulationLoop(
         overrides.get(subjectId, variable)?.let { return it }
         val member = CrewRoster.members.firstOrNull { it.id == subjectId }
         scenarios.effect(subjectId, variable, t)?.let { effect ->
-            effect.value?.let { return it }
+            effect.valueFor(member?.sex)?.let { return it }
             val reference = member?.let { body.reference(it, variable) }
             if (effect.percentOfReference != null && reference != null) {
                 return round(reference * effect.percentOfReference * 10) / 1000

@@ -1,0 +1,18 @@
+# Fever from an infection, pneumonia (spec section 9): fever, a heart rate that starts normal and keeps rising, fast
+# breathing, white blood cells above 12,000 with neutrophilia, and high CRP in an on-demand analysis.
+id: infection-fever
+target: CREW_MEMBER
+texts:
+  es: { name: "Fiebre por infección", description: "Neumonía: temperatura de 38,6 °C (Alerta), frecuencia cardíaca normal al principio que sube hasta 112 lpm en tres días, frecuencia respiratoria de 24 rpm, y en el análisis a demanda glóbulos blancos de 14.500, neutrófilos altos y PCR elevada." }
+  en: { name: "Fever from infection", description: "Pneumonia: temperature of 38.6 °C (Alert), heart rate normal at first that rises to 112 bpm over three days, respiratory rate of 24 bpm, and in the on-demand analysis white blood cells of 14,500, high neutrophils and high CRP." }
+effects:
+  - { variable: BODY_TEMPERATURE, value: 38.6, until: P3D }
+  - { variable: HEART_RATE, value: 78, until: PT12H }
+  - { variable: HEART_RATE, value: 92, from: PT12H, until: P1D }
+  - { variable: HEART_RATE, value: 104, from: P1D, until: P2D }
+  - { variable: HEART_RATE, value: 112, from: P2D, until: P3D }
+  - { variable: RESPIRATORY_RATE, value: 24, until: P3D }
+  - { variable: WHITE_BLOOD_CELLS, value: 14500, until: P3D }
+  - { variable: NEUTROPHILS, value: 11200, until: P3D }
+  - { variable: CRP, value: 85, until: P3D }
+measureNow: [BODY_TEMPERATURE, RESPIRATORY_RATE, WHITE_BLOOD_CELLS, NEUTROPHILS, CRP]

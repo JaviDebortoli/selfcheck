@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.selfcheck.contracts.AlarmSign
 import io.selfcheck.contracts.RhythmLabel
+import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.Variable
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Component
@@ -18,17 +19,21 @@ enum class ScenarioTarget { CREW_MEMBER, ALL_CREW, HABITAT }
 
 /**
  * Changes one variable while the scenario runs, between [from] and [until] after it starts.
- * The value is either absolute or a percentage of the crew member's pre-flight value or daily target.
+ * The value is either absolute or a percentage of the crew member's pre-flight value or daily target. [femaleValue]
+ * replaces [value] for women where the cut depends on sex (hemoglobin, red blood cells, hematocrit).
  */
 data class ScenarioEffect(
     val variable: Variable,
     val value: Double? = null,
+    val femaleValue: Double? = null,
     val percentOfReference: Double? = null,
     val rhythm: RhythmLabel? = null,
     val signs: List<AlarmSign> = emptyList(),
     val from: Duration = Duration.ZERO,
     val until: Duration,
-)
+) {
+    fun valueFor(sex: Sex?): Double? = if (sex == Sex.FEMALE) femaleValue ?: value else value
+}
 
 data class ScenarioTexts(val name: String, val description: String)
 
