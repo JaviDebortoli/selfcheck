@@ -405,10 +405,12 @@ select.chip {
 }
 /*
  * Without the information column (control center) the three columns share the full width by what they hold:
- * names and state reasons are long text, the value is a short number with its unit.
+ * each column is as wide as its content (the name may wrap below 240px) and the free width is split evenly between
+ * the columns, so the state pills end at the right edge instead of leaving an empty band.
  */
 .variable-table.compact {
-  grid-template-columns: minmax(240px, 2fr) minmax(130px, 1fr) minmax(240px, 2fr);
+  grid-template-columns: minmax(240px, max-content) max-content max-content;
+  justify-content: space-between;
 }
 .variable-row {
   display: grid;
