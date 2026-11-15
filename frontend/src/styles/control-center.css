@@ -12,6 +12,103 @@
   margin: 0 auto;
 }
 
+/* ---- variable chart in the group detail ---- */
+.variable-chart {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px 10px;
+  margin-bottom: 6px;
+}
+.variable-chart-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.variable-chart-head h3 {
+  font-size: 1rem;
+}
+.chart-presets {
+  margin-left: auto;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.chart-presets button {
+  padding: 5px 10px;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: var(--raised);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chart-presets button:first-child {
+  border-left: none;
+}
+.chart-presets button:hover {
+  color: var(--text);
+}
+/* The detail with a chart is taller, so the chart and several rows fit without scrolling. */
+.sheet.with-chart {
+  max-height: calc(90vh / var(--fit-scale, 1));
+}
+/*
+ * The page is scaled with CSS zoom (useFitScale) and ECharts reads mouse positions without it, so the chart area
+ * cancels the zoom and draws at real pixels; its height is scaled by hand to keep the same size on screen.
+ */
+.variable-chart-body {
+  position: relative;
+  zoom: calc(1 / var(--fit-scale, 1));
+}
+.variable-chart-canvas {
+  width: 100%;
+  height: calc(300px * var(--fit-scale, 1));
+}
+.variable-chart-note {
+  position: absolute;
+  inset: 0 0 116px 56px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  pointer-events: none;
+}
+.variable-chart-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.variable-chart-legend .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.variable-chart-legend .legend-swatch {
+  width: 14px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--state);
+}
+.chart-hint {
+  margin: 0 0 8px;
+}
+.variable-row.selectable {
+  cursor: pointer;
+}
+.variable-row.selectable:hover {
+  background: var(--raised);
+}
+.variable-row.selected {
+  background: var(--raised);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+.variable-row.selectable:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+
 .control-center .ecg-canvas {
   width: 100%;
   display: block;
@@ -452,4 +549,9 @@
   color: var(--info);
   font-size: 0.7rem;
   font-weight: 600;
+}
+/* Selectable rows get side padding so the selection bar does not touch the text; the header row keeps the same. */
+.sheet.with-chart .variable-row {
+  padding-left: 12px;
+  padding-right: 8px;
 }

@@ -12,6 +12,7 @@ import { MedicalHistory } from './control/MedicalHistory'
 import { MemberPanel } from './control/MemberPanel'
 import { controlTexts } from './control/texts'
 import { useHistory } from './control/useHistory'
+import { VariableChart } from './control/VariableChart'
 
 export interface ControlCenterProps {
   snapshot: Snapshot
@@ -100,6 +101,9 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
           language={language}
           sex={snapshot.crew.find((c) => c.id === detail.subjectId)?.sex}
           showInformation={false}
+          chart={(variable) => (
+            <VariableChart subjectId={detail.subjectId} variable={variable} catalog={catalog} t={t} language={language} />
+          )}
           onClose={closeDetail}
         />
       )}

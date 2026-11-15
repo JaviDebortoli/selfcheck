@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import type { Catalog } from '../api/catalog'
 import type { CrewMemberView, HealthState, Reason, SubjectView, SummaryView } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
@@ -22,6 +22,11 @@ interface Props {
    * professionals, so "what it measures" moves to a "?" after the variable name and there is no "what to do".
    */
   showInformation?: boolean
+  /**
+   * Chart of one variable (control center). When given, a row click selects the variable it shows; the sheet opens
+   * on the first variable in Observation or Alert, or else on the first one.
+   */
+  chart?: (variable: string) => ReactNode
   onClose: () => void
 }
 
@@ -29,7 +34,7 @@ interface Props {
  * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, chart, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -37,9 +42,16 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
   }, [onClose])
 
   const summary: SummaryView | undefined = subject?.groups[group]
+  const variables = GROUP_VARIABLES[group] ?? []
+  const [selected, setSelected] = useState<string | undefined>(
+    () =>
+      variables.find((v) => subject?.variables[v]?.state === 'ALERT') ??
+      variables.find((v) => subject?.variables[v]?.state === 'OBSERVATION') ??
+      variables[0],
+  )
   return (
     <div className="sheet-backdrop" onClick={onClose}>
-      <section className="sheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <section className={chart ? 'sheet with-chart' : 'sheet'} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-header">
           <GroupIcon group={group} size={22} />
           <h2>{catalog?.groups[group]?.name ?? group}</h2>
@@ -48,6 +60,12 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
             <CloseIcon />
           </button>
         </div>
+        {chart && selected && (
+          <>
+            {chart(selected)}
+            <p className="faint small chart-hint">{t.chartHint}</p>
+          </>
+        )}
         {/* One grid for every row: columns line up and size to their content (CSS subgrid). */}
         <div className={`variable-table${showInformation ? '' : ' compact'}`} role="table">
           <div className="variable-row variable-head" role="row">
@@ -56,7 +74,7 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
             <span>{t.state}</span>
             {showInformation && <span>{t.information}</span>}
           </div>
-          {GROUP_VARIABLES[group]?.map((variable) => (
+          {variables.map((variable) => (
             <VariableRow
               key={variable}
               variable={variable}
@@ -67,6 +85,8 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
               language={language}
               sex={sex}
               showInformation={showInformation}
+              selected={chart ? selected === variable : undefined}
+              onSelect={chart ? () => setSelected(variable) : undefined}
             />
           ))}
         </div>
@@ -84,6 +104,8 @@ function VariableRow({
   language,
   sex,
   showInformation,
+  selected,
+  onSelect,
 }: {
   variable: string
   subject: SubjectView | undefined
@@ -93,6 +115,9 @@ function VariableRow({
   language: Language
   sex?: CrewMemberView['sex']
   showInformation: boolean
+  /** Whether the chart shows this variable; undefined when the sheet has no chart. */
+  selected?: boolean
+  onSelect?: () => void
 }) {
   const view = subject?.variables[variable]
   const info = catalog?.variables[variable]
@@ -113,7 +138,23 @@ function VariableRow({
         : formatValue(view, language)
 
   return (
-    <div className={`variable-row ${stateClass(state)}`} role="row">
+    <div
+      className={`variable-row ${stateClass(state)}${onSelect ? ' selectable' : ''}${selected ? ' selected' : ''}`}
+      role="row"
+      aria-selected={selected}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onSelect()
+              }
+            }
+          : undefined
+      }
+    >
       <div>
         <strong>{info?.name ?? variable}</strong>
         {showInformation
