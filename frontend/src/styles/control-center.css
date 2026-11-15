@@ -245,9 +245,6 @@
 .cc-table tr:last-child td {
   border-bottom: none;
 }
-.cc-table .cc-col-trend {
-  width: 96px;
-}
 .cc-table .cc-col-value {
   width: 34%;
   text-align: right;
@@ -263,14 +260,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 8px;
-}
-.cc-row .cc-spark {
-  display: block;
-  color: var(--text-3);
-}
-.cc-row.state-observation .cc-spark,
-.cc-row.state-alert .cc-spark {
-  color: var(--state);
 }
 .cc-value {
   display: inline-flex;
@@ -297,9 +286,6 @@
   gap: 22px;
   position: sticky;
   top: 16px;
-}
-.cc-habitat .cc-table .cc-col-trend {
-  width: 72px;
 }
 .cc-habitat .cc-table .cc-col-value {
   width: 38%;

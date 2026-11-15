@@ -1,20 +1,17 @@
 import type { Catalog } from '../../api/catalog'
 import type { SubjectView } from '../../api/types'
 import { ChevronIcon, GroupIcon, HelpIcon, StateIcon } from '../../components/Icons'
-import { Sparkline } from '../../components/Sparkline'
 import { StatusPill } from '../../components/StatusPill'
 import type { Language, UiTexts } from '../../i18n/ui'
 import { formatReason, helpFor } from '../../lib/format'
 import { GROUP_VARIABLES } from '../../lib/groups'
 import { stateClass } from '../../lib/states'
 import type { ControlTexts } from './texts'
-import type { DailyHistory } from './useHistory'
 import { isFlagged, shownState, shownValue } from './variables'
 
 interface Props {
   group: string
   subject: SubjectView | undefined
-  history: DailyHistory
   catalog: Catalog | null
   t: UiTexts
   ct: ControlTexts
@@ -25,8 +22,8 @@ interface Props {
   className?: string
 }
 
-/** One group as a table (Variable / 14 days / Value). The header opens the shared detail sheet. */
-export function GroupPanel({ group, subject, history, catalog, t, ct, language, onOpen, title, className = '' }: Props) {
+/** One group as a table (Variable / Value). The header opens the shared detail sheet. */
+export function GroupPanel({ group, subject, catalog, t, ct, language, onOpen, title, className = '' }: Props) {
   const state = subject?.groups[group]?.state ?? 'NOT_EVALUABLE'
   const name = title ?? catalog?.groups[group]?.name ?? group
   return (
@@ -41,13 +38,12 @@ export function GroupPanel({ group, subject, history, catalog, t, ct, language, 
         <thead>
           <tr>
             <th className="label">{t.variable}</th>
-            <th className="label cc-col-trend">{t.trend14}</th>
             <th className="label cc-col-value">{t.value}</th>
           </tr>
         </thead>
         <tbody>
           {GROUP_VARIABLES[group]?.map((variable) => (
-            <Row key={variable} variable={variable} subject={subject} history={history} catalog={catalog} t={t} language={language} />
+            <Row key={variable} variable={variable} subject={subject} catalog={catalog} t={t} language={language} />
           ))}
         </tbody>
       </table>
@@ -58,14 +54,12 @@ export function GroupPanel({ group, subject, history, catalog, t, ct, language, 
 function Row({
   variable,
   subject,
-  history,
   catalog,
   t,
   language,
 }: {
   variable: string
   subject: SubjectView | undefined
-  history: DailyHistory
   catalog: Catalog | null
   t: UiTexts
   language: Language
@@ -89,9 +83,6 @@ function Row({
             {reason}
           </div>
         )}
-      </td>
-      <td className="cc-col-trend">
-        <Sparkline points={history[variable]} className="cc-spark" />
       </td>
       <td className="cc-col-value">
         <span className="cc-value mono">

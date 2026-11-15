@@ -42,7 +42,6 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
   const habitat = snapshot.subjects[HABITAT_ID]
   const member = snapshot.crew.find((m) => m.id === memberId)
   const history = useHistory(memberId)
-  const habitatHistory = useHistory(HABITAT_ID)
 
   return (
     <main className="control-center">
@@ -66,7 +65,6 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
               key={group}
               group={group}
               subject={subject}
-              history={history}
               catalog={catalog}
               t={t}
               ct={ct}
@@ -81,7 +79,6 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
         <GroupPanel
           group={HABITAT_GROUP}
           subject={habitat}
-          history={habitatHistory}
           catalog={catalog}
           t={t}
           ct={ct}
