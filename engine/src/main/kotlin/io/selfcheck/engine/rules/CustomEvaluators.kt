@@ -86,6 +86,20 @@ object CustomEvaluators {
     }
 
     /**
+     * Space weather alert of a solar particle event (spec section 7.4): NORMAL without an active event, OBSERVATION
+     * while one is active. Same rule as the solar event dose, which also gives the ALERT at its limit.
+     */
+    val solarEventFlag = CustomEvaluator { def, input, _ ->
+        val value = input.measurement.value
+        val params = mapOf("value" to value.format(), "unit" to def.unit)
+        if (value >= 1) {
+            Evaluation(HealthState.OBSERVATION, ReasonCodes.SOLAR_EVENT_IN_PROGRESS, params, value = value)
+        } else {
+            Evaluation(HealthState.NORMAL, ReasonCodes.NO_ACTIVE_EVENT, params, value = value)
+        }
+    }
+
+    /**
      * Creatinine (spec section 7.8). NORMAL in range. Out of range is OBSERVATION, and ALERT when it comes with any of:
      * a rise of `riseMgDl` within `riseWindowHours` or `ratio` times within `ratioWindowDays` (against the lowest value of
      * the window), blood pressure out of its limits, urea out of range or urine output below `diuresisLow`.
@@ -355,6 +369,7 @@ object CustomEvaluators {
     val all: Map<String, CustomEvaluator> = mapOf(
         "CAREER_DOSE" to careerDose,
         "SOLAR_EVENT_DOSE" to solarEventDose,
+        "SOLAR_EVENT_FLAG" to solarEventFlag,
         "CREATININE" to creatinine,
         "UREA" to urea,
         "DIURESIS" to diuresis,

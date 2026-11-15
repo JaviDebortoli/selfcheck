@@ -53,6 +53,7 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
         val m = input.measurement
         val baseParams = mapOf("value" to m.value.format(), "unit" to definition.unit)
         if (!definition.hasState) return Evaluation(null, ReasonCodes.DATA, baseParams)
+        if (definition.stateFrom != null) return mirrored(definition, input.runtime).let { it.copy(params = baseParams + it.params) }
 
         val environment = input.profile?.environment
         val environments = definition.environments
@@ -98,6 +99,14 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
             ?: return Evaluation(HealthState.NOT_EVALUABLE, ReasonCodes.NO_REFERENCE, params)
         return classify(definition, thresholds, scaled, params, toConfirm, input.now, previous?.samples.orEmpty())
             .copy(value = scaled)
+    }
+
+    /** State copied from [VariableDefinition.stateFrom]; NOT_EVALUABLE while that variable has no state. */
+    fun mirrored(definition: VariableDefinition, runtime: SubjectRuntime): Evaluation {
+        val source = definition.stateFrom ?: error("Rule ${definition.variable} has no stateFrom")
+        val params = mapOf("source" to source.name)
+        val state = runtime.current(source)?.state ?: return Evaluation(HealthState.NOT_EVALUABLE, ReasonCodes.NO_DATA, params)
+        return Evaluation(state, ReasonCodes.STATE_FROM, params)
     }
 
     /** Threshold check with streaks; see [Classifier.classify]. */

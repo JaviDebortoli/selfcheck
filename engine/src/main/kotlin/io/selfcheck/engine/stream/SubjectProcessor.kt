@@ -135,10 +135,13 @@ class SubjectProcessor(
             history = histories.get(subjectId),
             profile = profiles.get(Topics.MISSION_KEY),
         )
+        val evaluated = mutableSetOf<Variable>()
         for (definition in catalog.triggeredBy[measurement.variable].orEmpty()) {
             val updated = evaluator.evaluate(definition, input, runtime.variables[definition.variable]) ?: continue
             applyVariable(runtime, definition.variable, updated, now)
+            evaluated += definition.variable
         }
+        refreshMirrors(runtime, evaluated, now)
         publishCombinations(runtime, now)
         publishSummaries(runtime, now)
         save(runtime)
@@ -148,6 +151,20 @@ class SubjectProcessor(
         if (now >= nextExpiryCheckAt) {
             expireStaleValues(now)
             nextExpiryCheckAt = now + EXPIRY_CHECK_INTERVAL.toMillis()
+        }
+    }
+
+    /**
+     * A variable that copies another variable's state (dose rate, mission dose) follows it as soon as it changes,
+     * without waiting for its own next measurement. Its value and measurement time stay as they are.
+     */
+    private fun refreshMirrors(runtime: SubjectRuntime, evaluated: Set<Variable>, now: Long) {
+        for (mirror in catalog.mirrors) {
+            if (mirror.stateFrom !in evaluated) continue
+            val previous = runtime.variables[mirror.variable] ?: continue
+            if (previous.code == ReasonCodes.DATA_EXPIRED) continue
+            val copied = evaluator.mirrored(mirror, runtime)
+            applyVariable(runtime, mirror.variable, previous.copy(state = copied.state, code = copied.code, params = previous.params + copied.params), now)
         }
     }
 
@@ -174,7 +191,8 @@ class SubjectProcessor(
             now,
         )
         val state = updated.state
-        if ((state == HealthState.OBSERVATION || state == HealthState.ALERT) && state != previous?.state) {
+        val raisesAlerts = catalog[variable]?.raisesAlerts != false
+        if (raisesAlerts && (state == HealthState.OBSERVATION || state == HealthState.ALERT) && state != previous?.state) {
             forward(
                 runtime.subjectId,
                 Alert(updated.code, updated.params, runtime.subjectType, runtime.subjectId, variable, state, now, false),

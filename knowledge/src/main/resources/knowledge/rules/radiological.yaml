@@ -61,28 +61,37 @@ variables:
   - variable: MISSION_EFFECTIVE_DOSE
     unit: mSv
     interval: PT1M
+    stateFrom: CAREER_EFFECTIVE_DOSE
+    raisesAlerts: false
     source: NASA-STD-3001 Vol. 1 [V1 4030]
-    notes: [Shown as data; added to previous missions to form the career dose, which has the limit.]
+    notes:
+      - Added to previous missions to form the career dose, which has the limit.
+      - Takes the state of the career dose (team decision); the career dose raises the alert, so this variable does not.
     texts:
       es:
         name: "Dosis equivalente/efectiva de la misión"
-        measures: "Dosis efectiva acumulada durante esta misión. Se suma a la de misiones anteriores para formar la dosis de carrera."
+        measures: "Dosis efectiva acumulada durante esta misión. Se suma a la de misiones anteriores para formar la dosis de carrera, y su estado es el de la dosis de carrera."
       en:
         name: "Mission equivalent/effective dose"
-        measures: "Effective dose accumulated during this mission. It is added to previous missions to form the career dose."
+        measures: "Effective dose accumulated during this mission. It is added to previous missions to form the career dose, and its state is the career dose state."
 
   - variable: DOSE_RATE
     unit: µSv/h
     interval: PT1S
     expiry: PT1M
-    notes: [Shown as data. Pending - operational threshold without a number.]
+    stateFrom: SOLAR_PARTICLE_EVENT
+    raisesAlerts: false
+    source: NASA-STD-3001 Vol. 1 [V1 4031] (solar event rule)
+    notes:
+      - Takes the state of the solar event alert (team decision) - Normal without an event, Observation while one is active. The rate value itself has no cut.
+      - Pending - operational dose-rate threshold without a number.
     texts:
       es:
         name: "Tasa de dosis"
-        measures: "Dosis recibida por hora en este momento. El límite de 250 mSv es de dosis acumulada, no de tasa."
+        measures: "Dosis recibida por hora en este momento. El límite de 250 mSv es de dosis acumulada, no de tasa; el estado acompaña al aviso de evento solar."
       en:
         name: "Dose rate"
-        measures: "Dose received per hour right now. The 250 mSv limit applies to accumulated dose, not to the rate."
+        measures: "Dose received per hour right now. The 250 mSv limit applies to accumulated dose, not to the rate; the state follows the solar event alert."
 
   - variable: ABSORBED_DOSE
     unit: mGy
@@ -99,7 +108,12 @@ variables:
   - variable: SOLAR_PARTICLE_EVENT
     unit: ""
     interval: PT1M
-    notes: [1 while the space weather alert reports an active solar particle event, 0 otherwise.]
+    evaluator: SOLAR_EVENT_FLAG
+    raisesAlerts: false
+    source: NASA-STD-3001 Vol. 1 [V1 4031]
+    notes:
+      - 1 while the space weather alert reports an active solar particle event, 0 otherwise.
+      - Normal without an active event, Observation while one is active (same rule as the solar event dose, which raises the alert and gives the Alert at 250 mSv).
     texts:
       es:
         name: "Eventos de radiación solar"

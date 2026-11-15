@@ -45,6 +45,12 @@ object ReasonCodes {
     const val NO_ACTIVE_EVENT = "NO_ACTIVE_EVENT"
     const val SOLAR_EVENT_ACTIVE = "SOLAR_EVENT_ACTIVE"
     const val SOLAR_EVENT_LIMIT = "SOLAR_EVENT_LIMIT"
+
+    /** The space weather alert reports an active solar particle event. */
+    const val SOLAR_EVENT_IN_PROGRESS = "SOLAR_EVENT_IN_PROGRESS"
+
+    /** The variable shows the state of another variable (parameter `source`). */
+    const val STATE_FROM = "STATE_FROM"
     const val CREATININE_RISE_48H = "CREATININE_RISE_48H"
     const val CREATININE_RISE_7D = "CREATININE_RISE_7D"
     const val CREATININE_WITH_FINDINGS = "CREATININE_WITH_FINDINGS"

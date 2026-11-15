@@ -84,6 +84,13 @@ data class VariableDefinition(
     val evaluator: String? = null,
     /** Numbers used by a custom evaluator, kept here so every cut lives in `knowledge/`. */
     val params: Map<String, Double> = emptyMap(),
+    /**
+     * The variable takes the state of this other variable instead of evaluating its own value (spec section 7.4):
+     * the mission dose follows the career dose, the dose rate follows the solar event alert.
+     */
+    val stateFrom: Variable? = null,
+    /** False when the state repeats a situation another variable already alerts on, so it is not alerted twice. */
+    val raisesAlerts: Boolean = true,
     /** Citable source of the cuts. */
     val source: String = "",
     /** True for cuts without a source, implemented as final values until a professional reviews them. */
@@ -93,7 +100,7 @@ data class VariableDefinition(
     val texts: Map<String, VariableTexts> = emptyMap(),
 ) {
     val hasState: Boolean
-        get() = thresholds != null || thresholdsBySex != null || labelStates != null || evaluator != null
+        get() = thresholds != null || thresholdsBySex != null || labelStates != null || evaluator != null || stateFrom != null
 
     /** Expiry per spec section 7.2: explicit value, or 1.5 times the measurement interval. */
     val effectiveExpiry: Duration get() = expiry ?: interval.multipliedBy(3).dividedBy(2)

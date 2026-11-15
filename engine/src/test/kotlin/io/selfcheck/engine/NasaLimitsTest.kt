@@ -2,6 +2,7 @@ package io.selfcheck.engine
 
 import io.selfcheck.contracts.HealthState.ALERT
 import io.selfcheck.contracts.HealthState.NORMAL
+import io.selfcheck.contracts.HealthState.NOT_EVALUABLE
 import io.selfcheck.contracts.HealthState.OBSERVATION
 import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Variable
@@ -10,6 +11,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * PLAN.md phase 2: every NASA and ISS limit. 600 mSv career, 250 mSv per solar event, CO2 3 mmHg,
@@ -52,6 +54,47 @@ class NasaLimitsTest {
         // 1 mSv/day: 10 + 170 = 180 projected.
         engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 10 * DAY + 1))
         assertEquals(NORMAL, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+    }
+
+    @Test
+    fun `solar event alert and dose rate - normal without an event, observation while active, no alert of their own`() {
+        engine.send(measurement(Variable.DOSE_RATE, 21.0, 1_000))
+        assertEquals(NOT_EVALUABLE, engine.stateOf(Variable.DOSE_RATE)) // no solar event alert yet
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 2_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(ReasonCodes.NO_ACTIVE_EVENT, engine.codeOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(NORMAL, engine.stateOf(Variable.DOSE_RATE)) // follows without a new dose-rate reading
+        assertEquals(ReasonCodes.STATE_FROM, engine.codeOf(Variable.DOSE_RATE))
+
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 1.0, 3_000))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(ReasonCodes.SOLAR_EVENT_IN_PROGRESS, engine.codeOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.DOSE_RATE))
+        assertEquals("SOLAR_PARTICLE_EVENT", engine.state(Variable.DOSE_RATE)!!.reason.params["source"])
+        assertTrue(engine.alerts.none { it.variable == Variable.SOLAR_PARTICLE_EVENT || it.variable == Variable.DOSE_RATE })
+        assertTrue(engine.alerts.any { it.variable == Variable.SOLAR_EVENT_DOSE })
+
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 4_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.DOSE_RATE))
+    }
+
+    @Test
+    fun `mission dose takes the career dose state without an alert of its own`() {
+        engine.history(priorDose = 470.0)
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 5.0, DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 2 * DAY)) // career 480 mSv
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
+        assertEquals(ReasonCodes.STATE_FROM, engine.codeOf(Variable.MISSION_EFFECTIVE_DOSE))
+        assertTrue(engine.alerts.none { it.variable == Variable.MISSION_EFFECTIVE_DOSE })
+        assertEquals(1, engine.alerts.count { it.variable == Variable.CAREER_EFFECTIVE_DOSE })
+    }
+
+    @Test
+    fun `absorbed dose has no state`() {
+        engine.send(measurement(Variable.ABSORBED_DOSE, 0.4, DAY))
+        assertNull(engine.stateOf(Variable.ABSORBED_DOSE))
     }
 
     @Test

@@ -42,6 +42,8 @@ class CatalogController(private val catalog: RuleCatalog) {
                         "guidance" to texts?.guidance,
                         "unit" to definition.unit,
                         "hasState" to definition.hasState,
+                        // False when the state repeats another variable's (dose rate, mission dose, solar event alert).
+                        "raisesAlerts" to definition.raisesAlerts,
                         "review" to definition.review,
                         "source" to definition.source,
                         "environments" to definition.environments?.map { it.name },

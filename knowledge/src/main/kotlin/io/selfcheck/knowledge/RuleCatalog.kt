@@ -26,7 +26,12 @@ class RuleCatalog(
     val triggeredBy: Map<Variable, List<VariableDefinition>> =
         Variable.entries.associateWith { input ->
             variables.values.filter { it.derivedFrom.contains(input) || (it.variable == input && it.derivedFrom.isEmpty()) }
+                // A rule that copies another variable's state runs after the rules it may copy from.
+                .sortedBy { it.stateFrom != null }
         }
+
+    /** Rules that take their state from another variable ([VariableDefinition.stateFrom]). */
+    val mirrors: List<VariableDefinition> = variables.values.filter { it.stateFrom != null }
 
     operator fun get(variable: Variable): VariableDefinition? = variables[variable]
 

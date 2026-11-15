@@ -65,6 +65,12 @@ reasons:
   SOLAR_EVENT_ACTIVE:
     es: "Evento solar activo: {value} mSv en el evento"
     en: "Active solar event: {value} mSv in the event"
+  SOLAR_EVENT_IN_PROGRESS:
+    es: "Evento solar en curso"
+    en: "Solar event in progress"
+  STATE_FROM:
+    es: "Sigue el estado de: {source}"
+    en: "Follows the state of: {source}"
   SOLAR_EVENT_LIMIT:
     es: "Evento solar: {value} mSv, límite de {limit} mSv"
     en: "Solar event: {value} mSv, {limit} mSv limit"
