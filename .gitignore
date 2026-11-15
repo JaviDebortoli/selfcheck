@@ -19,3 +19,8 @@ frontend/dist/
 Thumbs.db
 .env
 *.tsbuildinfo
+
+# Local working documents
+spec.md
+PLAN.md
+.atl/
