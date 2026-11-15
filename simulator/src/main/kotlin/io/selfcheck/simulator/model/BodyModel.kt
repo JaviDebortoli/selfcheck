@@ -70,7 +70,8 @@ class BodyModel {
             Variable.DIURESIS -> round2(0.8 + 0.5 * uniform(member.id, variable, (t / HOUR_MS).toInt()))
 
             Variable.CALORIC_INTAKE -> round(member.dailyCaloriesKcal * (0.95 + 0.10 * u))
-            Variable.PROTEIN_INTAKE -> round(90 + 20 * u)
+            // Healthy crew eat inside the NASA protein range, 1.2-1.8 g/kg (JSC-67378): 1.35-1.65 g/kg of preflight mass.
+            Variable.PROTEIN_INTAKE -> round(member.preflightBodyMassKg * (1.35 + 0.3 * u))
             Variable.FLUID_INTAKE -> round(member.dailyFluidsMl * (1.0 + 0.15 * u))
             Variable.PHYSICAL_ACTIVITY -> round(member.dailyActivityMinutes + 15 * u)
             Variable.BOWEL_FREQUENCY -> if (u < 0.7) 1.0 else 2.0
