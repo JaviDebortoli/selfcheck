@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import type { Catalog } from '../api/catalog'
 import type { CrewMemberView, HealthState, Reason, SubjectView, SummaryView } from '../api/types'
 import type { Language, UiTexts } from '../i18n/ui'
-import { formatAgo, formatNumber, formatReason, formatValue, helpFor } from '../lib/format'
+import { formatAgo, formatNumber, formatValue, helpFor } from '../lib/format'
 import { GROUP_VARIABLES } from '../lib/groups'
 import { stateClass } from '../lib/states'
 import { CloseIcon, GroupIcon, HelpIcon } from './Icons'
@@ -22,16 +22,14 @@ interface Props {
    * professionals, so "what it measures" moves to a "?" after the variable name and there is no "what to do".
    */
   showInformation?: boolean
-  /** Show the reason under each state ("En rango: 86 mg/dL"). The quick view hides it to keep the detail short. */
-  showReason?: boolean
   onClose: () => void
 }
 
 /**
- * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, reason, what it measures
+ * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, showReason = true, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -69,7 +67,6 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
               language={language}
               sex={sex}
               showInformation={showInformation}
-              showReason={showReason}
             />
           ))}
         </div>
@@ -87,7 +84,6 @@ function VariableRow({
   language,
   sex,
   showInformation,
-  showReason,
 }: {
   variable: string
   subject: SubjectView | undefined
@@ -97,14 +93,12 @@ function VariableRow({
   language: Language
   sex?: CrewMemberView['sex']
   showInformation: boolean
-  showReason: boolean
 }) {
   const view = subject?.variables[variable]
   const info = catalog?.variables[variable]
   // A stateful variable never measured is "not evaluable": never green by default (spec section 3).
   const state = view?.state ?? (info?.hasState && !view?.reason ? 'NOT_EVALUABLE' : null)
   const guidance = guidanceFor(state, view?.reason, sex, info?.guidance)
-  const reason = formatReason(view?.reason, catalog, language, variable)
   const help = helpFor(variable, t)
   // Without the information column the "?" carries what the variable measures, plus its explanation (dust, absorbed dose).
   const compactHelp = [info?.measures, help].filter(Boolean).join(' ')
@@ -143,7 +137,6 @@ function VariableRow({
       </div>
       <div>
         <StatusPill state={state} t={t} small />
-        {showReason && reason && <div className="reason muted">{reason}</div>}
       </div>
       {showInformation && (
         <div className="explain">

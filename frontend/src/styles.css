@@ -435,9 +435,6 @@ select.chip {
   font-weight: 600;
   font-size: 1.05rem;
 }
-.variable-row .reason {
-  font-size: 0.85rem;
-}
 .variable-row .explain {
   font-size: 0.85rem;
   color: var(--text-2);
