@@ -24,6 +24,8 @@ export interface Catalog {
       source: string
       /** Set when the rule compares a % of a pre-flight value or daily target. */
       reference: string | null
+      /** How the value is set against the reference; PER_UNIT_OF_REFERENCE is per kg of body mass (protein). */
+      scale: 'PERCENT_OF_REFERENCE' | 'PERCENT_CHANGE_FROM_REFERENCE' | 'PER_UNIT_OF_REFERENCE' | null
       /** Set when the rule uses a mean over this mission-time window (ISO-8601 duration). */
       window: string | null
       notes: string[]

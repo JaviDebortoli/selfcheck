@@ -79,8 +79,10 @@ export function formatReason(
   if (params.evaluated != null && (info?.reference || info?.window)) {
     params.value = params.evaluated
     if (info?.reference) {
-      params.unit = '%'
-      if (params.condition) params.condition = `${params.condition} %`
+      // Per unit of the reference: protein in g per kg of pre-flight body mass; otherwise a % of the reference.
+      const unit = info.scale === 'PER_UNIT_OF_REFERENCE' ? `${info.unit}/kg` : '%'
+      params.unit = unit
+      if (params.condition) params.condition = `${params.condition} ${unit}`
     }
   }
   return template.replace(/\{(\w+)\}/g, (_, key: string) => {

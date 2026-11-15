@@ -84,4 +84,13 @@ class CatalogControllerTest {
         assertEquals("Frecuencia cardíaca", esVariables.getValue("HEART_RATE")["name"])
         assertEquals("High: {value} {unit} ({condition})", enReasons["HIGH"])
     }
+
+    @Test
+    fun `tells how a rule with a reference is scaled`() {
+        @Suppress("UNCHECKED_CAST")
+        val variables = controller.catalog("es")["variables"] as Map<String, Map<String, Any?>>
+        assertEquals("PER_UNIT_OF_REFERENCE", variables.getValue("PROTEIN_INTAKE")["scale"])
+        assertEquals("PERCENT_OF_REFERENCE", variables.getValue("CALORIC_INTAKE")["scale"])
+        assertEquals(null, variables.getValue("HEART_RATE")["scale"])
+    }
 }

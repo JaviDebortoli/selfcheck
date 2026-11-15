@@ -48,6 +48,8 @@ class CatalogController(private val catalog: RuleCatalog) {
                         "source" to definition.source,
                         // Rules evaluated as a % of a pre-flight value or daily target, or as a window mean.
                         "reference" to definition.reference?.name,
+                        // How the value is set against the reference: % of it, % change, or per unit (protein g/kg).
+                        "scale" to definition.reference?.let { definition.scale.name },
                         "window" to definition.window?.toString(),
                         "notes" to definition.notes,
                     )
