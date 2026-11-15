@@ -24,10 +24,12 @@ interface Props {
   ct: ControlTexts
   language: Language
   onMedicalHistory: () => void
+  /** Opens the detail of a group on the chart of one variable (a vital sign card was clicked). */
+  onOpenVariable: (group: string, variable: string) => void
 }
 
 /** Center column header: selected crew member, live ECG, vital signs with 14-day trends and the groups to review. */
-export function MemberPanel({ memberId, subject, status, history, catalog, t, ct, language, onMedicalHistory }: Props) {
+export function MemberPanel({ memberId, subject, status, history, catalog, t, ct, language, onMedicalHistory, onOpenVariable }: Props) {
   const training = status?.training ?? false
   const since = (ms: number | null | undefined) => (ms == null ? '' : `${t.day} ${missionDay(ms)} · ${missionClock(ms)}`)
   const names = t.crewNames[memberId]
@@ -40,6 +42,8 @@ export function MemberPanel({ memberId, subject, status, history, catalog, t, ct
   const state = (variable: string) => shownState(variable, subject, catalog)
   const review = groupsToReview(subject)
   const rhythm = heart?.rhythm ? (catalog?.rhythms[heart.rhythm] ?? heart.rhythm) : '—'
+  const cardio = (variable: string) => () => onOpenVariable('CARDIOVASCULAR_RESPIRATORY', variable)
+  const open = (label: string) => ct.openChart(label)
 
   return (
     <section className={`card stateful cc-member ${stateClass(overall)} ${isFlagged(overall) ? 'tinted' : ''}`}>
@@ -75,7 +79,7 @@ export function MemberPanel({ memberId, subject, status, history, catalog, t, ct
       </div>
 
       <div className="cc-vitals" aria-label={t.vitalSigns}>
-        <Vital label={t.heartRate} value={value('HEART_RATE')} unit={t.bpm} state={state('HEART_RATE')} points={history.HEART_RATE} exercise={training} t={t} />
+        <Vital label={t.heartRate} value={value('HEART_RATE')} unit={t.bpm} state={state('HEART_RATE')} points={history.HEART_RATE} exercise={training} t={t} onOpen={cardio('HEART_RATE')} openLabel={open(t.heartRate)} />
         <Vital
           label={t.bloodPressure}
           value={subject?.variables.SYSTOLIC_BP?.value == null ? '—' : `${value('SYSTOLIC_BP')}/${value('DIASTOLIC_BP')}`}
@@ -84,11 +88,13 @@ export function MemberPanel({ memberId, subject, status, history, catalog, t, ct
           points={history.SYSTOLIC_BP}
           exercise={training}
           t={t}
+          onOpen={cardio('SYSTOLIC_BP')}
+          openLabel={open(t.bloodPressure)}
         />
-        <Vital label={ct.oxygenSaturation} value={value('SPO2')} unit="%" state={state('SPO2')} points={history.SPO2} toConfirm={subject?.variables.SPO2?.toConfirm} exercise={training} t={t} />
-        <Vital label={ct.respiratoryRate} value={value('RESPIRATORY_RATE')} unit={ct.rpm} state={state('RESPIRATORY_RATE')} points={history.RESPIRATORY_RATE} exercise={training} t={t} />
-        <Vital label={t.temperature} value={value('BODY_TEMPERATURE')} unit="°C" state={state('BODY_TEMPERATURE')} points={history.BODY_TEMPERATURE} exercise={training} t={t} />
-        <Vital label={t.rhythm} value={rhythm} state={state('ECG_RHYTHM')} trend={false} />
+        <Vital label={ct.oxygenSaturation} value={value('SPO2')} unit="%" state={state('SPO2')} points={history.SPO2} toConfirm={subject?.variables.SPO2?.toConfirm} exercise={training} t={t} onOpen={cardio('SPO2')} openLabel={open(ct.oxygenSaturation)} />
+        <Vital label={ct.respiratoryRate} value={value('RESPIRATORY_RATE')} unit={ct.rpm} state={state('RESPIRATORY_RATE')} points={history.RESPIRATORY_RATE} exercise={training} t={t} onOpen={cardio('RESPIRATORY_RATE')} openLabel={open(ct.respiratoryRate)} />
+        <Vital label={t.temperature} value={value('BODY_TEMPERATURE')} unit="°C" state={state('BODY_TEMPERATURE')} points={history.BODY_TEMPERATURE} exercise={training} t={t} onOpen={() => onOpenVariable('DIGESTIVE_GENERAL', 'BODY_TEMPERATURE')} openLabel={open(t.temperature)} />
+        <Vital label={t.rhythm} value={rhythm} state={state('ECG_RHYTHM')} trend={false} onOpen={cardio('ECG_RHYTHM')} openLabel={open(t.rhythm)} />
       </div>
 
       <div className="cc-review">
@@ -118,6 +124,8 @@ function Vital({
   t,
   trend = true,
   exercise = false,
+  onOpen,
+  openLabel,
 }: {
   label: string
   value: string
@@ -129,9 +137,12 @@ function Vital({
   trend?: boolean
   /** Training in progress: the value may be altered by exercise. */
   exercise?: boolean
+  /** Opens the chart of the variable; the card is a button. */
+  onOpen: () => void
+  openLabel: string
 }) {
   return (
-    <div className={`cc-vital ${stateClass(state)}`}>
+    <button type="button" className={`cc-vital ${stateClass(state)}`} onClick={onOpen} title={openLabel}>
       <div className="cc-vital-top">
         <span className="muted cc-small">{label}</span>
         {state && <StateIcon state={state} size={15} />}
@@ -143,6 +154,6 @@ function Vital({
         {exercise && t && <span className="cc-exercise-tag">{t.exerciseTag}</span>}
       </div>
       {trend && <Sparkline points={points} width={110} height={24} className="cc-spark" />}
-    </div>
+    </button>
   )
 }

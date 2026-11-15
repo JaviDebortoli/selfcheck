@@ -27,6 +27,8 @@ interface Props {
    * on the first variable in Observation or Alert, or else on the first one.
    */
   chart?: (variable: string) => ReactNode
+  /** Variable the chart opens on (a vital sign card was clicked); otherwise the first flagged one. */
+  initialVariable?: string
   onClose: () => void
 }
 
@@ -34,7 +36,7 @@ interface Props {
  * Detail of one group (spec sections 8.2 and 8.3): every variable with its value, state, what it measures
  * and the guidance for its state. Variables without state are shown as data, without color.
  */
-export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, chart, onClose }: Props) {
+export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, language, sex, showInformation = true, chart, initialVariable, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -45,6 +47,7 @@ export function GroupDetailSheet({ group, subject, missionTimeMs, catalog, t, la
   const variables = GROUP_VARIABLES[group] ?? []
   const [selected, setSelected] = useState<string | undefined>(
     () =>
+      (initialVariable && variables.includes(initialVariable) ? initialVariable : undefined) ??
       variables.find((v) => subject?.variables[v]?.state === 'ALERT') ??
       variables.find((v) => subject?.variables[v]?.state === 'OBSERVATION') ??
       variables[0],

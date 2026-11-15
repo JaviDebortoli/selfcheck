@@ -33,7 +33,7 @@ const PANEL_GROUPS = BODY_GROUPS.filter((g) => g !== 'CARDIOVASCULAR_RESPIRATORY
  */
 export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t, language }: ControlCenterProps) {
   const ct = controlTexts(language)
-  const [detail, setDetail] = useState<{ group: string; subjectId: string } | null>(null)
+  const [detail, setDetail] = useState<{ group: string; subjectId: string; variable?: string } | null>(null)
   const [showHistory, setShowHistory] = useState(false)
   const closeDetail = useCallback(() => setDetail(null), [])
   const closeHistory = useCallback(() => setShowHistory(false), [])
@@ -59,6 +59,7 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
           ct={ct}
           language={language}
           onMedicalHistory={() => setShowHistory(true)}
+          onOpenVariable={(group, variable) => setDetail({ group, subjectId: memberId, variable })}
         />
         <div className="cc-groups">
           {PANEL_GROUPS.map((group) => (
@@ -101,6 +102,7 @@ export function ControlCenter({ snapshot, catalog, crewMemberId, onCrewMember, t
           language={language}
           sex={snapshot.crew.find((c) => c.id === detail.subjectId)?.sex}
           showInformation={false}
+          initialVariable={detail.variable}
           chart={(variable) => (
             <VariableChart subjectId={detail.subjectId} variable={variable} catalog={catalog} t={t} language={language} />
           )}

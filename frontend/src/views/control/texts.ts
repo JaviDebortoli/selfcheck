@@ -18,6 +18,7 @@ const es = {
   rpm: 'rpm',
   units: { mSv: 'mSv', strength: 'N·m', kg: 'kg', bone: 'g/cm²', kcal: 'kcal', ml: 'mL', min: 'min' },
   openDetail: (group: string) => `Ver el detalle de ${group}`,
+  openChart: (variable: string) => `Ver la evolución de ${variable}`,
   selectMember: (name: string) => `Seleccionar a ${name}`,
 }
 
@@ -40,6 +41,7 @@ const en: ControlTexts = {
   rpm: 'rpm',
   units: { mSv: 'mSv', strength: 'N·m', kg: 'kg', bone: 'g/cm²', kcal: 'kcal', ml: 'mL', min: 'min' },
   openDetail: (group) => `Open the detail of ${group}`,
+  openChart: (variable) => `See ${variable} over time`,
   selectMember: (name) => `Select ${name}`,
 }
 
