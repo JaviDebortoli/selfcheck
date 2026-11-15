@@ -122,8 +122,9 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
         val percent = when (definition.scale) {
             Scale.PERCENT_OF_REFERENCE -> raw / base * 100
             Scale.PERCENT_CHANGE_FROM_REFERENCE -> kotlin.math.abs(raw - base) / base * 100
+            Scale.PER_UNIT_OF_REFERENCE -> raw / base
         }
-        // Round away floating-point noise so a value at exactly the limit (95 %) is not read as 94.99999...
+        // Round away floating-point noise so a value at exactly the limit (95 %, 1.2 g/kg) is not read as 94.99999...
         return Math.round(percent * 1e6) / 1e6
     }
 

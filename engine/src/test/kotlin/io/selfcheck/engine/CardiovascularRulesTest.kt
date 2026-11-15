@@ -36,8 +36,8 @@ class CardiovascularRulesTest {
     private fun evaluate(variable: Variable, value: Double): VariableRuntime = evaluate(measurement(variable, value))!!
 
     @ParameterizedTest
-    @CsvSource("39,ALERT", "40,OBSERVATION", "59,OBSERVATION", "60,NORMAL", "100,NORMAL", "101,OBSERVATION", "130,OBSERVATION", "131,ALERT")
-    fun `heart rate at rest`(value: Double, expected: HealthState) {
+    @CsvSource("39,ALERT", "40,OBSERVATION", "44,OBSERVATION", "45,NORMAL", "100,NORMAL", "101,OBSERVATION", "130,OBSERVATION", "131,ALERT")
+    fun `heart rate at rest - in-flight normal from 45 bpm`(value: Double, expected: HealthState) {
         assertEquals(expected, evaluate(Variable.HEART_RATE, value).state)
     }
 
@@ -54,14 +54,14 @@ class CardiovascularRulesTest {
     }
 
     @ParameterizedTest
-    @CsvSource("79,ALERT", "80,OBSERVATION", "89,OBSERVATION", "90,NORMAL", "120,NORMAL", "121,OBSERVATION", "139,OBSERVATION", "140,ALERT")
-    fun `systolic pressure`(value: Double, expected: HealthState) {
+    @CsvSource("71,ALERT", "72,OBSERVATION", "81,OBSERVATION", "82,NORMAL", "120,NORMAL", "121,OBSERVATION", "139,OBSERVATION", "140,ALERT")
+    fun `systolic pressure - in-flight low edges 82 and 72`(value: Double, expected: HealthState) {
         assertEquals(expected, evaluate(Variable.SYSTOLIC_BP, value).state)
     }
 
     @ParameterizedTest
-    @CsvSource("49,ALERT", "50,OBSERVATION", "59,OBSERVATION", "60,NORMAL", "80,NORMAL", "81,OBSERVATION", "89,OBSERVATION", "90,ALERT")
-    fun `diastolic pressure`(value: Double, expected: HealthState) {
+    @CsvSource("40,ALERT", "41,OBSERVATION", "50,OBSERVATION", "51,NORMAL", "80,NORMAL", "81,OBSERVATION", "89,OBSERVATION", "90,ALERT")
+    fun `diastolic pressure - in-flight low edges 51 and 41`(value: Double, expected: HealthState) {
         assertEquals(expected, evaluate(Variable.DIASTOLIC_BP, value).state)
     }
 

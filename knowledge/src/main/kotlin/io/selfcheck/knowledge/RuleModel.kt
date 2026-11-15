@@ -18,7 +18,10 @@ data class GroupDefinition(
 
 data class GroupTexts(val name: String)
 
-/** Per-crew-member value a rule compares against (spec section 7.2: only strength, bone density and body mass use the baseline). */
+/**
+ * Per-crew-member value a rule compares against (spec section 7.2: strength, bone density and body mass use the
+ * baseline; protein intake uses the pre-flight body mass as its per-kg reference).
+ */
 enum class Reference {
     PREFLIGHT_MUSCLE_STRENGTH,
     PREFLIGHT_BMD_HIP,
@@ -37,6 +40,9 @@ enum class Scale {
 
     /** |value - reference| / reference x 100. */
     PERCENT_CHANGE_FROM_REFERENCE,
+
+    /** value / reference, without the x 100 (protein intake in g per kg of pre-flight body mass). */
+    PER_UNIT_OF_REFERENCE,
 }
 
 /**

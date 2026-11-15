@@ -46,17 +46,20 @@ class GroupRulesTest {
     }
 
     @Test
-    fun `caloric intake - observation out of 90-110 percent 3 days in a row`() {
+    fun `caloric intake - in-flight normal 80-110 percent, observation out of it 3 days in a row`() {
         engine.history(calories = 2000.0)
-        engine.send(measurement(Variable.CALORIC_INTAKE, 1700.0, DAY)) // 85 %
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1600.0, DAY)) // 80 %
+        assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.CALORIC_INTAKE))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1580.0, 2 * DAY)) // 79 %
         assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
         assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.CALORIC_INTAKE))
         assertEquals("1", engine.state(Variable.CALORIC_INTAKE)!!.reason.params["count"])
-        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 2 * DAY)) // 70 %, no symptoms: no alert
+        engine.send(measurement(Variable.CALORIC_INTAKE, 1400.0, 3 * DAY)) // 70 %, no symptoms: no alert
         assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
-        engine.send(measurement(Variable.CALORIC_INTAKE, 2300.0, 3 * DAY)) // 115 %
+        engine.send(measurement(Variable.CALORIC_INTAKE, 2220.0, 4 * DAY)) // 111 %
         assertEquals(OBSERVATION, engine.stateOf(Variable.CALORIC_INTAKE))
-        engine.send(measurement(Variable.CALORIC_INTAKE, 2000.0, 4 * DAY))
+        engine.send(measurement(Variable.CALORIC_INTAKE, 2200.0, 5 * DAY)) // 110 %
         assertEquals(NORMAL, engine.stateOf(Variable.CALORIC_INTAKE))
         assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.CALORIC_INTAKE))
     }
@@ -108,15 +111,22 @@ class GroupRulesTest {
     }
 
     @Test
-    fun `body mass - alert above 5 percent change, observation above 2 percent for 3 days`() {
+    fun `body mass - in-flight normal up to 5 percent change, observation above 5 for 3 days, alert above 10`() {
         engine.history(bodyMass = 70.0)
-        engine.send(measurement(Variable.BODY_MASS, 68.0, DAY)) // -2.86 %
+        engine.send(measurement(Variable.BODY_MASS, 66.5, DAY)) // -5.0 %
+        assertEquals(NORMAL, engine.stateOf(Variable.BODY_MASS))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.BODY_MASS))
+        engine.send(measurement(Variable.BODY_MASS, 66.4, 2 * DAY)) // -5.14 %
         assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.BODY_MASS))
-        engine.send(measurement(Variable.BODY_MASS, 68.0, 2 * DAY))
-        engine.send(measurement(Variable.BODY_MASS, 68.0, 3 * DAY))
+        engine.send(measurement(Variable.BODY_MASS, 66.4, 3 * DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.BODY_MASS))
+        engine.send(measurement(Variable.BODY_MASS, 73.6, 4 * DAY)) // +5.14 %, third day in a row
         assertEquals(OBSERVATION, engine.stateOf(Variable.BODY_MASS))
-        engine.send(measurement(Variable.BODY_MASS, 66.0, 4 * DAY)) // -5.7 %
+        engine.send(measurement(Variable.BODY_MASS, 63.0, 5 * DAY)) // -10.0 %
+        assertEquals(OBSERVATION, engine.stateOf(Variable.BODY_MASS))
+        engine.send(measurement(Variable.BODY_MASS, 62.9, 6 * DAY)) // -10.14 %
         assertEquals(ALERT, engine.stateOf(Variable.BODY_MASS))
+        assertEquals(ReasonCodes.HIGH, engine.codeOf(Variable.BODY_MASS))
     }
 
     @Test
@@ -207,11 +217,25 @@ class GroupRulesTest {
         assertEquals(OBSERVATION, engine.stateOf(Variable.CREATININE))
         assertEquals(ReasonCodes.HIGH, engine.codeOf(Variable.CREATININE))
 
-        engine.send(measurement(Variable.SYSTOLIC_BP, 85.0, 15 * DAY))
+        engine.send(measurement(Variable.SYSTOLIC_BP, 81.0, 15 * DAY))
         engine.send(measurement(Variable.CREATININE, 1.4, 15 * DAY + 1))
         assertEquals(ALERT, engine.stateOf(Variable.CREATININE))
         assertEquals(ReasonCodes.CREATININE_WITH_FINDINGS, engine.codeOf(Variable.CREATININE))
         assertEquals("SYSTOLIC_BP", engine.state(Variable.CREATININE)!!.reason.params["findings"])
+    }
+
+    @Test
+    fun `creatinine - low blood pressure follows the in-flight low edges, below 82 systolic or 51 diastolic`() {
+        engine.send(measurement(Variable.SYSTOLIC_BP, 82.0, DAY))
+        engine.send(measurement(Variable.DIASTOLIC_BP, 51.0, DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, DAY + 1))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CREATININE))
+        assertEquals(ReasonCodes.HIGH, engine.codeOf(Variable.CREATININE))
+
+        engine.send(measurement(Variable.DIASTOLIC_BP, 50.0, 8 * DAY))
+        engine.send(measurement(Variable.CREATININE, 1.4, 8 * DAY + 1))
+        assertEquals(ALERT, engine.stateOf(Variable.CREATININE))
+        assertEquals("DIASTOLIC_BP", engine.state(Variable.CREATININE)!!.reason.params["findings"])
     }
 
     @Test
@@ -239,15 +263,22 @@ class GroupRulesTest {
     }
 
     @Test
-    fun `bone resorption markers - laboratory range, two analyses, alert with bone loss`() {
-        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.9, DAY, range = 0.1 to 0.8))
+    fun `bone resorption markers - normal up to 1,5 times the lab upper limit, two analyses, alert with bone loss`() {
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 1.2, DAY, range = 0.1 to 0.8)) // 1,5 x 0,8
+        assertEquals(NORMAL, engine.stateOf(Variable.BONE_RESORPTION_MARKERS))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.BONE_RESORPTION_MARKERS))
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.1, 2 * DAY, range = 0.1 to 0.8))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.BONE_RESORPTION_MARKERS))
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 1.21, 3 * DAY, range = 0.1 to 0.8))
         assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.BONE_RESORPTION_MARKERS))
-        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.95, 31 * DAY, range = 0.1 to 0.8))
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.09, 33 * DAY, range = 0.1 to 0.8))
         assertEquals(OBSERVATION, engine.stateOf(Variable.BONE_RESORPTION_MARKERS))
-        engine.send(measurement(Variable.URINARY_CALCIUM, 340.0, 32 * DAY))
-        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.95, 33 * DAY, range = 0.1 to 0.8))
+        engine.send(measurement(Variable.URINARY_CALCIUM, 340.0, 34 * DAY))
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 1.25, 35 * DAY, range = 0.1 to 0.8))
         assertEquals(ALERT, engine.stateOf(Variable.BONE_RESORPTION_MARKERS))
-        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.5, 34 * DAY))
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 1.0, 36 * DAY, range = 0.1 to 0.8))
+        assertEquals(NORMAL, engine.stateOf(Variable.BONE_RESORPTION_MARKERS)) // inside the band even with high calcium
+        engine.send(measurement(Variable.BONE_RESORPTION_MARKERS, 0.5, 37 * DAY)) // no laboratory range
         assertEquals(NOT_EVALUABLE, engine.stateOf(Variable.BONE_RESORPTION_MARKERS))
     }
 
@@ -327,6 +358,55 @@ class GroupRulesTest {
         assertEquals(ALERT, engine.stateOf(Variable.RED_BLOOD_CELLS, "crew-1"))
         engine.send(measurement(Variable.RED_BLOOD_CELLS, 5.3, 2 * DAY, subjectId = "crew-2"))
         assertEquals(OBSERVATION, engine.stateOf(Variable.RED_BLOOD_CELLS, "crew-2"))
+    }
+
+    @Test
+    fun `axillary temperature - alert below 35,0 (NASA hypothermia), observation 35,0-35,9, high side unchanged`() {
+        val cases = listOf(34.9 to ALERT, 35.0 to OBSERVATION, 35.9 to OBSERVATION, 36.0 to NORMAL, 37.2 to NORMAL, 37.3 to OBSERVATION, 37.9 to OBSERVATION, 38.0 to ALERT)
+        cases.forEachIndexed { day, (value, expected) ->
+            engine.send(measurement(Variable.BODY_TEMPERATURE, value, (day + 1) * DAY))
+            assertEquals(expected, engine.stateOf(Variable.BODY_TEMPERATURE), "$value")
+        }
+    }
+
+    @Test
+    fun `protein intake - normal 1,2-1,8 g per kg of pre-flight mass, observation out of it 3 days in a row`() {
+        engine.history(bodyMass = 70.0) // 84-126 g
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 84.0, DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.PROTEIN_INTAKE))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.PROTEIN_INTAKE))
+        assertEquals("1.2", engine.state(Variable.PROTEIN_INTAKE)!!.reason.params["evaluated"])
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 126.0, 2 * DAY))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.PROTEIN_INTAKE))
+
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 83.0, 3 * DAY)) // 1,19 g/kg
+        assertEquals(NORMAL, engine.stateOf(Variable.PROTEIN_INTAKE))
+        assertEquals(ReasonCodes.PERSISTENCE_PENDING, engine.codeOf(Variable.PROTEIN_INTAKE))
+        assertEquals("1", engine.state(Variable.PROTEIN_INTAKE)!!.reason.params["count"])
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 127.0, 4 * DAY)) // 1,81 g/kg
+        assertEquals(NORMAL, engine.stateOf(Variable.PROTEIN_INTAKE))
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 60.0, 5 * DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.PROTEIN_INTAKE))
+        assertEquals(ReasonCodes.LOW, engine.codeOf(Variable.PROTEIN_INTAKE))
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 100.0, 6 * DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.PROTEIN_INTAKE))
+    }
+
+    @Test
+    fun `protein intake - without the pre-flight body mass it is not evaluable`() {
+        engine.send(measurement(Variable.PROTEIN_INTAKE, 100.0, DAY))
+        assertEquals(NOT_EVALUABLE, engine.stateOf(Variable.PROTEIN_INTAKE))
+        assertEquals(ReasonCodes.NO_REFERENCE, engine.codeOf(Variable.PROTEIN_INTAKE))
+    }
+
+    @Test
+    fun `high heart rate with systolic below the in-flight edge of 82 raises the hypovolemia combination`() {
+        engine.send(measurement(Variable.HEART_RATE, 110.0, 1_000))
+        engine.send(measurement(Variable.SYSTOLIC_BP, 82.0, 2_000))
+        assertTrue(engine.alerts.none { it.combination })
+        engine.send(measurement(Variable.HEART_RATE, 110.0, 3_000))
+        engine.send(measurement(Variable.SYSTOLIC_BP, 81.0, 4_000))
+        assertEquals(listOf(Combinations.HYPOVOLEMIA), engine.alerts.filter { it.combination }.map { it.code })
     }
 
     @Test

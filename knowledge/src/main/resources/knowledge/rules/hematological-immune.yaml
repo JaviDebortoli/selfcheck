@@ -175,7 +175,8 @@ variables:
         NORMAL: ["36..47"]
     source: MedlinePlus (hematocrit test)
     notes:
-      - Above 50 % (men) or 47 % (women) has no state - incompatible with the healthy-crew premise.
+      - Above 50 % (men) or 47 % (women) has no state - in flight hematocrit rises with the loss of plasma (means 45-46 %, single values up to 58 %, Kunz 2017), so a high value is expected and not a finding.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the cuts are unchanged; only the reason why high values have no state changes (Kunz 2017)."
       - Interval provisional (P7D).
     texts:
       es:

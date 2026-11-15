@@ -10,11 +10,14 @@ variables:
     unit: °C
     interval: P1D
     thresholds:
-      ALERT: ["< 35.5", ">= 38.0"]
+      ALERT: ["< 35.0", ">= 38.0"]
       OBSERVATION: ["< 36.0", "> 37.2"]
       NORMAL: ["36.0..37.2"]
-    source: Rules document
-    notes: [Axillary. Not adjusted for flight (spec section 13, implemented as final until professional review).]
+    source: Rules document; low Alert edge from the NASA hypothermia definition (NASA-STD-3001 Vol. 1 Rev C glossary, below 35 °C)
+    notes:
+      - Axillary. Alert below 35.0 °C, Observation 35.0-35.9 or 37.3-37.9, Alert from 38.0 °C.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low side follows the NASA hypothermia definition (below 35 °C); the high side is unchanged."
+      - Stahn 2017 measured a forehead core-temperature estimate, about 1 °C above each astronaut's own baseline, with a resting mean peak of about 37.7 °C (not 38); it does not transfer to axillary readings, so the high side is not adjusted.
     texts:
       es:
         name: Temperatura axilar
@@ -60,7 +63,7 @@ variables:
       alertCount: 3
       liquidStool: 7
       symptomHigh: 7
-    source: Rules document (source to cite)
+    source: NASA OCHMO-MTB-004 space adaptation sickness grading (moderate "no more than 2 episodes of vomiting", severe "more than 2 episodes")
     notes:
       - Alert - 3 or more episodes, or 1-2 together with liquid stool (Bristol 7), abdominal pain 7-10, nausea 7-10 or blood in the stool (black tarry stool or heavy blood).
       - Observation - 1-2 episodes without those symptoms.

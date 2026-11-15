@@ -82,6 +82,26 @@ class RuleCatalogTest {
     }
 
     @Test
+    fun `HRP sources are cited and in-flight averages are documented as a team decision`() {
+        fun source(variable: Variable) = catalog[variable]!!.source
+        assertTrue("OCHMO-MTB-004" in source(Variable.VOMITING))
+        assertTrue("OCHMO-TB-041" in source(Variable.SLEEP_HOURS) && "[V1 6001]" in source(Variable.SLEEP_HOURS))
+        listOf(Variable.BMD_HIP, Variable.BMD_SPINE, Variable.BMD_FEMORAL_NECK).forEach { bmd ->
+            assertTrue(catalog[bmd]!!.notes.any { "only before and after flight" in it }, "$bmd")
+        }
+        val inFlightAverages = listOf(
+            Variable.HEART_RATE, Variable.SYSTOLIC_BP, Variable.DIASTOLIC_BP, Variable.BODY_MASS, Variable.CALORIC_INTAKE,
+            Variable.URINARY_CALCIUM, Variable.BONE_RESORPTION_MARKERS, Variable.HEMATOCRIT, Variable.MUSCLE_STRENGTH,
+            Variable.PROTEIN_INTAKE, Variable.BODY_TEMPERATURE,
+        )
+        inFlightAverages.forEach { variable ->
+            assertTrue(catalog[variable]!!.notes.any { "team decision (2026-11-15)" in it }, "$variable")
+        }
+        assertTrue(catalog[Variable.HEMATOCRIT]!!.notes.none { "incompatible" in it })
+        assertTrue(catalog[Variable.BODY_TEMPERATURE]!!.notes.any { "Stahn 2017" in it && "37.7" in it })
+    }
+
+    @Test
     fun `conditions parse comparisons and inclusive ranges`() {
         assertTrue(Condition.parse("< 40").matches(39.9))
         assertFalse(Condition.parse("< 40").matches(40.0))

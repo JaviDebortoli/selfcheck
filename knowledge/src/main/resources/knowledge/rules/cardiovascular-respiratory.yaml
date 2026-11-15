@@ -14,9 +14,11 @@ variables:
     context: REST
     thresholds:
       ALERT: ["< 40", "> 130"]
-      OBSERVATION: ["< 60", "> 100"]
-      NORMAL: ["60..100"]
-    source: Rules document (WHO values)
+      OBSERVATION: ["< 45", "> 100"]
+      NORMAL: ["45..100"]
+    source: Rules document (WHO values); low normal edge from Hughson et al. 2012 (astronaut resting heart rate 54.9 +/- 9.6 bpm, unchanged in flight)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): Normal 45-100 includes the astronaut mean minus 1 SD (Hughson 2012). Observation 40-44 or 101-130, Alert below 40 or above 130."
     texts:
       es:
         name: Frecuencia cardíaca
@@ -35,10 +37,12 @@ variables:
     unit: mmHg
     interval: P1D
     thresholds:
-      ALERT: ["< 80", ">= 140"]
-      OBSERVATION: ["< 90", "> 120"]
-      NORMAL: ["90..120"]
-    source: Rules document (WHO values)
+      ALERT: ["< 72", ">= 140"]
+      OBSERVATION: ["< 82", "> 120"]
+      NORMAL: ["82..120"]
+    source: Rules document (WHO values); low side shifted by the in-flight 24 h drop of Norsk et al. 2015 (-8 mmHg systolic)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low edges move down 8 mmHg (Norsk 2015; Hughson 2012 saw no change). Normal 82-120, Observation 72-81 or 121-139, Alert below 72 or 140 or more."
     texts:
       es:
         name: Presión sistólica
@@ -57,10 +61,12 @@ variables:
     unit: mmHg
     interval: P1D
     thresholds:
-      ALERT: ["< 50", ">= 90"]
-      OBSERVATION: ["< 60", "> 80"]
-      NORMAL: ["60..80"]
-    source: Rules document (WHO values)
+      ALERT: ["< 41", ">= 90"]
+      OBSERVATION: ["< 51", "> 80"]
+      NORMAL: ["51..80"]
+    source: Rules document (WHO values); low side shifted by the in-flight 24 h drop of Norsk et al. 2015 (-9 mmHg diastolic)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low edges move down 9 mmHg (Norsk 2015; Hughson 2012 saw no change). Normal 51-80, Observation 41-50 or 81-89, Alert below 41 or 90 or more."
     texts:
       es:
         name: Presión diastólica

@@ -293,9 +293,10 @@ object CustomEvaluators {
     }
 
     /**
-     * Bone resorption markers (spec section 7.6): compared with the laboratory range sent with the measurement.
-     * ALERT when out of range together with bone density in ALERT or urinary calcium above `urinaryCalciumHigh`;
-     * OBSERVATION when out of range in two analyses in a row. Samples store 1 for out of range, 0 for in range.
+     * Bone resorption markers (spec section 7.6): compared with the laboratory range sent with the measurement,
+     * widened in flight to `upperLimitFactor` times its upper limit (resorption rises about 50 % in flight).
+     * ALERT when out of that band together with bone density in ALERT or urinary calcium above `urinaryCalciumHigh`;
+     * OBSERVATION when out of it in two analyses in a row. Samples store 1 for out of the band, 0 inside it.
      */
     val boneResorption = CustomEvaluator { def, input, previous ->
         val m = input.measurement
@@ -307,7 +308,9 @@ object CustomEvaluators {
             range?.let { put("low", it.low.format()); put("high", it.high.format()) }
         }
         if (range == null) return@CustomEvaluator Evaluation(HealthState.NOT_EVALUABLE, ReasonCodes.NO_LAB_RANGE, params, value = 0.0)
-        val out = m.value < range.low || m.value > range.high
+        // Rounded so a value at exactly the widened limit (1.5 x 0.8 = 1.2) is not read as above it.
+        val upper = Math.round(range.high * def.param("upperLimitFactor") * 1e6) / 1e6
+        val out = m.value < range.low || m.value > upper
         if (!out) return@CustomEvaluator Evaluation(HealthState.NORMAL, ReasonCodes.IN_RANGE, params, value = 0.0)
 
         val runtime = input.runtime

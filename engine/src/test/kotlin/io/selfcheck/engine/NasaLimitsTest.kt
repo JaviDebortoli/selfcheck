@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 /**
  * PLAN.md phase 2: every NASA and ISS limit. 600 mSv career, 250 mSv per solar event, CO2 3 mmHg,
  * noise 60/72 dBA by day and 50/62 dBA by night, dust 0.3 mg/m³ only at the lunar base,
- * strength 80 % and bone density 95 % / 90 % of the pre-flight value.
+ * strength 80 % (Observation) and bone density 95 % / 90 % (Alert) of the pre-flight value.
  */
 class NasaLimitsTest {
 
@@ -162,13 +162,16 @@ class NasaLimitsTest {
     }
 
     @Test
-    fun `muscle strength - alert below 80 percent of the pre-flight value`() {
+    fun `muscle strength - observation, not alert, below 80 percent of the pre-flight value`() {
         engine.history(strength = 200.0)
         engine.send(measurement(Variable.MUSCLE_STRENGTH, 160.0, DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.MUSCLE_STRENGTH))
         engine.send(measurement(Variable.MUSCLE_STRENGTH, 159.0, 2 * DAY))
-        assertEquals(ALERT, engine.stateOf(Variable.MUSCLE_STRENGTH))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MUSCLE_STRENGTH))
+        assertEquals(ReasonCodes.LOW, engine.codeOf(Variable.MUSCLE_STRENGTH))
         assertEquals("79.5", engine.state(Variable.MUSCLE_STRENGTH)!!.reason.params["evaluated"])
+        engine.send(measurement(Variable.MUSCLE_STRENGTH, 100.0, 3 * DAY)) // 50 %: still observation, never alert
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MUSCLE_STRENGTH))
     }
 
     @Test

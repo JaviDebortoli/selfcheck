@@ -12,21 +12,23 @@ variables:
     interval: P7D
     reference: PREFLIGHT_MUSCLE_STRENGTH
     thresholds:
-      ALERT: ["< 80"]
+      OBSERVATION: ["< 80"]
       NORMAL: [">= 80"]
-    source: NASA-STD-3001 Vol. 1 (as reported by the HRP)
-    notes: [Evaluated as % of the pre-flight value. Interval provisional (P7D).]
+    source: NASA-STD-3001 Vol. 1 [V1 4024]; OCHMO-TB-031 ("These requirements are not absolute thresholds, crewmembers may fall below these levels")
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P7D).
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): below 80 % is Observation, not Alert - NASA states the 80 % requirement is not an absolute threshold ([V1 4024], OCHMO-TB-031)."
     texts:
       es:
         name: Fuerza muscular
         measures: "Fuerza muscular máxima comparada con el valor previo al vuelo."
         guidance:
-          ALERT: "Suspender los ejercicios con riesgo de lesión y solicitar evaluación médica y funcional. El equipo revisa el programa de ejercicio y la estrategia nutricional."
+          OBSERVATION: "Suspender los ejercicios con riesgo de lesión y solicitar evaluación médica y funcional. El equipo revisa el programa de ejercicio y la estrategia nutricional."
       en:
         name: Muscle strength
         measures: "Maximum muscle strength compared with the pre-flight value."
         guidance:
-          ALERT: "Stop exercises with a risk of injury and request a medical and functional evaluation. The team reviews the exercise program and the nutrition strategy."
+          OBSERVATION: "Stop exercises with a risk of injury and request a medical and functional evaluation. The team reviews the exercise program and the nutrition strategy."
 
   - variable: BMD_HIP
     unit: g/cm²
@@ -36,7 +38,9 @@ variables:
       ALERT: ["< 95"]
       NORMAL: [">= 95"]
     source: NASA-STD-3001 Vol. 1 [V1 4027]
-    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
     texts:
       es:
         name: Densidad mineral ósea (cadera)
@@ -57,7 +61,9 @@ variables:
       ALERT: ["< 95"]
       NORMAL: [">= 95"]
     source: NASA-STD-3001 Vol. 1 [V1 4027]
-    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
     texts:
       es:
         name: Densidad mineral ósea (columna)
@@ -78,7 +84,9 @@ variables:
       ALERT: ["< 90"]
       NORMAL: [">= 90"]
     source: NASA-STD-3001 Vol. 1 [V1 4027]
-    notes: [Evaluated as % of the pre-flight value. Interval provisional (P30D).]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
     texts:
       es:
         name: Densidad mineral ósea (cuello del fémur)
@@ -143,14 +151,16 @@ variables:
     reference: PREFLIGHT_BODY_MASS
     scale: PERCENT_CHANGE_FROM_REFERENCE
     thresholds:
-      ALERT: ["> 5"]
-      OBSERVATION: ["> 2"]
-      NORMAL: ["<= 2"]
+      ALERT: ["> 10"]
+      OBSERVATION: ["> 5"]
+      NORMAL: ["<= 5"]
     persistence:
       OBSERVATION: 3
-    source: Rules document (proposed rule)
+    source: Rules document (proposed rule); cuts from the ISS mean loss of 2.8-4.4 % ("1% to 5% ... typical", Zwart et al. 2014; NASA 2021)
     review: true
-    notes: [Evaluated as % change from the pre-flight value, up or down.]
+    notes:
+      - Evaluated as % change from the pre-flight value, up or down.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): a change up to 5 % is typical in flight (Zwart 2014; NASA 2021). Observation above 5 % three days in a row, Alert above 10 %."
     texts:
       es:
         name: Masa corporal
@@ -171,13 +181,16 @@ variables:
     evaluator: BONE_RESORPTION
     params:
       urinaryCalciumHigh: 300
+      upperLimitFactor: 1.5
     persistence:
       OBSERVATION: 2
-    source: Rules document
+    source: Rules document; in-flight resorption rise of about 50 % from Smith et al. 2005 and NASA 2021
     review: true
     notes:
       - CTX or NTX; the marker and the laboratory reference range arrive with the measurement.
-      - Alert when out of range together with bone density in Alert or urinary calcium above 300 mg/24 h.
+      - Normal from the laboratory lower limit up to 1.5 times its upper limit; out of that band two analyses in a row gives Observation.
+      - Alert when out of that band together with bone density in Alert or urinary calcium above 300 mg/24 h.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): bone resorption rises about 50 % in flight (Smith 2005; NASA 2021), so the upper limit is 1.5 times the laboratory one."
       - Interval provisional (P30D).
     texts:
       es:

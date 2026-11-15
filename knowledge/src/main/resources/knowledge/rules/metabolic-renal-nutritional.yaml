@@ -44,14 +44,15 @@ variables:
       moodHigh: 10
       glucoseLow: 70
     thresholds:
-      OBSERVATION: ["< 90", "> 110"]
-      NORMAL: ["90..110"]
+      OBSERVATION: ["< 80", "> 110"]
+      NORMAL: ["80..110"]
     persistence:
       OBSERVATION: 3
-    source: Rules document
+    source: Rules document; low normal edge from the ISS intake of about 80 % of the requirement (79-84 %, Smith et al., Human Adaptation to Spaceflight - The Role of Nutrition, NASA 2021)
     notes:
       - Evaluated as % of the daily target.
-      - Observation - out of 90-110 % three days in a row.
+      - Observation - out of 80-110 % three days in a row.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): ISS crews eat about 80 % of their requirement (NASA 2021), so the normal band starts at 80 %."
       - Alert - below 75 % together with fatigue 7-10, mood (PHQ-9) 10 or more or glucose below 70 mg/dL, with no streak.
     texts:
       es:
@@ -109,16 +110,16 @@ variables:
       ratio: 1.5
       ratioWindowDays: 7
       systolicHigh: 140
-      systolicLow: 90
+      systolicLow: 82
       diastolicHigh: 90
-      diastolicLow: 60
+      diastolicLow: 51
       ureaLow: 10
       ureaHigh: 50
       diuresisLow: 0.5
     source: Rules document; rise criteria from the KDIGO acute kidney injury guideline
     notes:
       - Observation - out of range (0.6-1.3 mg/dL) in one analysis.
-      - Alert - out of range together with blood pressure of 140/90 or more or below 90/60, urea out of range, urine output below 0.5 mL/kg/h, or a rise of 0.3 mg/dL within 48 h or 1.5 times within 7 days against the lowest value of the window.
+      - Alert - out of range together with blood pressure of 140/90 or more or below 82/51 (the in-flight low edges of the blood pressure rules), urea out of range, urine output below 0.5 mL/kg/h, or a rise of 0.3 mg/dL within 48 h or 1.5 times within 7 days against the lowest value of the window.
       - Interval provisional (P7D).
     texts:
       es:
@@ -253,6 +254,7 @@ variables:
     source: Rules document
     notes:
       - Alert only above 300 mg/24 h together with renal colic or blood in urine (table 7.8 prevails over the general alarm-sign rule).
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): no change - the in-flight mean, 238 +/- 90 mg/day (Thamer 2023), is inside 100-300."
       - Interval provisional (P7D).
     texts:
       es:
@@ -292,7 +294,19 @@ variables:
   - variable: PROTEIN_INTAKE
     unit: g
     interval: P1D
-    notes: [Shown as data - no rule.]
+    reference: PREFLIGHT_BODY_MASS
+    scale: PER_UNIT_OF_REFERENCE
+    thresholds:
+      OBSERVATION: ["< 1.2", "> 1.8"]
+      NORMAL: ["1.2..1.8"]
+    persistence:
+      OBSERVATION: 3
+    source: NASA JSC-67378 Rev 1 (protein 1.2-1.8 g/kg per day)
+    notes:
+      - Evaluated in g per kg of the pre-flight body mass.
+      - Observation - out of 1.2-1.8 g/kg three days in a row (same pattern as the other intake rules - team criterion).
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the NASA range applies in flight, with the pre-flight body mass as the reference."
+      - No recommendation - the professional rules document has none for protein intake.
     texts:
       es:
         name: "Ingesta de proteínas"

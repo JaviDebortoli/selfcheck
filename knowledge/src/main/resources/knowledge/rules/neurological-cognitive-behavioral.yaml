@@ -20,7 +20,7 @@ variables:
       NORMAL: ["7..9"]
     persistence:
       ALERT: 3
-    source: National Sleep Foundation (Hirshkowitz et al., 2015); rules document
+    source: National Sleep Foundation (Hirshkowitz et al., 2015); NASA OCHMO-TB-041 ("an average adult needs 7-9 hours"); NASA-STD-3001 Vol. 1 [V1 6001] (8.5 h sleep period); rules document
     review: true
     notes:
       - Less than 6 h gives Observation the first night and Alert on the third night in a row.
