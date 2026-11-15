@@ -33,7 +33,7 @@ export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, 
         </span>
       </a>
       <span className="screen-badge">{badge}</span>
-      <div className="topbar-title">
+      <div className={subtitle ? 'topbar-title' : 'topbar-title alone'}>
         {titleSelect ? (
           <h1>
             <select
@@ -52,7 +52,7 @@ export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, 
         ) : (
           <h1>{title}</h1>
         )}
-        {/* The line is kept when empty so the header measures the same on every screen. */}
+        {/* Without a subtitle the empty line keeps the header height and the title is centered on both lines. */}
         <div className="muted" aria-hidden={subtitle ? undefined : true}>
           {subtitle || ' '}
         </div>
