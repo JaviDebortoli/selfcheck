@@ -9,8 +9,6 @@ import io.selfcheck.contracts.DailyTargets
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionControl
-import io.selfcheck.contracts.MissionEnvironment
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.PreflightBoneDensity
 import io.selfcheck.contracts.Quality
 import io.selfcheck.contracts.ReferenceRange
@@ -36,10 +34,6 @@ class MeasurementPublisher(private val kafka: KafkaTemplate<String, SpecificReco
                 headers().add(Topics.EPOCH_HEADER, epoch.value.toString().toByteArray())
             },
         )
-
-    fun publishProfile(environment: MissionEnvironment, plannedDurationDays: Int, missionTimeMs: Long) {
-        send(Topics.MISSION_PROFILE, Topics.MISSION_KEY, MissionProfile(environment, plannedDurationDays, missionTimeMs))
-    }
 
     fun publishHistory(member: CrewMember, missionTimeMs: Long) {
         val history = MedicalHistory(

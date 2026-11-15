@@ -1,7 +1,6 @@
 package io.selfcheck.simulator
 
 import io.selfcheck.contracts.ActivityContext
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Variable
 import io.selfcheck.simulator.clock.MissionClock.Companion.DAY_MS
 import io.selfcheck.simulator.clock.MissionClock.Companion.HOUR_MS
@@ -51,7 +50,7 @@ class ScheduleAndScenariosTest {
         val body = BodyModel()
         for (member in CrewRoster.members) {
             for (day in 0 until 30) {
-                val sleep = body.crew(member, Variable.SLEEP_HOURS, day * DAY_MS + 7 * HOUR_MS, MissionEnvironment.ORBITAL_STATION)
+                val sleep = body.crew(member, Variable.SLEEP_HOURS, day * DAY_MS + 7 * HOUR_MS)
                 assertTrue(sleep in 7.0..7.5, "sleep $sleep")
             }
         }

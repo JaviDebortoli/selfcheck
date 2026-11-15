@@ -6,7 +6,6 @@ import io.selfcheck.contracts.Alert
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionControl
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.Topics
 import io.selfcheck.contracts.VariableState
@@ -28,21 +27,13 @@ import org.apache.kafka.streams.state.Stores
 
 /**
  * measurements -> SubjectProcessor -> variable-states, summary-states, alerts.
- * Mission profile and medical history are global stores the processor reads.
+ * The medical history is a global store the processor reads.
  */
 class EngineTopology(private val catalog: RuleCatalog, private val schemaRegistryUrl: String) {
 
     fun build(builder: StreamsBuilder) {
         val measurementSerde = avroSerde<Measurement>()
         val outputSerde = avroSerde<SpecificRecord>()
-
-        builder.addGlobalStore(
-            Stores.keyValueStoreBuilder(Stores.inMemoryKeyValueStore(PROFILE_STORE), Serdes.String(), avroSerde<MissionProfile>())
-                .withLoggingDisabled(),
-            Topics.MISSION_PROFILE,
-            Consumed.with(Serdes.String(), avroSerde<MissionProfile>()),
-            ProcessorSupplier<String, MissionProfile, Void, Void> { GlobalStoreWriter(PROFILE_STORE) },
-        )
 
         builder.addGlobalStore(
             Stores.keyValueStoreBuilder(Stores.inMemoryKeyValueStore(HISTORY_STORE), Serdes.String(), avroSerde<MedicalHistory>())
@@ -83,7 +74,6 @@ class EngineTopology(private val catalog: RuleCatalog, private val schemaRegistr
 
     companion object {
         const val SUBJECT_STORE = "subject-runtime"
-        const val PROFILE_STORE = "mission-profile"
         const val HISTORY_STORE = "medical-history"
     }
 }

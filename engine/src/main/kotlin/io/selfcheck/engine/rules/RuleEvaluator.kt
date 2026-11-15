@@ -3,7 +3,6 @@ package io.selfcheck.engine.rules
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.Quality
 import io.selfcheck.knowledge.Condition
 import io.selfcheck.knowledge.Reference
@@ -18,14 +17,13 @@ data class EvaluationInput(
     /** The subject as it is before this rule is applied (other variables, for cross-variable rules). */
     val runtime: SubjectRuntime,
     val history: MedicalHistory? = null,
-    val profile: MissionProfile? = null,
     /** Value after the rule's reference or window is applied (% of a target, mean); set for custom evaluators. */
     val scaled: Double? = null,
 )
 
 /**
  * Applies the declarative rules from `knowledge/` (spec section 7.2), in this order:
- * stateless -> environment -> alarm signs -> context/fasting -> quality -> reference and window ->
+ * stateless -> alarm signs -> context/fasting -> quality -> reference and window ->
  * custom evaluator, rhythm labels or thresholds (with streaks).
  */
 class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEvaluators.all) {
@@ -54,12 +52,6 @@ class RuleEvaluator(private val custom: Map<String, CustomEvaluator> = CustomEva
         val baseParams = mapOf("value" to m.value.format(), "unit" to definition.unit)
         if (!definition.hasState) return Evaluation(null, ReasonCodes.DATA, baseParams)
         if (definition.stateFrom != null) return mirrored(definition, input.runtime).let { it.copy(params = baseParams + it.params) }
-
-        val environment = input.profile?.environment
-        val environments = definition.environments
-        if (environments != null && environment != null && environment !in environments) {
-            return Evaluation(null, ReasonCodes.NOT_APPLICABLE_ENVIRONMENT, baseParams + ("environment" to environment.name))
-        }
 
         val toConfirm = m.quality == Quality.DOUBTFUL
         val scaled = scaledValue(definition, input)

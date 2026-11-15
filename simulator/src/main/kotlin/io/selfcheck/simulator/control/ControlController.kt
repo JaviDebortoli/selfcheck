@@ -1,6 +1,5 @@
 package io.selfcheck.simulator.control
 
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Variable
 import io.selfcheck.simulator.SimulationLoop
 import io.selfcheck.simulator.clock.MissionClock
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-/** Control API of the simulator (spec sections 8.4 and 9): start, pause, speed, scenarios, reset and environment. */
+/** Control API of the simulator (spec sections 8.4 and 9): start, pause, speed, scenarios and reset. */
 @RestController
 @RequestMapping("/api/simulator")
 class ControlController(
@@ -30,7 +29,6 @@ class ControlController(
 ) {
 
     data class SpeedRequest(val speed: Double)
-    data class EnvironmentRequest(val environment: MissionEnvironment)
     data class ScenarioRequest(val crewMemberId: String? = null)
     data class OverrideRequest(val subjectId: String, val variable: Variable, val value: Double)
 
@@ -40,8 +38,6 @@ class ControlController(
         "running" to clock.running,
         "speed" to clock.speed,
         "maxSpeed" to MissionClock.MAX_SPEED,
-        "environment" to loop.environment.name,
-        "plannedDurationDays" to loop.plannedDurationDays,
         "crew" to CrewRoster.members.map { it.id },
         "activeScenarios" to scenarios.active(clock.missionTimeMs).map {
             mapOf("id" to it.definition.id, "subjects" to it.subjects, "startedAt" to it.startedAt, "endsAt" to it.endsAt())
@@ -70,12 +66,6 @@ class ControlController(
     @PutMapping("/speed")
     fun speed(@RequestBody request: SpeedRequest): Map<String, Any> {
         clock.setSpeed(request.speed)
-        return status()
-    }
-
-    @PutMapping("/environment")
-    fun environment(@RequestBody request: EnvironmentRequest): Map<String, Any> {
-        loop.changeEnvironment(request.environment)
         return status()
     }
 

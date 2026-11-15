@@ -7,7 +7,6 @@ import io.selfcheck.contracts.MeasurementGroup
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionControl
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.Reason
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.SubjectType
@@ -46,7 +45,6 @@ class SubjectProcessor(
     private val log = LoggerFactory.getLogger(javaClass)
     private lateinit var context: ProcessorContext<String, SpecificRecord>
     private lateinit var subjects: KeyValueStore<String, SubjectRuntime>
-    private lateinit var profiles: KeyValueStore<String, MissionProfile>
     private lateinit var histories: KeyValueStore<String, MedicalHistory>
 
     /** Next mission time at which values are checked for expiry. Mission time, never wall-clock time. */
@@ -65,7 +63,6 @@ class SubjectProcessor(
     override fun init(context: ProcessorContext<String, SpecificRecord>) {
         this.context = context
         subjects = context.getStateStore(EngineTopology.SUBJECT_STORE)
-        profiles = context.getStateStore(EngineTopology.PROFILE_STORE)
         histories = context.getStateStore(EngineTopology.HISTORY_STORE)
         epoch = subjects.get(EPOCH_KEY)?.lastMissionTimeMs ?: Long.MIN_VALUE
         // Persistence only (not a decision), so wall-clock time is fine here.
@@ -133,7 +130,6 @@ class SubjectProcessor(
             now = now,
             runtime = runtime,
             history = histories.get(subjectId),
-            profile = profiles.get(Topics.MISSION_KEY),
         )
         val evaluated = mutableSetOf<Variable>()
         for (definition in catalog.triggeredBy[measurement.variable].orEmpty()) {

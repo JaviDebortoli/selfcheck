@@ -63,12 +63,10 @@ data class CrewStatusView(
     val assistanceSinceMs: Long? = null,
 )
 
-data class MissionView(val environment: String?, val plannedDurationDays: Int?)
 
 data class SnapshotView(
     val version: Long,
     val missionTimeMs: Long,
-    val mission: MissionView,
     val crew: List<CrewMemberView>,
     val subjects: Map<String, SubjectView>,
     val alerts: List<AlertView>,

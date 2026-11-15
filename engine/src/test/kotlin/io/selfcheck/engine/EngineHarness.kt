@@ -10,8 +10,6 @@ import io.selfcheck.contracts.DailyTargets
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
-import io.selfcheck.contracts.MissionEnvironment
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.PreflightBoneDensity
 import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.SummaryState
@@ -63,11 +61,6 @@ class EngineHarness : AutoCloseable {
     private val outputs by lazy {
         listOf(Topics.VARIABLE_STATES, Topics.SUMMARY_STATES, Topics.ALERTS)
             .map { driver.createOutputTopic(it, Serdes.String().deserializer(), serde<SpecificRecord>().deserializer()) }
-    }
-
-    fun profile(environment: MissionEnvironment = MissionEnvironment.ORBITAL_STATION, plannedDays: Int = 180) {
-        driver.createInputTopic(Topics.MISSION_PROFILE, Serdes.String().serializer(), serde<MissionProfile>().serializer())
-            .pipeInput(Topics.MISSION_KEY, MissionProfile(environment, plannedDays, 0))
     }
 
     fun history(

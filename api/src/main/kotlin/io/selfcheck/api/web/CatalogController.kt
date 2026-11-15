@@ -46,7 +46,6 @@ class CatalogController(private val catalog: RuleCatalog) {
                         "raisesAlerts" to definition.raisesAlerts,
                         "review" to definition.review,
                         "source" to definition.source,
-                        "environments" to definition.environments?.map { it.name },
                         // Rules evaluated as a % of a pre-flight value or daily target, or as a window mean.
                         "reference" to definition.reference?.name,
                         "window" to definition.window?.toString(),
@@ -58,7 +57,6 @@ class CatalogController(private val catalog: RuleCatalog) {
             "alarmSigns" to shared.alarmSigns.translated(),
             "rhythms" to shared.rhythms.translated(),
             "contexts" to shared.contexts.translated(),
-            "environments" to shared.environments.translated(),
             "combinations" to catalog.combinations.associate { combination ->
                 combination.code to combination.texts[language]?.let { mapOf("name" to it.name, "interpretation" to it.interpretation) }
             },

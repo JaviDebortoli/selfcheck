@@ -5,7 +5,6 @@ import io.selfcheck.contracts.CrewEvent
 import io.selfcheck.contracts.CrewEventType
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.SubjectType
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.VariableState
@@ -22,7 +21,6 @@ class SnapshotStore {
     private var version = 0L
     private var clears = 0L
     private var missionTimeMs = 0L
-    private var mission = MissionView(null, null)
     private val crew = sortedMapOf<String, CrewMemberView>()
     private val subjects = sortedMapOf<String, MutableSubject>()
     private val alerts = ArrayDeque<AlertView>()
@@ -42,16 +40,11 @@ class SnapshotStore {
         SnapshotView(
             version = version,
             missionTimeMs = missionTimeMs,
-            mission = mission,
             crew = crew.values.toList(),
             subjects = subjects.mapValues { it.value.view() },
             alerts = alerts.toList(),
             crewStatus = crewStatus.toMap(),
         )
-    }
-
-    fun onProfile(profile: MissionProfile) = change {
-        mission = MissionView(profile.environment.name, profile.plannedDurationDays)
     }
 
     fun onHistory(history: MedicalHistory) = change {
@@ -155,7 +148,6 @@ class SnapshotStore {
     fun clear() = change {
         clears++
         missionTimeMs = 0
-        mission = MissionView(null, null)
         crew.clear()
         subjects.clear()
         alerts.clear()

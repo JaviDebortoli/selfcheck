@@ -7,9 +7,6 @@ package io.selfcheck.contracts;
  */
 public final class Topics {
 
-    /** {@link MissionProfile}, keyed by {@link #MISSION_KEY}. Compacted. */
-    public static final String MISSION_PROFILE = "selfcheck.mission-profile";
-
     /** {@link MedicalHistory}, keyed by crew member id. Compacted. */
     public static final String MEDICAL_HISTORY = "selfcheck.medical-history";
 
@@ -37,7 +34,7 @@ public final class Topics {
      */
     public static final String EPOCH_HEADER = "selfcheck-epoch";
 
-    /** Record key of the single mission profile. */
+    /** Record key of mission-wide records (control commands). */
     public static final String MISSION_KEY = "mission";
 
     /** Subject id of the shared habitat. */

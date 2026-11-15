@@ -1,7 +1,6 @@
 package io.selfcheck.simulator.model
 
 import io.selfcheck.contracts.ActivityContext
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.Variable
 import io.selfcheck.simulator.clock.MissionClock.Companion.DAY_MS
@@ -33,7 +32,6 @@ class BodyModel {
         member: CrewMember,
         variable: Variable,
         t: Long,
-        environment: MissionEnvironment,
         activity: ActivityContext = Schedule.activityAt(t),
     ): Double {
         val day = (t / DAY_MS).toInt()
@@ -55,7 +53,7 @@ class BodyModel {
                     else -> member.baseline.respiratoryRate
                 } + walk(member.id, variable, 0.8),
             ).coerceIn(12.0, 20.0)
-            Variable.DOSE_RATE -> MissionSettings.of(environment).doseRateMicroSvPerHour * (1 + walk(member.id, variable, 0.04))
+            Variable.DOSE_RATE -> MissionSettings.DOSE_RATE_MICRO_SV_PER_HOUR * (1 + walk(member.id, variable, 0.04))
             Variable.SOLAR_PARTICLE_EVENT -> 0.0
 
             Variable.SLEEP_HOURS -> round1(7.0 + 0.5 * u)
@@ -110,11 +108,11 @@ class BodyModel {
     }
 
     /** Value of a habitat sensor at mission time [t]. */
-    fun habitat(variable: Variable, t: Long, environment: MissionEnvironment): Double = when (variable) {
+    fun habitat(variable: Variable, t: Long): Double = when (variable) {
         Variable.CO2 -> round2(2.2 + walk("habitat", variable, 0.15))
         Variable.NOISE_DAY -> round1(56.0 + walk("habitat", variable, 1.0))
         Variable.NOISE_NIGHT -> round1(46.0 + walk("habitat", variable, 1.0))
-        Variable.AIRBORNE_DUST -> round3((MissionSettings.of(environment).dustMgPerM3 * (1 + walk("habitat", variable, 0.15))).coerceAtLeast(0.0))
+        Variable.AIRBORNE_DUST -> round3((MissionSettings.DUST_MG_PER_M3 * (1 + walk("habitat", variable, 0.15))).coerceAtLeast(0.0))
         else -> error("$variable is not a habitat measurement")
     }
 

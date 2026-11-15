@@ -83,12 +83,11 @@ variables:
   - variable: AIRBORNE_DUST
     unit: mg/m³
     interval: PT1M
-    environments: [LUNAR_BASE]
     thresholds:
       ALERT: ["> 0.3"]
       NORMAL: ["<= 0.3"]
     source: HRP lunar dust limit
-    notes: [Measured in every environment; the limit is for lunar dust, so outside the lunar base it is shown without state., Recommendations marked as proposed in the professional rules document; to be reviewed.]
+    notes: [Measured always and evaluated always - the system does not tell mission types apart; dust above the lunar dust limit gives Alert wherever it is detected (team decision)., Recommendations marked as proposed in the professional rules document; to be reviewed.]
     texts:
       es:
         name: Polvo en el aire

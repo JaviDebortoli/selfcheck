@@ -29,9 +29,6 @@ reasons:
   NOT_FASTING:
     es: "Sin estado: medido fuera del ayuno"
     en: "No state: not measured fasting"
-  NOT_APPLICABLE_ENVIRONMENT:
-    es: "Sin estado: el límite no aplica en este entorno"
-    en: "No state: the limit does not apply in this environment"
   DATA_EXPIRED:
     es: "Dato vencido"
     en: "Expired data"
@@ -148,7 +145,3 @@ contexts:
   SLEEP: { es: "sueño", en: "sleep" }
   UNKNOWN: { es: "contexto desconocido", en: "unknown context" }
 
-environments:
-  ORBITAL_STATION: { es: "Estación en órbita", en: "Orbital station" }
-  LUNAR_BASE: { es: "Base lunar", en: "Lunar base" }
-  DEEP_SPACE_TRANSIT: { es: "Tránsito de espacio profundo", en: "Deep space transit" }

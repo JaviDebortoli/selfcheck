@@ -4,7 +4,6 @@ import io.selfcheck.contracts.HealthState.ALERT
 import io.selfcheck.contracts.HealthState.NORMAL
 import io.selfcheck.contracts.HealthState.NOT_EVALUABLE
 import io.selfcheck.contracts.HealthState.OBSERVATION
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.Variable
 import io.selfcheck.engine.rules.ReasonCodes
 import kotlin.test.AfterTest
@@ -27,7 +26,6 @@ class NasaLimitsTest {
 
     @Test
     fun `career dose - alert at 600 mSv, observation at 480 accumulated`() {
-        engine.profile(plannedDays = 180)
         engine.history(priorDose = 120.0)
         engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 100 * DAY))
         assertEquals(NORMAL, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
@@ -45,7 +43,6 @@ class NasaLimitsTest {
 
     @Test
     fun `career dose - only the accumulated dose counts, a high early dose rate is not projected`() {
-        engine.profile(plannedDays = 180)
         engine.history(priorDose = 45.0)
         // A solar event early in the mission: 320 mSv on day 1 (the old projection gave far above 480).
         engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 320.0, DAY / 2))
@@ -97,7 +94,6 @@ class NasaLimitsTest {
 
     @Test
     fun `solar event - observation while active, alert at 250 mSv in the event, normal when it ends`() {
-        engine.profile()
         engine.history()
         engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 1_000))
         assertEquals(NORMAL, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
@@ -156,14 +152,9 @@ class NasaLimitsTest {
     }
 
     @Test
-    fun `airborne dust - alert above 0,3 mg per m3 only at the lunar base`() {
-        engine.profile(MissionEnvironment.ORBITAL_STATION)
-        engine.send(habitat(Variable.AIRBORNE_DUST, 0.8, 0))
-        assertNull(engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
-        assertEquals(ReasonCodes.NOT_APPLICABLE_ENVIRONMENT, engine.codeOf(Variable.AIRBORNE_DUST, "habitat"))
-        assertEquals(emptyList(), engine.alerts)
-
-        engine.profile(MissionEnvironment.LUNAR_BASE)
+    fun `airborne dust - alert above 0,3 mg per m3, always evaluated`() {
+        engine.send(habitat(Variable.AIRBORNE_DUST, 0.02, 0))
+        assertEquals(NORMAL, engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
         engine.send(habitat(Variable.AIRBORNE_DUST, 0.3, 60_000))
         assertEquals(NORMAL, engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
         engine.send(habitat(Variable.AIRBORNE_DUST, 0.31, 120_000))

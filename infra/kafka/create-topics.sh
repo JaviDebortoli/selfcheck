@@ -13,7 +13,6 @@ create() {
     --topic "$topic" --partitions 1 --replication-factor 1 --config retention.ms=-1 "$@"
 }
 
-create selfcheck.mission-profile --config cleanup.policy=compact
 create selfcheck.medical-history --config cleanup.policy=compact
 create selfcheck.measurements
 create selfcheck.variable-states

@@ -28,7 +28,6 @@ object ReasonCodes {
     const val POOR_QUALITY = "POOR_QUALITY"
     const val CONTEXT_NOT_APPLICABLE = "CONTEXT_NOT_APPLICABLE"
     const val NOT_FASTING = "NOT_FASTING"
-    const val NOT_APPLICABLE_ENVIRONMENT = "NOT_APPLICABLE_ENVIRONMENT"
     const val DATA_EXPIRED = "DATA_EXPIRED"
     const val NO_DATA = "NO_DATA"
     const val NO_REFERENCE = "NO_REFERENCE"

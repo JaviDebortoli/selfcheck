@@ -12,13 +12,6 @@ protocol SelfCheckContracts {
   // Shared enums
   // ---------------------------------------------------------------------------------------------
 
-  /** Mission environment (spec section 2.1). */
-  enum MissionEnvironment {
-    ORBITAL_STATION,
-    LUNAR_BASE,
-    DEEP_SPACE_TRANSIT
-  }
-
   /** Who a measurement or state belongs to: a crew member or the shared habitat. */
   enum SubjectType {
     CREW_MEMBER,
@@ -180,14 +173,6 @@ protocol SelfCheckContracts {
   // ---------------------------------------------------------------------------------------------
   // Published by the simulator at start-up
   // ---------------------------------------------------------------------------------------------
-
-  /** Mission profile. Published by the simulator when the mission starts. */
-  record MissionProfile {
-    MissionEnvironment environment;
-    /** Planned mission duration, used to project the career dose to the end of the mission (spec section 7.4). */
-    int plannedDurationDays;
-    long missionTimeMs;
-  }
 
   /** Pre-flight bone mineral density per site, in g/cm2 (NASA-STD-3001 limits are relative to it). */
   record PreflightBoneDensity {

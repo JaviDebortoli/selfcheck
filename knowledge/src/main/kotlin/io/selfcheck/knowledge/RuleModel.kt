@@ -4,7 +4,6 @@ import io.selfcheck.contracts.ActivityContext
 import io.selfcheck.contracts.AlarmSign
 import io.selfcheck.contracts.HealthState
 import io.selfcheck.contracts.MeasurementGroup
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.RhythmLabel
 import io.selfcheck.contracts.Sex
 import io.selfcheck.contracts.Variable
@@ -56,8 +55,6 @@ data class VariableDefinition(
     val context: ActivityContext? = null,
     /** Only evaluated when fasting (glucose); otherwise shown without state. */
     val fasting: Boolean? = null,
-    /** Environments where the rule applies; null means all. Elsewhere the value is shown without state. */
-    val environments: Set<MissionEnvironment>? = null,
     /** Alarm signs that put this variable in ALERT (spec section 7.12). */
     val alarmSigns: List<AlarmSign> = emptyList(),
     /** When set, an alarm sign only gives ALERT if the value also matches this condition (urinary calcium > 300). */
@@ -134,5 +131,4 @@ data class SharedTexts(
     val alarmSigns: Map<String, Map<String, String>> = emptyMap(),
     val rhythms: Map<String, Map<String, String>> = emptyMap(),
     val contexts: Map<String, Map<String, String>> = emptyMap(),
-    val environments: Map<String, Map<String, String>> = emptyMap(),
 )

@@ -7,7 +7,6 @@ import io.selfcheck.contracts.CrewEvent
 import io.selfcheck.contracts.Measurement
 import io.selfcheck.contracts.MedicalHistory
 import io.selfcheck.contracts.MissionControl
-import io.selfcheck.contracts.MissionProfile
 import io.selfcheck.contracts.SummaryState
 import io.selfcheck.contracts.Topics
 import io.selfcheck.contracts.VariableState
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Component
  * Consumes every SelfCheck topic. Records pass the [MissionEpochGuard] first, so only the running mission is kept.
  *
  * - Measurements use a durable consumer group: each one is stored once and updates the snapshot.
- * - The engine's outputs, the profile and the medical history are small; a fresh group per start replays them
+ * - The engine's outputs and the medical history are small; a fresh group per start replays them
  *   from the beginning so the snapshot is complete after a restart. Their history rows are written by the
  *   durable `history` listeners.
  */
@@ -54,11 +53,6 @@ class EventListeners(
         }
         history.saveMeasurements(batch)
         batch.forEach(snapshot::onMeasurement)
-    }
-
-    @KafkaListener(topics = [Topics.MISSION_PROFILE], groupId = REPLAY_GROUP, properties = [EARLIEST])
-    fun onProfile(record: ConsumerRecord<String, MissionProfile>) {
-        if (guard.accept(record)) snapshot.onProfile(record.value())
     }
 
     @KafkaListener(topics = [Topics.MEDICAL_HISTORY], groupId = REPLAY_GROUP, properties = [EARLIEST])

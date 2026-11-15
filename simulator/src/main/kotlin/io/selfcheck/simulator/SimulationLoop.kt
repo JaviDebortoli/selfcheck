@@ -2,7 +2,6 @@ package io.selfcheck.simulator
 
 import io.selfcheck.contracts.ActivityContext
 import io.selfcheck.contracts.BoneResorptionMarker
-import io.selfcheck.contracts.MissionEnvironment
 import io.selfcheck.contracts.RhythmLabel
 import io.selfcheck.contracts.Topics
 import io.selfcheck.contracts.Variable
@@ -45,23 +44,16 @@ class SimulationLoop(
     private val log = LoggerFactory.getLogger(javaClass)
     private val units = RuleCatalog.load().variables.mapValues { it.value.unit }
 
-    @Volatile
-    private var currentEnvironment: MissionEnvironment = MissionEnvironment.ORBITAL_STATION
-
     /** Effective dose accumulated during the mission per crew member, mSv. */
     private val missionDose = ConcurrentHashMap<String, Double>()
     private var lastTickNanos = System.nanoTime()
     private var nextContinuousAt = MissionSettings.START_TIME_MS
     private var nextMinuteAt = MissionSettings.START_TIME_MS
 
-    val environment: MissionEnvironment get() = currentEnvironment
-    val plannedDurationDays: Int get() = MissionSettings.of(currentEnvironment).plannedDurationDays
-
-    /** Day 1: mission profile, medical histories and an initial round of every daily and periodic measurement. */
+    /** Day 1: medical histories and an initial round of every daily, hourly and periodic measurement. */
     @Synchronized
     fun startMission() {
         val now = clock.missionTimeMs
-        publishProfile()
         CrewRoster.members.forEach { publisher.publishHistory(it, now) }
         val periodic = Schedule.cadences.filterValues { it is Cadence.Periodic || it == Cadence.Hourly }.keys
         for (variable in periodic) subjectsOf(variable).forEach { emit(it, variable, now) }
@@ -69,15 +61,7 @@ class SimulationLoop(
         emit(Topics.HABITAT_ID, Variable.NOISE_NIGHT, now, anyHour = true)
         publisher.flush()
         clock.start()
-        log.info("Mission started in {} at mission time {}", currentEnvironment, now)
-    }
-
-    fun publishProfile() = publisher.publishProfile(currentEnvironment, plannedDurationDays, clock.missionTimeMs)
-
-    @Synchronized
-    fun changeEnvironment(environment: MissionEnvironment) {
-        currentEnvironment = environment
-        publishProfile()
+        log.info("Mission started at mission time {}", now)
     }
 
     /** Forgets the running mission (spec section 5, reset). The clock is reset by the caller. */
@@ -174,8 +158,8 @@ class SimulationLoop(
         return when {
             variable == Variable.MISSION_EFFECTIVE_DOSE -> round((missionDose[subjectId] ?: 0.0) * 1000) / 1000
             variable == Variable.ABSORBED_DOSE -> round((missionDose[subjectId] ?: 0.0) * 0.4 * 1000) / 1000
-            member != null -> body.crew(member, variable, t, currentEnvironment, activityOf(subjectId, t))
-            else -> body.habitat(variable, t, currentEnvironment)
+            member != null -> body.crew(member, variable, t, activityOf(subjectId, t))
+            else -> body.habitat(variable, t)
         }
     }
 
