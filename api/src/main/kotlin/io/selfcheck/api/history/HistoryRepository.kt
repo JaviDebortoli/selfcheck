@@ -99,6 +99,43 @@ class HistoryRepository(private val jdbc: JdbcTemplate, private val json: Object
         fromMissionTimeMs,
     ).groupBy({ it.first }, { it.second })
 
+    /**
+     * Values of one variable in [fromMs, toMs] grouped in buckets of [bucketMs] (TimescaleDB time_bucket). Each point
+     * sits at the mean time of its measurements, so a bucket with one measurement is that measurement.
+     */
+    fun series(subjectId: String, variable: String, fromMs: Long, toMs: Long, bucketMs: Long): List<SeriesPoint> = jdbc.query(
+        """
+        SELECT avg(mission_time_ms)::bigint AS t, avg(value) AS avg, min(value) AS min, max(value) AS max, count(*) AS n
+        FROM measurement
+        WHERE subject_id = ? AND variable = ? AND mission_time_ms BETWEEN ? AND ?
+        GROUP BY time_bucket(?, mission_time_ms)
+        ORDER BY t
+        """.trimIndent(),
+        { rs, _ -> SeriesPoint(rs.getLong("t"), rs.getDouble("avg"), rs.getDouble("min"), rs.getDouble("max"), rs.getInt("n")) },
+        subjectId,
+        variable,
+        fromMs,
+        toMs,
+        bucketMs,
+    )
+
+    /** Mission time of the first measurement (the mission start), null before any measurement. */
+    fun firstMeasurementMs(): Long? = jdbc.queryForObject("SELECT min(mission_time_ms) FROM measurement", Long::class.javaObjectType)
+
+    /** Every state change of one variable up to [toMs], oldest first. */
+    fun stateChanges(subjectId: String, variable: String, toMs: Long): List<StateChange> = jdbc.query(
+        """
+        SELECT mission_time_ms, state
+        FROM variable_state
+        WHERE subject_id = ? AND variable = ? AND mission_time_ms <= ?
+        ORDER BY mission_time_ms
+        """.trimIndent(),
+        { rs, _ -> StateChange(rs.getLong("mission_time_ms"), rs.getString("state")) },
+        subjectId,
+        variable,
+        toMs,
+    )
+
     /** Empties every history table (mission reset). */
     fun clear() {
         jdbc.execute("TRUNCATE measurement, variable_state, summary_state, alert")
