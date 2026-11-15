@@ -20,35 +20,25 @@ object CustomEvaluators {
     const val HOUR_MS = 3_600_000L
 
     /**
-     * Career effective dose (spec section 7.4): previous missions + this mission.
-     * OBSERVATION when the accumulated dose, or its projection to the end of the mission, reaches the observation cut.
-     * Projection = accumulated + mean mission dose rate x days left of the planned duration.
+     * Career effective dose (spec section 7.4): previous missions + this mission, against the accumulated dose only
+     * (NASA-STD-3001 [V1 4030] limits the total career dose; NASA gives no projection method, so none is used).
      */
     val careerDose = CustomEvaluator { def, input, _ ->
         val missionDose = input.measurement.value
         val prior = input.history?.priorEffectiveDoseMsv
             ?: return@CustomEvaluator Evaluation(HealthState.NOT_EVALUABLE, ReasonCodes.NO_REFERENCE, mapOf("unit" to def.unit))
         val career = prior + missionDose
-        val elapsedDays = input.now / DAY_MS
-        val plannedDays = input.profile?.plannedDurationDays?.toDouble()
-        val projected = if (plannedDays != null && elapsedDays > 0) {
-            career + missionDose / elapsedDays * (plannedDays - elapsedDays).coerceAtLeast(0.0)
-        } else {
-            career
-        }
         val limit = def.param("limitMsv")
         val observation = def.param("observationMsv")
         val params = mapOf(
             "value" to career.format(),
             "unit" to def.unit,
-            "projected" to projected.format(),
             "limit" to limit.format(),
             "observation" to observation.format(),
         )
         val (state, code) = when {
             career >= limit -> HealthState.ALERT to ReasonCodes.CAREER_DOSE_LIMIT
             career >= observation -> HealthState.OBSERVATION to ReasonCodes.CAREER_DOSE_NEAR_LIMIT
-            projected >= observation -> HealthState.OBSERVATION to ReasonCodes.CAREER_DOSE_PROJECTED
             else -> HealthState.NORMAL to ReasonCodes.IN_RANGE
         }
         Evaluation(state, code, params, value = career)

@@ -44,16 +44,14 @@ class NasaLimitsTest {
     }
 
     @Test
-    fun `career dose - observation when the projection to the end of the mission reaches 480 mSv`() {
+    fun `career dose - only the accumulated dose counts, a high early dose rate is not projected`() {
         engine.profile(plannedDays = 180)
-        engine.history(priorDose = 0.0)
-        // 3 mSv/day for 10 days: 30 + 3 x 170 = 540 projected.
-        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 30.0, 10 * DAY))
-        assertEquals(OBSERVATION, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
-        assertEquals(ReasonCodes.CAREER_DOSE_PROJECTED, engine.codeOf(Variable.CAREER_EFFECTIVE_DOSE))
-        // 1 mSv/day: 10 + 170 = 180 projected.
-        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 10 * DAY + 1))
+        engine.history(priorDose = 45.0)
+        // A solar event early in the mission: 320 mSv on day 1 (the old projection gave far above 480).
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 320.0, DAY / 2))
         assertEquals(NORMAL, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(NORMAL, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
     }
 
     @Test

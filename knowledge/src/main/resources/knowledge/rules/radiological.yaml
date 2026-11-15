@@ -19,17 +19,17 @@ variables:
     review: true
     notes:
       - Career dose = dose from previous missions (medical history) + mission effective dose.
-      - Projection = career dose + mean mission dose rate x days left of the planned duration.
+      - Evaluated on the accumulated dose only. NASA-STD-3001 [V1 4030] limits the total career dose and gives no projection method, so the projection to the end of the mission was removed (team decision).
     texts:
       es:
         name: Dosis efectiva acumulada de carrera
-        measures: Dosis de misiones anteriores más la de esta misión, comparada con el límite de carrera de la NASA de 600 mSv. También se proyecta al final de la misión.
+        measures: Dosis de misiones anteriores más la de esta misión, comparada con el límite de carrera de la NASA de 600 mSv.
         guidance:
           OBSERVATION: "Revisar la dosis acumulada y la proyección para el resto de la misión. Comunicar al equipo de radioprotección y revisar las actividades futuras para reducir la exposición."
           ALERT: "Activar el protocolo de exposición y no continuar con la actividad. El equipo responsable evalúa la exposición y la necesidad de modificar actividades."
       en:
         name: Career effective dose
-        measures: Dose from previous missions plus this mission, compared with NASA's 600 mSv career limit. It is also projected to the end of the mission.
+        measures: Dose from previous missions plus this mission, compared with NASA's 600 mSv career limit.
         guidance:
           OBSERVATION: "Review the accumulated dose and its projection for the rest of the mission. Inform the radiation protection team and review upcoming activities to reduce exposure."
           ALERT: "Activate the exposure protocol and do not continue the activity. The responsible team assesses the exposure and whether activities must change."

@@ -56,9 +56,6 @@ reasons:
   CAREER_DOSE_NEAR_LIMIT:
     es: "Dosis de carrera {value} mSv: 80 % del límite ({observation} mSv)"
     en: "Career dose {value} mSv: 80 % of the limit ({observation} mSv)"
-  CAREER_DOSE_PROJECTED:
-    es: "Proyección al final de la misión: {projected} mSv"
-    en: "Projected to the end of the mission: {projected} mSv"
   NO_ACTIVE_EVENT:
     es: "Sin evento solar activo"
     en: "No active solar event"
