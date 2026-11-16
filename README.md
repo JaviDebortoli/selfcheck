@@ -112,11 +112,11 @@ the frontend translates them with the catalog of the chosen language, built from
 
 ## Documentation
 
-| Document | Language |
-| --- | --- |
-| [Functional documentation](2026_SelfCheck_DocumentaciónFuncional.pdf) | Spanish |
-| [Technical documentation](2026_SelfCheck_Technical%20Documentation.pdf) / [Documentación técnica](2026_SelfCheck_Documentación%20técnica.pdf) | English / Spanish |
-| [User manual](2026_SelfCheck_UserManual.pdf) / [Manual de usuario](2026_SelfCheck_ManualUsuario.pdf) | English / Spanish |
+| Document | English | Spanish |
+| --- | --- | --- |
+| Functional documentation | [Functional Documentation](2026_SelfCheck_FunctionalDocumentation.pdf) | [Documentación funcional](2026_SelfCheck_Documentación%20funcional.pdf) |
+| Technical documentation | [Technical Documentation](2026_SelfCheck_Technical%20Documentation.pdf) | [Documentación técnica](2026_SelfCheck_Documentación%20técnica.pdf) |
+| User manual | [User Manual](2026_SelfCheck_UserManual.pdf) | [Manual de usuario](2026_SelfCheck_Manual%20Usuario.pdf) |
 
 ## Tests
 
