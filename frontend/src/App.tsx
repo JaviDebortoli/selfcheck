@@ -44,7 +44,7 @@ function store(key: string, value: string) {
 export function App() {
   const { snapshot, connection } = useMission()
   const [screen, setScreen] = useState<Screen>(screenFromHash)
-  const [language, setLanguage] = useState<Language>(() => stored('selfcheck.language', 'es', ['es', 'en']))
+  const [language, setLanguage] = useState<Language>(() => stored('selfcheck.language', 'en', ['en', 'es']))
   const [theme, setTheme] = useState<Theme>(() => stored('selfcheck.theme', 'dark', ['dark', 'light']))
   const [crewMemberId, setCrewMemberId] = useState('crew-1')
   const catalog = useCatalog(language)

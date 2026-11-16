@@ -74,8 +74,8 @@ export function AppHeader({ t, badge, title, subtitle, missionTimeMs, language, 
           {theme === 'dark' ? t.theme.light : t.theme.dark}
         </button>
         <select className="chip" value={language} onChange={(e) => onLanguage(e.target.value as Language)} aria-label="Language">
-          <option value="es">ES</option>
           <option value="en">EN</option>
+          <option value="es">ES</option>
         </select>
         <span className="chip chip-info">{t.simulatedData}</span>
       </div>
