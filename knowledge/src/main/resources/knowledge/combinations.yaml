@@ -1,0 +1,62 @@
+# Clinical combinations (spec section 7.13, to be reviewed). A combination never changes a color:
+# it adds a high-priority alert with its interpretation. The logic lives in the engine (Combinations.kt).
+combinations:
+  - code: COMBO_HYPOVOLEMIA
+    texts:
+      es:
+        name: "FC alta con presión sistólica baja"
+        interpretation: "Posible hipovolemia, deshidratación o sangrado."
+      en:
+        name: "High heart rate with low systolic pressure"
+        interpretation: "Possible hypovolaemia, dehydration or bleeding."
+  - code: COMBO_RESPIRATORY_COMPROMISE
+    texts:
+      es:
+        name: "SpO2 baja con frecuencia respiratoria alta o dificultad respiratoria"
+        interpretation: "Posible compromiso respiratorio."
+      en:
+        name: "Low SpO2 with high respiratory rate or respiratory distress"
+        interpretation: "Possible respiratory compromise."
+  - code: COMBO_NEUTROPENIC_INFECTION
+    params: { temperature: 38.0, neutrophils: 500 }
+    texts:
+      es:
+        name: "Temperatura de 38 °C o más con neutrófilos por debajo de 500/µL"
+        interpretation: "Posible infección en neutropenia."
+      en:
+        name: "Temperature of 38 °C or more with neutrophils below 500/µL"
+        interpretation: "Possible infection with neutropenia."
+  - code: COMBO_ANEMIA_HYPOXIA
+    texts:
+      es:
+        name: "Hemoglobina baja con FC alta o dificultad respiratoria"
+        interpretation: "Anemia con menor transporte de oxígeno."
+      en:
+        name: "Low hemoglobin with high heart rate or respiratory distress"
+        interpretation: "Anaemia with reduced oxygen transport."
+  - code: COMBO_AKI_HYPERKALEMIA
+    params: { potassium: 6.0 }
+    texts:
+      es:
+        name: "Creatinina en ascenso con potasio de 6 mmol/L o más"
+        interpretation: "Posible lesión renal aguda con hiperpotasemia."
+      en:
+        name: "Rising creatinine with potassium of 6 mmol/L or more"
+        interpretation: "Possible acute kidney injury with hyperkalaemia."
+  - code: COMBO_BONE_REMODELING
+    params: { urinaryCalcium: 300 }
+    texts:
+      es:
+        name: "Calcio urinario alto con densidad ósea en Alerta"
+        interpretation: "Remodelado óseo alterado y riesgo de litiasis."
+      en:
+        name: "High urinary calcium with bone density in Alert"
+        interpretation: "Altered bone remodelling and kidney stone risk."
+  - code: COMBO_RADIATION_EXPOSURE
+    texts:
+      es:
+        name: "Evento solar activo con dosis de carrera cerca del límite"
+        interpretation: "Exposición radiológica significativa."
+      en:
+        name: "Active solar event with career dose near the limit"
+        interpretation: "Significant radiation exposure."

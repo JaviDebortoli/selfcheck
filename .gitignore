@@ -1,0 +1,26 @@
+# Gradle / JVM
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.class
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# OS / env
+.DS_Store
+Thumbs.db
+.env
+*.tsbuildinfo
+
+# Local working documents
+spec.md
+PLAN.md
+.atl/

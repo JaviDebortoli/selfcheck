@@ -1,0 +1,33 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") }
+}
+
+dependencies {
+    implementation(project(":contracts"))
+    implementation(project(":knowledge"))
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.apache.kafka:kafka-streams")
+    implementation(libs.confluent.streams.avro.serde)
+
+    testImplementation("org.apache.kafka:kafka-streams-test-utils")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<Test> { useJUnitPlatform() }
+
+tasks.bootJar { archiveFileName.set("${project.name}.jar") }
+tasks.jar { enabled = false }

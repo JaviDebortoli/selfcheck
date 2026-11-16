@@ -1,0 +1,13 @@
+# Rapid atrial fibrillation (spec section 9): fast irregular rhythm (Alert), mildly low blood pressure and oxygen
+# saturation (Observation). Pressure is measured once a day, so the scenario measures it right away.
+id: atrial-fibrillation
+target: CREW_MEMBER
+texts:
+  es: { name: "Fibrilación auricular", description: "Fibrilación auricular rápida: frecuencia cardíaca de unos 148 lpm con ritmo irregular (Alerta), presión levemente baja (80/50 mmHg) y saturación de oxígeno levemente disminuida (93 %), en Observación, durante 40 minutos." }
+  en: { name: "Atrial fibrillation", description: "Rapid atrial fibrillation: heart rate around 148 bpm with an irregular rhythm (Alert), mildly low blood pressure (80/50 mmHg) and mildly low oxygen saturation (93 %), under Observation, for 40 minutes." }
+effects:
+  - { variable: HEART_RATE, value: 148, rhythm: ATRIAL_FIBRILLATION_RAPID, until: PT40M }
+  - { variable: SYSTOLIC_BP, value: 80, until: PT40M }
+  - { variable: DIASTOLIC_BP, value: 50, until: PT40M }
+  - { variable: SPO2, value: 93, until: PT40M }
+measureNow: [HEART_RATE, SYSTOLIC_BP, DIASTOLIC_BP, SPO2]

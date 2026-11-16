@@ -1,0 +1,12 @@
+# Accelerated strength and bone loss (spec section 9): strength below 80 % and bone density below the NASA limit.
+id: muscle-bone-loss
+target: CREW_MEMBER
+texts:
+  es: { name: "Pérdida acelerada de fuerza y hueso", description: "Fuerza por debajo del 80 % y densidad ósea por debajo del límite NASA respecto del valor previo al vuelo." }
+  en: { name: "Accelerated strength and bone loss", description: "Strength below 80 % and bone density below the NASA limit against the pre-flight value." }
+effects:
+  - { variable: MUSCLE_STRENGTH, percentOfReference: 76, until: P60D }
+  - { variable: BMD_HIP, percentOfReference: 93, until: P60D }
+  - { variable: BMD_SPINE, percentOfReference: 94, until: P60D }
+  - { variable: BMD_FEMORAL_NECK, percentOfReference: 88, until: P60D }
+measureNow: [MUSCLE_STRENGTH, BMD_HIP, BMD_SPINE, BMD_FEMORAL_NECK]

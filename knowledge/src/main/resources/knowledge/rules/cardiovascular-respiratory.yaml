@@ -1,0 +1,158 @@
+# Cardiovascular and respiratory group (spec section 7.5).
+# thresholds are checked in order ALERT, OBSERVATION, NORMAL; the first matching condition wins.
+group: CARDIOVASCULAR_RESPIRATORY
+texts:
+  es:
+    name: "Cardiovascular y respiratorio"
+  en:
+    name: "Cardiovascular and respiratory"
+variables:
+  - variable: HEART_RATE
+    unit: bpm
+    interval: PT1S
+    expiry: PT1M
+    context: REST
+    thresholds:
+      ALERT: ["< 40", "> 130"]
+      OBSERVATION: ["< 45", "> 100"]
+      NORMAL: ["45..100"]
+    source: Rules document (WHO values); low normal edge from Hughson et al. 2012 (astronaut resting heart rate 54.9 +/- 9.6 bpm, unchanged in flight)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): Normal 45-100 includes the astronaut mean minus 1 SD (Hughson 2012). Observation 40-44 or 101-130, Alert below 40 or above 130."
+    texts:
+      es:
+        name: Frecuencia cardíaca
+        measures: "Latidos del corazón por minuto."
+        guidance:
+          OBSERVATION: "Detener el ejercicio, descansar unos minutos y volver a medir. Registrar si hay palpitaciones, mareos o debilidad, y comunicar al equipo médico."
+          ALERT: "Interrumpir la actividad, adoptar una posición segura y avisar de inmediato al equipo médico. Si aparece dolor torácico, dificultad respiratoria o sensación de inestabilidad, activar el protocolo de emergencia."
+      en:
+        name: Heart rate
+        measures: "Heartbeats per minute."
+        guidance:
+          OBSERVATION: "Stop exercising, rest a few minutes and measure again. Note any palpitations, dizziness or weakness, and inform the medical team."
+          ALERT: "Stop the activity, get into a safe position and notify the medical team immediately. If chest pain, difficulty breathing or a feeling of instability appears, activate the emergency protocol."
+
+  - variable: SYSTOLIC_BP
+    unit: mmHg
+    interval: P1D
+    thresholds:
+      ALERT: ["< 72", ">= 140"]
+      OBSERVATION: ["< 82", "> 120"]
+      NORMAL: ["82..120"]
+    source: Rules document (WHO values); low side shifted by the in-flight 24 h drop of Norsk et al. 2015 (-8 mmHg systolic)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low edges move down 8 mmHg (Norsk 2015; Hughson 2012 saw no change). Normal 82-120, Observation 72-81 or 121-139, Alert below 72 or 140 or more."
+    texts:
+      es:
+        name: Presión sistólica
+        measures: Presión de la sangre en las arterias cuando el corazón late (valor alto de la presión arterial).
+        guidance:
+          OBSERVATION: "Evitar esfuerzos y repetir la medición tras 5 minutos de reposo, con técnica correcta. Registrar si hay cefalea, mareos o visión borrosa."
+          ALERT: "Suspender la actividad y solicitar evaluación médica inmediata. Avisar si hay dolor torácico, déficit neurológico, falta de aire o alteraciones visuales. Con 180 mmHg o más, protocolo urgente."
+      en:
+        name: Systolic blood pressure
+        measures: Arterial pressure while the heart beats (the upper blood pressure value).
+        guidance:
+          OBSERVATION: "Avoid exertion and measure again after 5 minutes of rest, with the correct technique. Note any headache, dizziness or blurred vision."
+          ALERT: "Stop the activity and request an immediate medical evaluation. Report chest pain, neurological deficit, shortness of breath or visual changes. At 180 mmHg or more, urgent protocol."
+
+  - variable: DIASTOLIC_BP
+    unit: mmHg
+    interval: P1D
+    thresholds:
+      ALERT: ["< 41", ">= 90"]
+      OBSERVATION: ["< 51", "> 80"]
+      NORMAL: ["51..80"]
+    source: Rules document (WHO values); low side shifted by the in-flight 24 h drop of Norsk et al. 2015 (-9 mmHg diastolic)
+    notes:
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low edges move down 9 mmHg (Norsk 2015; Hughson 2012 saw no change). Normal 51-80, Observation 41-50 or 81-89, Alert below 41 or 90 or more."
+    texts:
+      es:
+        name: Presión diastólica
+        measures: Presión de la sangre en las arterias entre latidos (valor bajo de la presión arterial).
+        guidance:
+          OBSERVATION: "Repetir la medición tras 5 minutos de reposo y verificar la técnica. Comunicar el resultado al equipo médico."
+          ALERT: "Detener la actividad y solicitar evaluación médica prioritaria, más aún si hay dolor torácico, dificultad respiratoria, confusión o síntomas neurológicos. Con 120 mmHg o más, activar el protocolo de emergencia."
+      en:
+        name: Diastolic blood pressure
+        measures: Arterial pressure between beats (the lower blood pressure value).
+        guidance:
+          OBSERVATION: "Measure again after 5 minutes of rest and check the technique. Report the result to the medical team."
+          ALERT: "Stop the activity and request a priority medical evaluation, especially with chest pain, difficulty breathing, confusion or neurological symptoms. At 120 mmHg or more, activate the emergency protocol."
+
+  - variable: SPO2
+    unit: "%"
+    interval: PT1S
+    expiry: PT1M
+    thresholds:
+      ALERT: ["<= 91"]
+      OBSERVATION: ["< 95"]
+      NORMAL: ["95..100"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: SpO2
+        measures: Saturación de oxígeno en sangre medida por pulsioximetría.
+        guidance:
+          OBSERVATION: "Detener el ejercicio, permanecer en reposo y verificar la colocación del oxímetro. Repetir la medición y comunicar el resultado."
+          ALERT: "Avisar de inmediato al equipo médico, suspender toda actividad física y seguir el protocolo de evaluación respiratoria. Si hay falta de aire intensa, confusión o coloración azulada de piel y mucosas, activar la respuesta de emergencia."
+      en:
+        name: SpO2
+        measures: Blood oxygen saturation measured by pulse oximetry.
+        guidance:
+          OBSERVATION: "Stop exercising, stay at rest and check the oximeter placement. Measure again and report the result."
+          ALERT: "Notify the medical team immediately, stop all physical activity and follow the respiratory assessment protocol. With severe shortness of breath, confusion or bluish skin and lips, activate the emergency response."
+
+  - variable: RESPIRATORY_RATE
+    unit: rpm
+    interval: PT1S
+    expiry: PT1M
+    alarmSigns: [RESPIRATORY_DISTRESS]
+    thresholds:
+      ALERT: ["< 8", "> 30"]
+      OBSERVATION: ["< 12", "> 20"]
+      NORMAL: ["12..20"]
+    source: Rules document (WHO values)
+    texts:
+      es:
+        name: Frecuencia respiratoria
+        measures: Respiraciones por minuto.
+        guidance:
+          OBSERVATION: "Detener la actividad física, descansar y repetir el recuento durante un minuto. Evaluar si hay tos, sensación de falta de aire o dolor torácico."
+          ALERT: "Interrumpir de inmediato la actividad y avisar al equipo médico. Activar el protocolo de emergencia si hay dificultad respiratoria importante, respiración irregular, confusión o pérdida de conciencia."
+      en:
+        name: Respiratory rate
+        measures: Breaths per minute.
+        guidance:
+          OBSERVATION: "Stop physical activity, rest and count again for one minute. Check for cough, shortness of breath or chest pain."
+          ALERT: "Stop the activity immediately and notify the medical team. Activate the emergency protocol with marked difficulty breathing, irregular breathing, confusion or loss of consciousness."
+
+  - variable: ECG_RHYTHM
+    unit: ""
+    derivedFrom: [HEART_RATE]
+    interval: PT1S
+    expiry: PT1M
+    alarmSigns: [CHEST_PAIN, SYNCOPE]
+    labelStates:
+      NORMAL: [SINUS]
+      OBSERVATION: [PREMATURE_BEATS, OTHER_ARRHYTHMIA]
+      ALERT: [VENTRICULAR_FIBRILLATION, VENTRICULAR_TACHYCARDIA, ASYSTOLE, COMPLETE_AV_BLOCK, ATRIAL_FIBRILLATION_RAPID]
+    source: American Heart Association resuscitation guidelines (to cite)
+    review: true
+    notes:
+      - The rhythm arrives classified by the ship's cardiac monitor, as a label next to the heart rate.
+      - A slow or fast sinus rhythm is flagged by the heart rate rule.
+    texts:
+      es:
+        name: Ritmo/ECG
+        measures: Ritmo del corazón clasificado por el monitor cardíaco de la nave.
+        guidance:
+          OBSERVATION: "Guardar el trazo electrocardiográfico, evitar el ejercicio intenso y comunicar el hallazgo al equipo médico y sus síntomas acompañantes para su revisión."
+          ALERT: "Suspender la actividad, permanecer en posición segura y solicitar asistencia médica inmediata. Si hay síncope, dolor torácico, falta de aire o inestabilidad, activar el protocolo de emergencia."
+      en:
+        name: Rhythm/ECG
+        measures: Heart rhythm classified by the ship's cardiac monitor.
+        guidance:
+          OBSERVATION: "Save the ECG trace, avoid intense exercise and report the finding and any accompanying symptoms to the medical team for review."
+          ALERT: "Stop the activity, stay in a safe position and request immediate medical assistance. With fainting, chest pain, shortness of breath or instability, activate the emergency protocol."

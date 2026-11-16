@@ -1,0 +1,24 @@
+# Dehydration (spec section 9): fluid intake below target for three days, with a fast heart rate, low blood pressure,
+# hemoconcentration (hematocrit, hemoglobin and red blood cells up), urea and creatinine up, high sodium, low
+# potassium and high urine specific gravity. Hemoglobin, red cells and hematocrit use a separate value for women,
+# whose cuts are lower. Analyses and readings taken once a day are measured right away; creatinine goes before urea
+# and fluid intake last, so the rules that read other variables already see the dehydration findings.
+id: dehydration
+target: CREW_MEMBER
+texts:
+  es: { name: "Deshidratación", description: "Durante tres días: ingesta de líquidos por debajo del objetivo, frecuencia cardíaca de 112 lpm, presión baja (78/48 mmHg), hematocrito, hemoglobina y glóbulos rojos aumentados, urea y creatinina altas, sodio alto, potasio bajo y densidad urinaria alta." }
+  en: { name: "Dehydration", description: "For three days: fluid intake below target, heart rate of 112 bpm, low blood pressure (78/48 mmHg), raised hematocrit, hemoglobin and red blood cells, high urea and creatinine, high sodium, low potassium and high urine specific gravity." }
+effects:
+  - { variable: FLUID_INTAKE, percentOfReference: 55, until: P3D }
+  - { variable: HEART_RATE, value: 112, until: P3D }
+  - { variable: SYSTOLIC_BP, value: 78, until: P3D }
+  - { variable: DIASTOLIC_BP, value: 48, until: P3D }
+  - { variable: HEMATOCRIT, value: 53, femaleValue: 49, until: P3D }
+  - { variable: HEMOGLOBIN, value: 18.2, femaleValue: 16.8, until: P3D }
+  - { variable: RED_BLOOD_CELLS, value: 6.1, femaleValue: 5.4, until: P3D }
+  - { variable: UREA, value: 62, until: P3D }
+  - { variable: CREATININE, value: 1.6, until: P3D }
+  - { variable: SODIUM, value: 149, until: P3D }
+  - { variable: POTASSIUM, value: 3.2, until: P3D }
+  - { variable: URINE_SPECIFIC_GRAVITY, value: 1.034, until: P3D }
+measureNow: [HEART_RATE, SYSTOLIC_BP, DIASTOLIC_BP, HEMATOCRIT, HEMOGLOBIN, RED_BLOOD_CELLS, CREATININE, UREA, SODIUM, POTASSIUM, URINE_SPECIFIC_GRAVITY, FLUID_INTAKE]

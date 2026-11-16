@@ -1,0 +1,101 @@
+# Habitat (spec section 7.11). Shared; it has its own state and never changes a crew member's state.
+group: HABITAT
+texts:
+  es:
+    name: "Hábitat"
+  en:
+    name: "Habitat"
+variables:
+  - variable: CO2
+    unit: mmHg
+    interval: PT1S
+    expiry: PT1M
+    window: PT1H
+    thresholds:
+      ALERT: ["> 3"]
+      NORMAL: ["<= 3"]
+    source: NASA-STD-3001 Vol. 2 [V2 6004]
+    notes: [Evaluated on the 1-hour mean of mission time., Recommendations marked as proposed in the professional rules document; to be reviewed.]
+    texts:
+      es:
+        name: CO2
+        measures: Presión parcial de dióxido de carbono en el aire, promedio de la última hora.
+        guidance:
+          ALERT: "Informar al centro de control, revisar la ventilación y el sistema de remoción de CO2, y registrar si la tripulación tiene cefalea."
+      en:
+        name: CO2
+        measures: Carbon dioxide partial pressure in the air, mean of the last hour.
+        guidance:
+          ALERT: "Inform the control center, check ventilation and the CO2 removal system, and note whether the crew has headaches."
+
+  - variable: NOISE_DAY
+    unit: dBA
+    interval: P1D
+    window: PT16H
+    thresholds:
+      ALERT: ["> 72"]
+      OBSERVATION: ["> 60"]
+      NORMAL: ["<= 60"]
+    source: ISS noise flight rule (Limardo et al., Inter-Noise 2021)
+    notes:
+      - 16-hour mean of the daytime readings; treated as one daily value for expiry (36 h), so it keeps its state overnight.
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
+    texts:
+      es:
+        name: Ruido de día
+        measures: Nivel de ruido promedio de las 16 horas de día.
+        guidance:
+          OBSERVATION: "Se recomienda usar protección auditiva e identificar las fuentes de ruido."
+          ALERT: "Uso obligatorio de protección auditiva; reducir el tiempo en las zonas ruidosas e informar al centro de control."
+      en:
+        name: Daytime noise
+        measures: Mean noise level over the 16 daytime hours.
+        guidance:
+          OBSERVATION: "Hearing protection is recommended; identify the noise sources."
+          ALERT: "Hearing protection is mandatory; reduce time in noisy areas and inform the control center."
+
+  - variable: NOISE_NIGHT
+    unit: dBA
+    interval: P1D
+    window: PT8H
+    thresholds:
+      ALERT: ["> 62"]
+      OBSERVATION: ["> 50"]
+      NORMAL: ["<= 50"]
+    source: ISS noise flight rule (Limardo et al., Inter-Noise 2021)
+    notes:
+      - 8-hour mean of the night readings; treated as one daily value for expiry (36 h), so it keeps its state during the day.
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
+    texts:
+      es:
+        name: Ruido de noche
+        measures: Nivel de ruido promedio de las 8 horas de noche.
+        guidance:
+          OBSERVATION: "Informar al tripulante; usar tapones u otra protección durante el sueño y revisar las fuentes de ruido del área de descanso."
+          ALERT: "Usar protección auditiva al dormir, reducir las fuentes de ruido del área de descanso e informar al centro de control."
+      en:
+        name: Night-time noise
+        measures: Mean noise level over the 8 night hours.
+        guidance:
+          OBSERVATION: "Inform the crew member; use earplugs or other protection while sleeping and check the noise sources in the rest area."
+          ALERT: "Use hearing protection while sleeping, reduce noise sources in the rest area and inform the control center."
+
+  - variable: AIRBORNE_DUST
+    unit: mg/m³
+    interval: PT1M
+    thresholds:
+      ALERT: ["> 0.3"]
+      NORMAL: ["<= 0.3"]
+    source: HRP lunar dust limit
+    notes: [Measured always and evaluated always - the system does not tell mission types apart; dust above the lunar dust limit gives Alert wherever it is detected (team decision)., Recommendations marked as proposed in the professional rules document; to be reviewed.]
+    texts:
+      es:
+        name: Polvo en el aire
+        measures: "Concentración de polvo en el aire del hábitat."
+        guidance:
+          ALERT: "Usar protección respiratoria, limpiar y filtrar el aire del hábitat y limitar la exposición hasta que baje."
+      en:
+        name: Airborne dust
+        measures: "Dust concentration in the habitat air."
+        guidance:
+          ALERT: "Use respiratory protection, clean and filter the habitat air and limit exposure until it drops."

@@ -1,0 +1,427 @@
+/* Quick view (spec section 8.2): 1280x800, no empty spaces. Main panel 2x2, then 8 cards. */
+.quick-view {
+  flex: 1;
+  /* Upper bound of the range: beyond it the cards stop growing and the grid stays centered. */
+  width: 100%;
+  max-width: 1600px;
+  max-height: 1000px;
+  /* Below the scaling range the page scrolls; the cards never change place. */
+  min-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(220px, 1fr));
+  grid-template-areas:
+    'main main cardio habitat'
+    'main main radio msk'
+    'metab neuro hemato digest';
+  gap: 16px;
+  padding: 16px 24px 20px;
+}
+
+.status-panel {
+  grid-area: main;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 16px 18px;
+  background: color-mix(in srgb, var(--state-bg) 55%, var(--surface));
+}
+.area-cardiovascular_respiratory {
+  grid-area: cardio;
+}
+.area-habitat {
+  grid-area: habitat;
+}
+.area-radiological {
+  grid-area: radio;
+}
+.area-musculoskeletal_bone {
+  grid-area: msk;
+}
+.area-metabolic_renal_nutritional {
+  grid-area: metab;
+}
+.area-neurological_cognitive_behavioral {
+  grid-area: neuro;
+}
+.area-hematological_immune {
+  grid-area: hemato;
+}
+.area-digestive_general {
+  grid-area: digest;
+}
+
+.ecg-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.ecg-screen {
+  border-radius: var(--r-md);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 8px;
+}
+.ecg-canvas {
+  width: 100%;
+  display: block;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  border-radius: var(--r-sm);
+}
+
+.status-area {
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* Crew actions (bottom right of the monitor): two clearly different buttons. */
+.crew-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 250px;
+}
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.action-button.training {
+  border: 1px solid var(--info);
+  background: var(--info-bg);
+  color: var(--info);
+}
+.action-button.training.active {
+  background: var(--info);
+  color: var(--bg);
+}
+.action-button.assistance {
+  border: 1px solid var(--alert);
+  background: var(--alert-bg);
+  color: var(--alert);
+}
+.action-button.assistance.active {
+  background: var(--alert);
+  color: var(--bg);
+  animation: assistance-pulse 1.6s ease-in-out infinite;
+}
+@keyframes assistance-pulse {
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--alert) 25%, transparent);
+  }
+}
+.action-error {
+  color: var(--alert);
+}
+.headline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 6px;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--state);
+}
+.headline span {
+  color: var(--text);
+}
+.status-figures {
+  display: flex;
+  gap: 40px;
+}
+
+.big-number {
+  font-size: 1.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.unit {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text-2);
+}
+.small {
+  font-size: 0.85rem;
+}
+
+.group-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 14px 16px;
+  color: var(--text);
+  background: var(--surface);
+  transition: transform 0.15s, border-color 0.3s;
+}
+.group-card:not(.state-normal):not(.state-none) {
+  background: color-mix(in srgb, var(--state-bg) 55%, var(--surface));
+}
+.group-card:hover {
+  transform: translateY(-2px);
+}
+.group-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.group-card-header h2 {
+  flex: 1;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+.group-card-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.group-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.details {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+.metric-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.metric strong {
+  font-size: 1.15rem;
+}
+.metric:not(.state-normal):not(.state-none) strong,
+.metric-state {
+  color: var(--state);
+}
+.metric-state {
+  display: inline-flex;
+}
+
+/* ---- animated card graphics: each one moves with what it measures (spec section 8.1) ---- */
+.pulse-ring {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  flex: none;
+  border-radius: 50%;
+  border: 6px solid var(--state);
+  color: var(--state);
+  animation: pulse var(--beat, 1s) ease-out infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--state) 45%, transparent);
+  }
+  15% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+.fan {
+  color: var(--state);
+  display: inline-flex;
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+.dose-ring {
+  flex: none;
+  transform: rotate(-90deg);
+}
+.ring-track {
+  fill: none;
+  stroke: var(--raised);
+  stroke-width: 8;
+}
+.ring-fill {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 8;
+  stroke-linecap: round;
+  animation: ring-glow 3s ease-in-out infinite;
+  transition: stroke-dasharray 0.8s;
+}
+@keyframes ring-glow {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bar-label strong {
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+.bar-track {
+  position: relative;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--raised);
+}
+.bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--state);
+  animation: bar-grow 1.2s ease-out, bar-shimmer 3s ease-in-out 1.2s infinite;
+  transform-origin: left;
+}
+.bar.state-none .bar-fill {
+  background: var(--text-3);
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes bar-shimmer {
+  50% {
+    opacity: 0.7;
+  }
+}
+.bar-mark {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 18px;
+  background: var(--text);
+}
+
+.flask {
+  flex: none;
+}
+.flask-bg {
+  fill: var(--raised);
+}
+.flask-level {
+  transition: transform 1s;
+}
+.flask-wave {
+  fill: var(--state);
+  animation: wave 2.4s linear infinite;
+}
+.flask.state-none .flask-wave {
+  fill: var(--text-3);
+}
+@keyframes wave {
+  to {
+    transform: translateX(24px);
+  }
+}
+.flask-outline {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 2;
+}
+
+.sleep-wave {
+  flex: none;
+  overflow: hidden;
+}
+.sleep-wave path {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: wave-slide 3s linear infinite;
+}
+@keyframes wave-slide {
+  to {
+    transform: translateX(-40px);
+  }
+}
+
+.bubbles {
+  flex: none;
+}
+.bubbles circle {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 4;
+  animation: float 3s ease-in-out infinite;
+}
+.bubbles circle:nth-child(2) {
+  animation-delay: -1s;
+}
+.bubbles circle.filled {
+  fill: var(--state);
+  animation-delay: -2s;
+}
+@keyframes float {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.thermometer {
+  flex: none;
+}
+.thermo-tube {
+  fill: var(--raised);
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+}
+.thermo-fill,
+.thermo-bulb {
+  fill: var(--state);
+}
+.thermo-fill {
+  animation: ring-glow 2.5s ease-in-out infinite;
+}

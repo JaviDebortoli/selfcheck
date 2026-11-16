@@ -1,0 +1,123 @@
+# Radiological group (spec section 7.4).
+group: RADIOLOGICAL
+texts:
+  es:
+    name: "Radiológico"
+  en:
+    name: "Radiological"
+variables:
+  - variable: CAREER_EFFECTIVE_DOSE
+    unit: mSv
+    derivedFrom: [MISSION_EFFECTIVE_DOSE]
+    interval: PT1M
+    evaluator: CAREER_DOSE
+    params:
+      limitMsv: 600
+      # 80 % of the limit: "regla propuesta" of the rules document.
+      observationMsv: 480
+    source: NASA-STD-3001 Vol. 1 [V1 4030]; the 80 % observation cut is a proposed rule
+    review: true
+    notes:
+      - Career dose = dose from previous missions (medical history) + mission effective dose.
+      - Evaluated on the accumulated dose only. NASA-STD-3001 [V1 4030] limits the total career dose and gives no projection method, so the projection to the end of the mission was removed (team decision).
+    texts:
+      es:
+        name: Dosis efectiva acumulada de carrera
+        measures: "Dosis efectiva total recibida en la carrera: misiones anteriores más esta misión."
+        guidance:
+          OBSERVATION: "Revisar la dosis acumulada y la proyección para el resto de la misión. Comunicar al equipo de radioprotección y revisar las actividades futuras para reducir la exposición."
+          ALERT: "Activar el protocolo de exposición y no continuar con la actividad. El equipo responsable evalúa la exposición y la necesidad de modificar actividades."
+      en:
+        name: Career effective dose
+        measures: "Total effective dose received over the career: previous missions plus this mission."
+        guidance:
+          OBSERVATION: "Review the accumulated dose and its projection for the rest of the mission. Inform the radiation protection team and review upcoming activities to reduce exposure."
+          ALERT: "Activate the exposure protocol and do not continue the activity. The responsible team assesses the exposure and whether activities must change."
+
+  - variable: SOLAR_EVENT_DOSE
+    unit: mSv
+    derivedFrom: [SOLAR_PARTICLE_EVENT, MISSION_EFFECTIVE_DOSE]
+    interval: PT1M
+    evaluator: SOLAR_EVENT_DOSE
+    params:
+      limitMsv: 250
+    source: NASA-STD-3001 Vol. 1 [V1 4031]
+    notes:
+      - The engine adds up each crew member's dose from the start to the end of the event.
+    texts:
+      es:
+        name: Dosis del evento solar en curso
+        measures: "Dosis recibida desde que empezó el evento de partículas solares en curso."
+        guidance:
+          OBSERVATION: "Prepararse para ingresar al refugio radiológico; suspender o reprogramar la actividad según indique el centro de control."
+          ALERT: "Ingresar de inmediato al refugio radiológico designado, permanecer allí hasta recibir autorización y registrar la exposición recibida."
+      en:
+        name: Current solar event dose
+        measures: "Dose received since the current solar particle event started."
+        guidance:
+          OBSERVATION: "Get ready to enter the radiation shelter; suspend or reschedule the activity as the control center indicates."
+          ALERT: "Enter the designated radiation shelter immediately, stay there until cleared and record the exposure received."
+
+  - variable: MISSION_EFFECTIVE_DOSE
+    unit: mSv
+    interval: PT1M
+    stateFrom: CAREER_EFFECTIVE_DOSE
+    raisesAlerts: false
+    source: NASA-STD-3001 Vol. 1 [V1 4030]
+    notes:
+      - Added to previous missions to form the career dose, which has the limit.
+      - Takes the state of the career dose (team decision); the career dose raises the alert, so this variable does not.
+    texts:
+      es:
+        name: "Dosis equivalente/efectiva de la misión"
+        measures: "Dosis efectiva acumulada durante esta misión."
+      en:
+        name: "Mission equivalent/effective dose"
+        measures: "Effective dose accumulated during this mission."
+
+  - variable: DOSE_RATE
+    unit: µSv/h
+    interval: PT1S
+    expiry: PT1M
+    stateFrom: SOLAR_PARTICLE_EVENT
+    raisesAlerts: false
+    source: NASA-STD-3001 Vol. 1 [V1 4031] (solar event rule)
+    notes:
+      - Takes the state of the solar event alert (team decision) - Normal without an event, Observation while one is active. The rate value itself has no cut.
+      - Pending - operational dose-rate threshold without a number.
+    texts:
+      es:
+        name: "Tasa de dosis"
+        measures: "Dosis de radiación recibida por hora en este momento."
+      en:
+        name: "Dose rate"
+        measures: "Radiation dose received per hour right now."
+
+  - variable: ABSORBED_DOSE
+    unit: mGy
+    interval: PT1M
+    notes: [Shown as data - NASA limits are per organ and the system does not receive organ doses.]
+    texts:
+      es:
+        name: "Dosis absorbida"
+        measures: "Energía de radiación absorbida en la misión según el dosímetro."
+      en:
+        name: "Absorbed dose"
+        measures: "Radiation energy absorbed during the mission according to the dosimeter."
+
+  - variable: SOLAR_PARTICLE_EVENT
+    unit: ""
+    interval: PT1M
+    evaluator: SOLAR_EVENT_FLAG
+    raisesAlerts: false
+    source: NASA-STD-3001 Vol. 1 [V1 4031]
+    notes:
+      - 1 while the space weather alert reports an active solar particle event, 0 otherwise.
+      - Normal without an active event, Observation while one is active (same rule as the solar event dose, which raises the alert and gives the Alert at 250 mSv).
+    texts:
+      es:
+        name: "Eventos de radiación solar"
+        measures: "Aviso de clima espacial sobre eventos de partículas solares."
+      en:
+        name: "Solar radiation events"
+        measures: "Space weather alert about solar particle events."

@@ -1,0 +1,151 @@
+# Neurological, cognitive and behavioral group (spec section 7.9). Draft, to be reviewed by a professional.
+group: NEUROLOGICAL_COGNITIVE_BEHAVIORAL
+texts:
+  es:
+    name: "Neurológico, cognitivo y conductual"
+  en:
+    name: "Neurological, cognitive and behavioral"
+variables:
+  - variable: SLEEP_HOURS
+    unit: h
+    interval: P1D
+    evaluator: SLEEP_HOURS
+    params:
+      shortNight: 6
+      fatigueHigh: 7
+      moodHigh: 10
+    thresholds:
+      ALERT: ["< 6"]
+      OBSERVATION: ["< 7", "> 9"]
+      NORMAL: ["7..9"]
+    persistence:
+      ALERT: 3
+    source: National Sleep Foundation (Hirshkowitz et al., 2015); NASA OCHMO-TB-041 ("an average adult needs 7-9 hours"); NASA-STD-3001 Vol. 1 [V1 6001] (8.5 h sleep period); rules document
+    review: true
+    notes:
+      - Less than 6 h gives Observation the first night and Alert on the third night in a row.
+      - Alert also for one night under 6 h together with fatigue 7-10 and mood (PHQ-9) 10 or more.
+      - Not adjusted for flight - in-flight sleep loss is a risk, not an adaptation (spec section 7.9).
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
+    texts:
+      es:
+        name: Horas de sueño
+        measures: "Horas dormidas por noche."
+        guidance:
+          OBSERVATION: "Revisar el horario de sueño y las condiciones del área de descanso (ruido, luz, temperatura) y priorizar el período de sueño previsto."
+          ALERT: "Comunicar al equipo médico, evitar tareas críticas o de riesgo hasta recuperar el sueño y revisar la carga de trabajo."
+      en:
+        name: Sleep hours
+        measures: "Hours slept per night."
+        guidance:
+          OBSERVATION: "Review the sleep schedule and the conditions of the rest area (noise, light, temperature) and prioritise the planned sleep period."
+          ALERT: "Inform the medical team, avoid critical or risky tasks until sleep recovers and review the workload."
+
+  - variable: SLEEP_QUALITY_PSQI
+    unit: PSQI
+    interval: P30D
+    thresholds:
+      OBSERVATION: ["> 5"]
+      NORMAL: ["<= 5"]
+    source: Buysse et al., 1989
+    review: true
+    notes:
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
+    texts:
+      es:
+        name: Calidad del sueño (PSQI)
+        measures: "Índice de calidad de sueño de Pittsburgh: cuestionario sobre cómo se durmió en el último mes."
+        guidance:
+          OBSERVATION: "Comunicar el resultado al equipo médico y revisar los hábitos y el entorno de sueño."
+      en:
+        name: Sleep quality (PSQI)
+        measures: "Pittsburgh Sleep Quality Index: questionnaire on how one slept over the last month."
+        guidance:
+          OBSERVATION: "Report the result to the medical team and review sleep habits and environment."
+
+  - variable: MOOD_PHQ9
+    unit: PHQ-9
+    interval: P14D
+    thresholds:
+      ALERT: [">= 10"]
+      OBSERVATION: [">= 5"]
+      NORMAL: ["0..4"]
+    source: Kroenke, Spitzer and Williams, 2001
+    review: true
+    notes:
+      - Recommendations marked as proposed in the professional rules document; to be reviewed.
+    texts:
+      es:
+        name: Estado de ánimo (PHQ-9)
+        measures: "Cuestionario PHQ-9 de síntomas depresivos."
+        guidance:
+          OBSERVATION: "Repetir el cuestionario en el próximo control y conversar con el equipo médico si el ánimo afecta las tareas."
+          ALERT: "Solicitar evaluación por el equipo médico o de salud conductual de la misión."
+      en:
+        name: Mood (PHQ-9)
+        measures: "PHQ-9 questionnaire of depressive symptoms."
+        guidance:
+          OBSERVATION: "Repeat the questionnaire at the next check and talk to the medical team if mood affects your tasks."
+          ALERT: "Request an evaluation by the mission's medical or behavioral health team."
+
+  - variable: FATIGUE
+    unit: /10
+    interval: P1D
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 4"]
+      NORMAL: ["0..3"]
+    source: NCCN fatigue guideline (0-10 scale)
+    review: true
+    notes: [The NCCN guideline is for cancer-related fatigue; a professional must confirm it applies., Recommendations marked as proposed in the professional rules document; to be reviewed.]
+    texts:
+      es:
+        name: Fatiga
+        measures: Cansancio percibido en una escala de 0 a 10.
+        guidance:
+          OBSERVATION: "Revisar el descanso, la carga de trabajo y la hidratación; registrar si se acompaña de otros síntomas."
+          ALERT: "Comunicar al equipo médico, suspender tareas críticas o de riesgo y solicitar evaluación."
+      en:
+        name: Fatigue
+        measures: Perceived tiredness on a 0 to 10 scale.
+        guidance:
+          OBSERVATION: "Review rest, workload and hydration; note whether other symptoms come with it."
+          ALERT: "Inform the medical team, stop critical or risky tasks and request an evaluation."
+
+  - variable: STRESS_PSS10
+    unit: PSS-10
+    interval: P30D
+    notes: [Shown as data - the scale has no official cuts.]
+    texts:
+      es:
+        name: "Estrés (PSS-10)"
+        measures: "Estrés percibido según la escala PSS-10."
+      en:
+        name: "Stress (PSS-10)"
+        measures: "Perceived stress on the PSS-10 scale."
+
+  - variable: ATTENTION
+    unit: ms
+    interval: P30D
+    source: Basner et al., 2015
+    notes: [Shown as data - the Cognition battery publishes no fixed cuts.]
+    texts:
+      es:
+        name: "Atención y concentración"
+        measures: "Tiempo de respuesta en las pruebas de atención de la batería Cognition."
+      en:
+        name: "Attention and concentration"
+        measures: "Response time in the attention tests of the Cognition battery."
+
+  - variable: MEMORY
+    unit: "%"
+    interval: P30D
+    source: Basner et al., 2015
+    notes: [Shown as data - the Cognition battery publishes no fixed cuts.]
+    texts:
+      es:
+        name: "Memoria"
+        measures: "Respuestas correctas en las pruebas de memoria de la batería Cognition."
+      en:
+        name: "Memory"
+        measures: "Correct answers in the memory tests of the Cognition battery."

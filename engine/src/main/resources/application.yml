@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: selfcheck-engine
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    streams:
+      application-id: selfcheck-engine
+      properties:
+        auto.offset.reset: earliest
+        # Rejoin quickly after a restart (the previous member is dropped after this timeout).
+        session.timeout.ms: 10000
+        heartbeat.interval.ms: 3000
+
+selfcheck:
+  schema-registry-url: ${SCHEMA_REGISTRY_URL:http://localhost:8085}

@@ -1,0 +1,17 @@
+# Sustained poor sleep (spec section 9): under 6 h of sleep (Observation the first night, Alert on the third in a
+# row) with fatigue, a slightly faster heart rate (still Normal), and systolic pressure, fasting glucose, neutrophils
+# and lymphocytes just past their Observation cut.
+id: poor-sleep
+target: CREW_MEMBER
+texts:
+  es: { name: "Mal sueño sostenido", description: "Menos de 6 horas de sueño (Observación la primera noche y Alerta a la tercera seguida), con fatiga, frecuencia cardíaca levemente aumentada, y presión sistólica, glucemia y neutrófilos levemente aumentados y linfocitos levemente disminuidos (Observación)." }
+  en: { name: "Sustained poor sleep", description: "Less than 6 hours of sleep (Observation the first night and Alert on the third in a row), with fatigue, a slightly faster heart rate, and slightly raised systolic pressure, glucose and neutrophils and slightly low lymphocytes (Observation)." }
+effects:
+  - { variable: SLEEP_HOURS, value: 5.3, until: P3D }
+  - { variable: FATIGUE, value: 5, until: P3D }
+  - { variable: HEART_RATE, value: 82, until: P3D }
+  - { variable: SYSTOLIC_BP, value: 124, until: P3D }
+  - { variable: GLUCOSE, value: 112, until: P3D }
+  - { variable: NEUTROPHILS, value: 7900, until: P3D }
+  - { variable: LYMPHOCYTES, value: 950, until: P3D }
+measureNow: [SLEEP_HOURS, FATIGUE, HEART_RATE, SYSTOLIC_BP, GLUCOSE, NEUTROPHILS, LYMPHOCYTES]

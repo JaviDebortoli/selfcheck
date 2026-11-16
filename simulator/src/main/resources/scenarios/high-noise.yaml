@@ -1,0 +1,9 @@
+# High noise (spec section 9): habitat in Observation and Alert according to the day and night means.
+id: high-noise
+target: HABITAT
+texts:
+  es: { name: "Ruido alto", description: "Un equipo ruidoso eleva el ruido de día y de noche: Observación y Alerta según los promedios." }
+  en: { name: "High noise", description: "Noisy equipment raises day and night noise: Observation and Alert according to the means." }
+effects:
+  - { variable: NOISE_DAY, value: 80, until: P1D }
+  - { variable: NOISE_NIGHT, value: 58, until: P1D }

@@ -1,0 +1,194 @@
+package io.selfcheck.engine
+
+import io.selfcheck.contracts.HealthState.ALERT
+import io.selfcheck.contracts.HealthState.NORMAL
+import io.selfcheck.contracts.HealthState.NOT_EVALUABLE
+import io.selfcheck.contracts.HealthState.OBSERVATION
+import io.selfcheck.contracts.Variable
+import io.selfcheck.engine.rules.ReasonCodes
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+/**
+ * PLAN.md phase 2: every NASA and ISS limit. 600 mSv career, 250 mSv per solar event, CO2 3 mmHg,
+ * noise 60/72 dBA by day and 50/62 dBA by night, dust 0.3 mg/m³ only at the lunar base,
+ * strength 80 % (Observation) and bone density 95 % / 90 % (Alert) of the pre-flight value.
+ */
+class NasaLimitsTest {
+
+    private val engine = EngineHarness()
+
+    @AfterTest
+    fun close() = engine.close()
+
+    @Test
+    fun `career dose - alert at 600 mSv, observation at 480 accumulated`() {
+        engine.history(priorDose = 120.0)
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 100 * DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 360.0, 170 * DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(ReasonCodes.CAREER_DOSE_NEAR_LIMIT, engine.codeOf(Variable.CAREER_EFFECTIVE_DOSE))
+
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 479.9, 175 * DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 480.0, 176 * DAY))
+        assertEquals(ALERT, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals("600", engine.state(Variable.CAREER_EFFECTIVE_DOSE)!!.reason.params["value"])
+    }
+
+    @Test
+    fun `career dose - only the accumulated dose counts, a high early dose rate is not projected`() {
+        engine.history(priorDose = 45.0)
+        // A solar event early in the mission: 320 mSv on day 1 (the old projection gave far above 480).
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 320.0, DAY / 2))
+        assertEquals(NORMAL, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(ReasonCodes.IN_RANGE, engine.codeOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(NORMAL, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
+    }
+
+    @Test
+    fun `solar event alert and dose rate - normal without an event, observation while active, no alert of their own`() {
+        engine.send(measurement(Variable.DOSE_RATE, 21.0, 1_000))
+        assertEquals(NOT_EVALUABLE, engine.stateOf(Variable.DOSE_RATE)) // no solar event alert yet
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 2_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(ReasonCodes.NO_ACTIVE_EVENT, engine.codeOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(NORMAL, engine.stateOf(Variable.DOSE_RATE)) // follows without a new dose-rate reading
+        assertEquals(ReasonCodes.STATE_FROM, engine.codeOf(Variable.DOSE_RATE))
+
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 1.0, 3_000))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(ReasonCodes.SOLAR_EVENT_IN_PROGRESS, engine.codeOf(Variable.SOLAR_PARTICLE_EVENT))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.DOSE_RATE))
+        assertEquals("SOLAR_PARTICLE_EVENT", engine.state(Variable.DOSE_RATE)!!.reason.params["source"])
+        assertTrue(engine.alerts.none { it.variable == Variable.SOLAR_PARTICLE_EVENT || it.variable == Variable.DOSE_RATE })
+        assertTrue(engine.alerts.any { it.variable == Variable.SOLAR_EVENT_DOSE })
+
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 4_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.DOSE_RATE))
+    }
+
+    @Test
+    fun `mission dose takes the career dose state without an alert of its own`() {
+        engine.history(priorDose = 470.0)
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 5.0, DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 10.0, 2 * DAY)) // career 480 mSv
+        assertEquals(OBSERVATION, engine.stateOf(Variable.CAREER_EFFECTIVE_DOSE))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MISSION_EFFECTIVE_DOSE))
+        assertEquals(ReasonCodes.STATE_FROM, engine.codeOf(Variable.MISSION_EFFECTIVE_DOSE))
+        assertTrue(engine.alerts.none { it.variable == Variable.MISSION_EFFECTIVE_DOSE })
+        assertEquals(1, engine.alerts.count { it.variable == Variable.CAREER_EFFECTIVE_DOSE })
+    }
+
+    @Test
+    fun `absorbed dose has no state`() {
+        engine.send(measurement(Variable.ABSORBED_DOSE, 0.4, DAY))
+        assertNull(engine.stateOf(Variable.ABSORBED_DOSE))
+    }
+
+    @Test
+    fun `solar event - observation while active, alert at 250 mSv in the event, normal when it ends`() {
+        engine.history()
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 1_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
+
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 20.0, 2_000))
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 1.0, 3_000))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
+
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 269.9, 4_000))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
+        engine.send(measurement(Variable.MISSION_EFFECTIVE_DOSE, 270.0, 5_000))
+        assertEquals(ALERT, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
+        assertEquals("250", engine.state(Variable.SOLAR_EVENT_DOSE)!!.reason.params["value"])
+
+        engine.send(measurement(Variable.SOLAR_PARTICLE_EVENT, 0.0, 6_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.SOLAR_EVENT_DOSE))
+    }
+
+    @Test
+    fun `CO2 - alert when the 1-hour mean is above 3 mmHg, not on a single spike`() {
+        for (minute in 0 until 60) engine.send(habitat(Variable.CO2, 2.0, minute * 60_000L))
+        engine.send(habitat(Variable.CO2, 9.0, 60 * 60_000L))
+        assertEquals(NORMAL, engine.stateOf(Variable.CO2, "habitat"))
+
+        for (minute in 61 until 120) engine.send(habitat(Variable.CO2, 3.5, minute * 60_000L))
+        assertEquals(ALERT, engine.stateOf(Variable.CO2, "habitat"))
+    }
+
+    @Test
+    fun `CO2 - exactly 3 mmHg is normal`() {
+        engine.send(habitat(Variable.CO2, 3.0, 0))
+        assertEquals(NORMAL, engine.stateOf(Variable.CO2, "habitat"))
+    }
+
+    @Test
+    fun `daytime noise - observation above 60 dBA, alert above 72 dBA (16-hour mean)`() {
+        engine.send(habitat(Variable.NOISE_DAY, 60.0, 0))
+        assertEquals(NORMAL, engine.stateOf(Variable.NOISE_DAY, "habitat"))
+        engine.send(habitat(Variable.NOISE_DAY, 62.0, HOUR)) // mean 61
+        assertEquals(OBSERVATION, engine.stateOf(Variable.NOISE_DAY, "habitat"))
+        engine.send(habitat(Variable.NOISE_DAY, 97.0, 2 * HOUR)) // mean 73
+        assertEquals(ALERT, engine.stateOf(Variable.NOISE_DAY, "habitat"))
+        // 18 hours later the earlier readings have left the 16-hour window: the mean is 72, not above 72.
+        engine.send(habitat(Variable.NOISE_DAY, 72.0, 20 * HOUR))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.NOISE_DAY, "habitat"))
+    }
+
+    @Test
+    fun `night-time noise - observation above 50 dBA, alert above 62 dBA (8-hour mean)`() {
+        engine.send(habitat(Variable.NOISE_NIGHT, 50.0, 0))
+        assertEquals(NORMAL, engine.stateOf(Variable.NOISE_NIGHT, "habitat"))
+        engine.send(habitat(Variable.NOISE_NIGHT, 52.0, HOUR)) // mean 51
+        assertEquals(OBSERVATION, engine.stateOf(Variable.NOISE_NIGHT, "habitat"))
+        engine.send(habitat(Variable.NOISE_NIGHT, 90.0, 2 * HOUR)) // mean 64
+        assertEquals(ALERT, engine.stateOf(Variable.NOISE_NIGHT, "habitat"))
+    }
+
+    @Test
+    fun `airborne dust - alert above 0,3 mg per m3, always evaluated`() {
+        engine.send(habitat(Variable.AIRBORNE_DUST, 0.02, 0))
+        assertEquals(NORMAL, engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
+        engine.send(habitat(Variable.AIRBORNE_DUST, 0.3, 60_000))
+        assertEquals(NORMAL, engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
+        engine.send(habitat(Variable.AIRBORNE_DUST, 0.31, 120_000))
+        assertEquals(ALERT, engine.stateOf(Variable.AIRBORNE_DUST, "habitat"))
+    }
+
+    @Test
+    fun `muscle strength - observation, not alert, below 80 percent of the pre-flight value`() {
+        engine.history(strength = 200.0)
+        engine.send(measurement(Variable.MUSCLE_STRENGTH, 160.0, DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.MUSCLE_STRENGTH))
+        engine.send(measurement(Variable.MUSCLE_STRENGTH, 159.0, 2 * DAY))
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MUSCLE_STRENGTH))
+        assertEquals(ReasonCodes.LOW, engine.codeOf(Variable.MUSCLE_STRENGTH))
+        assertEquals("79.5", engine.state(Variable.MUSCLE_STRENGTH)!!.reason.params["evaluated"])
+        engine.send(measurement(Variable.MUSCLE_STRENGTH, 100.0, 3 * DAY)) // 50 %: still observation, never alert
+        assertEquals(OBSERVATION, engine.stateOf(Variable.MUSCLE_STRENGTH))
+    }
+
+    @Test
+    fun `bone density - alert below 95 percent at hip and spine and below 90 percent at the femoral neck`() {
+        engine.history(bmd = Triple(1.0, 1.2, 0.8))
+        engine.send(measurement(Variable.BMD_HIP, 0.95, DAY))
+        engine.send(measurement(Variable.BMD_SPINE, 1.14, DAY))
+        engine.send(measurement(Variable.BMD_FEMORAL_NECK, 0.72, DAY))
+        assertEquals(NORMAL, engine.stateOf(Variable.BMD_HIP))
+        assertEquals(NORMAL, engine.stateOf(Variable.BMD_SPINE))
+        assertEquals(NORMAL, engine.stateOf(Variable.BMD_FEMORAL_NECK))
+
+        engine.send(measurement(Variable.BMD_HIP, 0.949, 2 * DAY))
+        engine.send(measurement(Variable.BMD_SPINE, 1.139, 2 * DAY))
+        engine.send(measurement(Variable.BMD_FEMORAL_NECK, 0.719, 2 * DAY))
+        assertEquals(ALERT, engine.stateOf(Variable.BMD_HIP))
+        assertEquals(ALERT, engine.stateOf(Variable.BMD_SPINE))
+        assertEquals(ALERT, engine.stateOf(Variable.BMD_FEMORAL_NECK))
+    }
+}

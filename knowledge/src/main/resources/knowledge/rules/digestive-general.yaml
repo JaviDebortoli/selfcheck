@@ -1,0 +1,169 @@
+# Digestive and general symptoms group (spec section 7.10).
+group: DIGESTIVE_GENERAL
+texts:
+  es:
+    name: "Digestivo y síntomas generales"
+  en:
+    name: "Digestive and general symptoms"
+variables:
+  - variable: BODY_TEMPERATURE
+    unit: °C
+    interval: P1D
+    thresholds:
+      ALERT: ["< 35.0", ">= 38.0"]
+      OBSERVATION: ["< 36.0", "> 37.2"]
+      NORMAL: ["36.0..37.2"]
+    source: Rules document; low Alert edge from the NASA hypothermia definition (NASA-STD-3001 Vol. 1 Rev C glossary, below 35 °C)
+    notes:
+      - Axillary. Alert below 35.0 °C, Observation 35.0-35.9 or 37.3-37.9, Alert from 38.0 °C.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): the low side follows the NASA hypothermia definition (below 35 °C); the high side is unchanged."
+      - Stahn 2017 measured a forehead core-temperature estimate, about 1 °C above each astronaut's own baseline, with a resting mean peak of about 37.7 °C (not 38); it does not transfer to axillary readings, so the high side is not adjusted.
+    texts:
+      es:
+        name: Temperatura axilar
+        measures: Temperatura del cuerpo medida en la axila.
+        guidance:
+          OBSERVATION: "Repetir la medición, verificar el termómetro y revisar las condiciones ambientales, la ropa y la actividad física reciente. Comunicar el resultado si persiste."
+          ALERT: "Avisar de inmediato al equipo médico. Si la temperatura es alta, evaluar signos de infección o de enfermedad por calor; si es baja, pasar a un ambiente térmicamente seguro y seguir el protocolo de calentamiento."
+      en:
+        name: Axillary temperature
+        measures: Body temperature measured at the armpit.
+        guidance:
+          OBSERVATION: "Measure again, check the thermometer and review ambient conditions, clothing and recent physical activity. Report the result if it persists."
+          ALERT: "Notify the medical team immediately. If the temperature is high, check for signs of infection or heat illness; if it is low, move to a thermally safe environment and follow the rewarming protocol."
+
+  - variable: NAUSEA
+    unit: /10
+    interval: P1D
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document (scale source to cite)
+    texts:
+      es:
+        name: Náuseas
+        measures: Intensidad de las náuseas en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          OBSERVATION: "Reducir la actividad física, descansar, registrar intensidad y duración, y controlar la hidratación."
+          ALERT: "Suspender la actividad, avisar al equipo médico y evaluar hidratación y electrolitos."
+      en:
+        name: Nausea
+        measures: Nausea intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          OBSERVATION: "Reduce physical activity, rest, note intensity and duration, and keep track of hydration."
+          ALERT: "Stop the activity, notify the medical team and assess hydration and electrolytes."
+
+  - variable: VOMITING
+    unit: /24 h
+    interval: P1D
+    alarmSigns: [VOMIT_WITH_BLOOD, PERSISTENT_GREEN_VOMIT, CANNOT_RETAIN_FLUIDS]
+    evaluator: VOMITING
+    params:
+      alertCount: 3
+      liquidStool: 7
+      symptomHigh: 7
+    source: NASA OCHMO-MTB-004 space adaptation sickness grading (moderate "no more than 2 episodes of vomiting", severe "more than 2 episodes")
+    notes:
+      - Alert - 3 or more episodes, or 1-2 together with liquid stool (Bristol 7), abdominal pain 7-10, nausea 7-10 or blood in the stool (black tarry stool or heavy blood).
+      - Observation - 1-2 episodes without those symptoms.
+    texts:
+      es:
+        name: Vómitos
+        measures: Episodios de vómito en las últimas 24 horas.
+        guidance:
+          OBSERVATION: "Registrar cantidad, frecuencia y características; tomar líquidos en pequeñas cantidades si se toleran."
+          ALERT: "Evaluación médica prioritaria y control de signos vitales y electrolitos. Ante sangrado, dolor intenso o inestabilidad, activar el protocolo urgente."
+      en:
+        name: Vomiting
+        measures: Vomiting episodes in the last 24 hours.
+        guidance:
+          OBSERVATION: "Note amount, frequency and appearance; drink small amounts of fluid if tolerated."
+          ALERT: "Priority medical evaluation and monitoring of vital signs and electrolytes. With bleeding, severe pain or instability, activate the urgent protocol."
+
+  - variable: ABDOMINAL_PAIN
+    unit: /10
+    interval: P1D
+    alarmSigns: [SUDDEN_ABDOMINAL_PAIN, RIGID_ABDOMEN]
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document (scale source to cite)
+    texts:
+      es:
+        name: Dolor abdominal
+        measures: Intensidad del dolor abdominal en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          OBSERVATION: "Registrar intensidad, localización y duración; controlar deposiciones y alimentación."
+          ALERT: "Interrumpir la actividad y solicitar evaluación médica inmediata. No tomar alimentos ni laxantes por cuenta propia ante sospecha de abdomen agudo."
+      en:
+        name: Abdominal pain
+        measures: Abdominal pain intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          OBSERVATION: "Note intensity, location and duration; keep track of bowel movements and diet."
+          ALERT: "Stop the activity and request an immediate medical evaluation. Do not take food or laxatives on your own if an acute abdomen is suspected."
+
+  - variable: BOWEL_FREQUENCY
+    unit: /day
+    interval: P1D
+    alarmSigns: [NO_STOOL_OR_GAS_WITH_DISTENSION]
+    evaluator: BOWEL_FREQUENCY
+    params:
+      maxPerDay: 3
+      minPerWeek: 3
+      urineSpecificGravityLow: 1.005
+      urineSpecificGravityHigh: 1.030
+      sodiumLow: 135
+      sodiumHigh: 145
+    source: Rules document (range source to cite)
+    notes:
+      - Normal from 3 per day to 3 per week; the weekly count needs 7 days of records.
+      - Alert also for diarrhoea with dehydration - more than 3 per day with urine specific gravity or sodium out of range.
+    texts:
+      es:
+        name: Frecuencia de deposiciones
+        measures: "Deposiciones por día."
+        guidance:
+          OBSERVATION: "Registrar frecuencia, hidratación y alimentación; favorecer la movilidad y ajustar los líquidos según el plan de misión."
+          ALERT: "Evaluación médica urgente, sobre todo ante distensión, dolor, vómitos o imposibilidad de eliminar gases."
+      en:
+        name: Bowel movements
+        measures: "Bowel movements per day."
+        guidance:
+          OBSERVATION: "Note frequency, hydration and diet; encourage movement and adjust fluids according to the mission plan."
+          ALERT: "Urgent medical evaluation, especially with distension, pain, vomiting or inability to pass gas."
+
+  - variable: STOOL_FORM_BRISTOL
+    unit: Bristol
+    interval: P1D
+    alarmSigns: [BLACK_TARRY_STOOL, HEAVY_BLOOD_IN_STOOL]
+    thresholds:
+      OBSERVATION: ["< 3", "> 4"]
+      NORMAL: ["3..4"]
+    source: Bristol stool scale (Lewis and Heaton, 1997)
+    texts:
+      es:
+        name: Características de las heces
+        measures: Forma de las heces según la escala de Bristol (1 a 7, autoevaluación).
+        guidance:
+          OBSERVATION: "Registrar consistencia, color y frecuencia, y controlar la evolución."
+          ALERT: "Comunicar de inmediato al equipo médico y evaluar un posible sangrado digestivo."
+      en:
+        name: Stool form
+        measures: Stool form on the Bristol scale (1 to 7, self-assessment).
+        guidance:
+          OBSERVATION: "Note consistency, colour and frequency, and watch how it evolves."
+          ALERT: "Inform the medical team immediately and assess possible digestive bleeding."
+
+  - variable: APPETITE
+    unit: /10
+    interval: P1D
+    notes: [Shown as data - the nutritional alert comes from caloric intake, so the same problem is not counted twice.]
+    texts:
+      es:
+        name: "Apetito"
+        measures: "Apetito percibido en una escala de 0 a 10."
+      en:
+        name: "Appetite"
+        measures: "Perceived appetite on a 0 to 10 scale."

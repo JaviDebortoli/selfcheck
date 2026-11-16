@@ -1,0 +1,207 @@
+# Musculoskeletal and bone group (spec section 7.6).
+# Strength, bone density and body mass are the only rules that use the pre-flight baseline (spec section 7.2).
+group: MUSCULOSKELETAL_BONE
+texts:
+  es:
+    name: "Musculoesquelético y óseo"
+  en:
+    name: "Musculoskeletal and bone"
+variables:
+  - variable: MUSCLE_STRENGTH
+    unit: N·m
+    interval: P7D
+    reference: PREFLIGHT_MUSCLE_STRENGTH
+    thresholds:
+      OBSERVATION: ["< 80"]
+      NORMAL: [">= 80"]
+    source: NASA-STD-3001 Vol. 1 [V1 4024]; OCHMO-TB-031 ("These requirements are not absolute thresholds, crewmembers may fall below these levels")
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P7D).
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): below 80 % is Observation, not Alert - NASA states the 80 % requirement is not an absolute threshold ([V1 4024], OCHMO-TB-031)."
+    texts:
+      es:
+        name: Fuerza muscular
+        measures: "Fuerza muscular máxima comparada con el valor previo al vuelo."
+        guidance:
+          OBSERVATION: "Suspender los ejercicios con riesgo de lesión y solicitar evaluación médica y funcional. El equipo revisa el programa de ejercicio y la estrategia nutricional."
+      en:
+        name: Muscle strength
+        measures: "Maximum muscle strength compared with the pre-flight value."
+        guidance:
+          OBSERVATION: "Stop exercises with a risk of injury and request a medical and functional evaluation. The team reviews the exercise program and the nutrition strategy."
+
+  - variable: BMD_HIP
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_HIP
+    thresholds:
+      ALERT: ["< 95"]
+      NORMAL: [">= 95"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
+    texts:
+      es:
+        name: Densidad mineral ósea (cadera)
+        measures: "Densidad del hueso de la cadera comparada con el valor previo al vuelo."
+        guidance:
+          ALERT: "Solicitar evaluación médica prioritaria, revisar el riesgo de fractura y adaptar el entrenamiento bajo supervisión. Revisar el entrenamiento de resistencia y el plan nutricional."
+      en:
+        name: Bone mineral density (hip)
+        measures: "Hip bone density compared with the pre-flight value."
+        guidance:
+          ALERT: "Request a priority medical evaluation, review the fracture risk and adapt training under supervision. Review resistance training and the nutrition plan."
+
+  - variable: BMD_SPINE
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_SPINE
+    thresholds:
+      ALERT: ["< 95"]
+      NORMAL: [">= 95"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
+    texts:
+      es:
+        name: Densidad mineral ósea (columna)
+        measures: "Densidad del hueso de la columna comparada con el valor previo al vuelo."
+        guidance:
+          ALERT: "Solicitar evaluación médica prioritaria, revisar el riesgo de fractura y adaptar el entrenamiento bajo supervisión. Revisar el entrenamiento de resistencia y el plan nutricional."
+      en:
+        name: Bone mineral density (spine)
+        measures: "Spine bone density compared with the pre-flight value."
+        guidance:
+          ALERT: "Request a priority medical evaluation, review the fracture risk and adapt training under supervision. Review resistance training and the nutrition plan."
+
+  - variable: BMD_FEMORAL_NECK
+    unit: g/cm²
+    interval: P30D
+    reference: PREFLIGHT_BMD_FEMORAL_NECK
+    thresholds:
+      ALERT: ["< 90"]
+      NORMAL: [">= 90"]
+    source: NASA-STD-3001 Vol. 1 [V1 4027]
+    notes:
+      - Evaluated as % of the pre-flight value. Interval provisional (P30D).
+      - NASA measures bone density only before and after flight ("no system to date measures bone density in-flight", OCHMO bone brief); evaluating it in flight with the [V1 4027] percentages is a team decision.
+    texts:
+      es:
+        name: Densidad mineral ósea (cuello del fémur)
+        measures: "Densidad del cuello del fémur comparada con el valor previo al vuelo."
+        guidance:
+          ALERT: "Solicitar evaluación médica prioritaria, revisar el riesgo de fractura y adaptar el entrenamiento bajo supervisión. Revisar el entrenamiento de resistencia y el plan nutricional."
+      en:
+        name: Bone mineral density (femoral neck)
+        measures: "Femoral neck bone density compared with the pre-flight value."
+        guidance:
+          ALERT: "Request a priority medical evaluation, review the fracture risk and adapt training under supervision. Review resistance training and the nutrition plan."
+
+  - variable: MUSCULOSKELETAL_PAIN
+    unit: /10
+    interval: P1D
+    alarmSigns: [TRAUMA_OR_DEFORMITY]
+    thresholds:
+      ALERT: [">= 7"]
+      OBSERVATION: [">= 1"]
+      NORMAL: ["0..0"]
+    source: Rules document
+    texts:
+      es:
+        name: Dolor muscular u óseo
+        measures: Intensidad del dolor muscular u óseo en una escala de 0 a 10 (autoevaluación).
+        guidance:
+          OBSERVATION: "Registrar intensidad, localización, duración y relación con el ejercicio. Reducir o suspender temporalmente el ejercicio que lo desencadena y comunicarlo al equipo médico."
+          ALERT: "Interrumpir la actividad y solicitar evaluación médica prioritaria. No continuar el entrenamiento ni automedicarse."
+      en:
+        name: Muscle or bone pain
+        measures: Muscle or bone pain intensity on a 0 to 10 scale (self-assessment).
+        guidance:
+          OBSERVATION: "Note intensity, location, duration and relation to exercise. Reduce or temporarily stop the exercise that triggers it and inform the medical team."
+          ALERT: "Stop the activity and request a priority medical evaluation. Do not continue training or self-medicate."
+
+  - variable: PHYSICAL_ACTIVITY
+    unit: min
+    interval: P1D
+    reference: DAILY_ACTIVITY
+    thresholds:
+      OBSERVATION: ["< 100"]
+      NORMAL: [">= 100"]
+    persistence:
+      OBSERVATION: 3
+    source: Rules document
+    notes: [Evaluated as % of the daily target; below target 3 days in a row gives Observation.]
+    texts:
+      es:
+        name: Actividad física
+        measures: Minutos de ejercicio del día comparados con el objetivo diario del plan de ejercicio.
+        guidance:
+          OBSERVATION: "Registrar los ejercicios no realizados y los motivos (fatiga, dolor, falta de tiempo o malestar). Retomar el programa según el equipo de entrenamiento, sin aumentar bruscamente la intensidad para recuperar sesiones."
+      en:
+        name: Physical activity
+        measures: Exercise minutes of the day compared with the daily target of the exercise plan.
+        guidance:
+          OBSERVATION: "Note the missed exercises and why (fatigue, pain, lack of time or malaise). Resume the program as the training team indicates, without sharply increasing intensity to make up sessions."
+
+  - variable: BODY_MASS
+    unit: kg
+    interval: P1D
+    reference: PREFLIGHT_BODY_MASS
+    scale: PERCENT_CHANGE_FROM_REFERENCE
+    thresholds:
+      ALERT: ["> 10"]
+      OBSERVATION: ["> 5"]
+      NORMAL: ["<= 5"]
+    persistence:
+      OBSERVATION: 3
+    source: Rules document (proposed rule); cuts from the ISS mean loss of 2.8-4.4 % ("1% to 5% ... typical", Zwart et al. 2014; NASA 2021)
+    review: true
+    notes:
+      - Evaluated as % change from the pre-flight value, up or down.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): a change up to 5 % is typical in flight (Zwart 2014; NASA 2021). Observation above 5 % three days in a row, Alert above 10 %."
+    texts:
+      es:
+        name: Masa corporal
+        measures: Peso corporal comparado con el valor previo al vuelo (cambio en %).
+        guidance:
+          OBSERVATION: "Verificar el peso en condiciones estandarizadas y revisar el registro de ingesta calórica, hidratación y actividad física. Comunicar el cambio al equipo médico y nutricional."
+          ALERT: "Solicitar evaluación médica y nutricional prioritaria, sobre todo si se acompaña de debilidad o pérdida funcional."
+      en:
+        name: Body mass
+        measures: Body weight compared with the pre-flight value (% change).
+        guidance:
+          OBSERVATION: "Check the weight under standard conditions and review the record of caloric intake, hydration and physical activity. Report the change to the medical and nutrition team."
+          ALERT: "Request a priority medical and nutritional evaluation, especially with weakness or loss of function."
+
+  - variable: BONE_RESORPTION_MARKERS
+    unit: ""
+    interval: P30D
+    evaluator: BONE_RESORPTION
+    params:
+      urinaryCalciumHigh: 300
+      upperLimitFactor: 1.5
+    persistence:
+      OBSERVATION: 2
+    source: Rules document; in-flight resorption rise of about 50 % from Smith et al. 2005 and NASA 2021
+    review: true
+    notes:
+      - CTX or NTX; the marker and the laboratory reference range arrive with the measurement.
+      - Normal from the laboratory lower limit up to 1.5 times its upper limit; out of that band two analyses in a row gives Observation.
+      - Alert when out of that band together with bone density in Alert or urinary calcium above 300 mg/24 h.
+      - "In-flight average instead of the ground value, per the team decision (2026-11-15): bone resorption rises about 50 % in flight (Smith 2005; NASA 2021), so the upper limit is 1.5 times the laboratory one."
+      - Interval provisional (P30D).
+    texts:
+      es:
+        name: Marcadores de resorción ósea
+        measures: "CTX o NTX: sustancias que se liberan en la sangre cuando el hueso se degrada."
+        guidance:
+          OBSERVATION: "Comunicar el resultado, verificar que se haya usado el mismo método y laboratorio, y relacionarlo con la densidad ósea y el calcio urinario."
+          ALERT: "Solicitar evaluación médica prioritaria. El equipo revisa el entrenamiento, la nutrición y la necesidad de estudios complementarios."
+      en:
+        name: Bone resorption markers
+        measures: "CTX or NTX: substances released into the blood when bone breaks down."
+        guidance:
+          OBSERVATION: "Report the result, check that the same method and laboratory were used, and relate it to bone density and urinary calcium."
+          ALERT: "Request a priority medical evaluation. The team reviews training, nutrition and the need for further tests."

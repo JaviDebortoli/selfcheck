@@ -1,0 +1,10 @@
+# Solar particle event (spec section 9): Observation while active; Alert when the event dose reaches 250 mSv.
+# A severe event behind light shielding: 40 mSv/h for 8 hours (about 320 mSv).
+id: solar-event
+target: ALL_CREW
+texts:
+  es: { name: "Evento solar", description: "Evento de partículas solares: Observación mientras está activo y Alerta si la dosis del evento llega a 250 mSv." }
+  en: { name: "Solar event", description: "Solar particle event: Observation while active and Alert if the event dose reaches 250 mSv." }
+effects:
+  - { variable: SOLAR_PARTICLE_EVENT, value: 1, until: PT8H }
+  - { variable: DOSE_RATE, value: 40000, until: PT8H }
